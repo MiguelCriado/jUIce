@@ -88,7 +88,7 @@ namespace Muui
 
 		}
 
-		private void SetProperties(T properties)
+		protected virtual void SetProperties(T properties)
 		{
 			this.properties = properties;
 			propertiesHaveBeenSet = true;
