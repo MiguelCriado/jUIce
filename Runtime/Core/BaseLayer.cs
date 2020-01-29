@@ -9,10 +9,11 @@ namespace Muui
 	{
 		protected Dictionary<Type, T> registeredScreens;
 
-		protected BaseLayer(Dictionary<Type, T> _registeredScreens)
+		protected virtual void Awake()
 		{
-			registeredScreens = _registeredScreens;
+			registeredScreens = new Dictionary<Type, T>();
 		}
+
 		public abstract Task ShowScreen(T screen);
 
 		public async Task ShowScreen<TScreen>() where TScreen : T
@@ -77,7 +78,7 @@ namespace Muui
 			return Task.WhenAll(tasks);
 		}
 
-		public void ReparentScreen(IScreenController controller, Transform screenTransform)
+		public virtual void ReparentScreen(IScreenController controller, Transform screenTransform)
 		{
 			screenTransform.SetParent(transform, false);
 		}
@@ -113,11 +114,6 @@ namespace Muui
 		public bool IsScreenRegistered<TScreen>() where TScreen : T
 		{
 			return registeredScreens.ContainsKey(typeof(TScreen));
-		}
-
-		protected virtual void Awake()
-		{
-			registeredScreens = new Dictionary<Type, T>();
 		}
 
 		protected virtual void ProcessScreenRegister(T controller)
