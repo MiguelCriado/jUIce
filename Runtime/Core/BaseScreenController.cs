@@ -26,7 +26,11 @@ namespace Muui
 			set => outTransition = value;
 		}
 
-		protected T Properties => properties;
+		protected T Properties
+		{
+			get => properties;
+			set => properties = value;
+		}
 
 		[Header("Screen Animations")]
 		[SerializeField] private BaseTransition inTransition;
@@ -51,6 +55,8 @@ namespace Muui
 					return;
 				}
 			}
+
+			OnShow();
 
 			if (gameObject.activeSelf)
 			{
@@ -93,6 +99,11 @@ namespace Muui
 			this.properties = properties;
 			propertiesHaveBeenSet = true;
 			OnPropertiesSet();
+		}
+
+		protected virtual void OnShow()
+		{
+
 		}
 
 		private void CleanUpProperties()
