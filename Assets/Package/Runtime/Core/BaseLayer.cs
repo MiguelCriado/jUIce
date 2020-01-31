@@ -14,12 +14,15 @@ namespace Muui
 			registeredScreens = new Dictionary<Type, T>();
 		}
 
+		public virtual void Initialize()
+		{
+
+		}
+
 		public abstract Task ShowScreen(T screen);
 
-		public async Task ShowScreen<TScreen>() where TScreen : T
+		public async Task ShowScreen(Type screenType)
 		{
-			Type screenType = typeof(TScreen);
-
 			if (registeredScreens.TryGetValue(screenType, out T controller))
 			{
 				await ShowScreen(controller);
@@ -32,12 +35,9 @@ namespace Muui
 
 		public abstract Task ShowScreen<TProps>(T screen, TProps properties) where TProps : IScreenProperties;
 
-		public async Task ShowScreen<TScreen, TProps>(TProps properties)
-			where TScreen: T
+		public async Task ShowScreen<TProps>(Type screenType, TProps properties)
 			where TProps : IScreenProperties
 		{
-			Type screenType = typeof(TScreen);
-
 			if (registeredScreens.TryGetValue(screenType, out T controller))
 			{
 				await ShowScreen(controller, properties);
@@ -50,10 +50,8 @@ namespace Muui
 
 		public abstract Task HideScreen(T screen);
 
-		public async Task HideScreen<TScreen>() where TScreen : T
+		public async Task HideScreen(Type screenType)
 		{
-			Type screenType = typeof(TScreen);
-
 			if (registeredScreens.TryGetValue(screenType, out T controller))
 			{
 				await HideScreen(controller);

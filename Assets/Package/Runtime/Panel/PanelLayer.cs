@@ -25,10 +25,12 @@ namespace Muui
 		{
 			return screen.Show();
 		}
+
 		public override Task ShowScreen<TProps>(IPanelController screen, TProps properties)
 		{
 			return screen.Show(properties);
 		}
+
 		public override Task HideScreen(IPanelController screen)
 		{
 			return screen.Hide();
