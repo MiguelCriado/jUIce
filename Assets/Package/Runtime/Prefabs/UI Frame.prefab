@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5448963748948957083}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Blocker Panel Layer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -46,7 +46,7 @@ GameObject:
   - component: {fileID: 4422276970919599870}
   - component: {fileID: 3358791340272445954}
   - component: {fileID: 7109450249012334480}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Background Shadow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -118,7 +118,7 @@ GameObject:
   m_Component:
   - component: {fileID: 317190809004167226}
   - component: {fileID: 839237264997494276}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Panel Layer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -174,7 +174,7 @@ GameObject:
   m_Component:
   - component: {fileID: 580014311859651322}
   - component: {fileID: 4640776235260798273}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Priority Window Layer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -290,7 +290,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6795709429495663037}
   - component: {fileID: 3218573135134717877}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Window Layer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -341,7 +341,7 @@ GameObject:
   - component: {fileID: 1232407203449931225}
   - component: {fileID: 4221413306178303942}
   - component: {fileID: 8510543791105327019}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Main Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -442,7 +442,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 352894948730912469}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Prioritary Panel Layer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -477,7 +477,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 457209538422478767}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Tutorial Panel Layer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -614,7 +614,7 @@ Camera:
   m_Depth: 1
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 32
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
