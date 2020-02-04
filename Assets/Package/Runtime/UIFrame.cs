@@ -35,10 +35,7 @@ namespace Muui
 			}
 		}
 
-		public Camera UICamera
-		{
-			get { return MainCanvas.worldCamera; }
-		}
+		public Camera UICamera => MainCanvas.worldCamera;
 
 		[SerializeField] private bool initializeOnAwake;
 
