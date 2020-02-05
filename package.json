@@ -1,7 +1,7 @@
 {
-	"name": "com.mcriado.muui",
-	"displayName": "muui Framework",
+	"name": "com.mcriado.Muui",
+	"displayName": "Muui Framework",
 	"version": "0.0.1",
 	"unity": "2019.3",
-	"description": ""
+	"description": "A UI Framework built atop of uGui."
 }

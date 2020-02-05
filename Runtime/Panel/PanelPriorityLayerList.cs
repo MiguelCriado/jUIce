@@ -35,7 +35,7 @@ namespace Muui
 
 			for (int i = 0; i < paralayers.Count; i++)
 			{
-				lookup.Add(paralayers[i].Priority, paralayers[i].TargetParent);
+				lookup.Add(paralayers[i].Priority, paralayers[i].TargetTransform);
 			}
 		}
 	}

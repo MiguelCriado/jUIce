@@ -12,19 +12,19 @@ namespace Muui
 			set => priority = value;
 		}
 
-		public Transform TargetParent
+		public Transform TargetTransform
 		{
-			get => targetParent;
-			set => targetParent = value;
+			get => targetTransform;
+			set => targetTransform = value;
 		}
 
-		[SerializeField]private PanelPriority priority;
-		[SerializeField] private Transform targetParent;
+		[SerializeField] private PanelPriority priority;
+		[SerializeField] private Transform targetTransform;
 
-		public PanelPriorityLayerListEntry(PanelPriority priority, Transform targetParent)
+		public PanelPriorityLayerListEntry(PanelPriority priority, Transform targetTransform)
 		{
 			this.priority = priority;
-			this.targetParent = targetParent;
+			this.targetTransform = targetTransform;
 		}
 	}
 }

@@ -46,6 +46,11 @@ namespace Muui
 
 		private Dictionary<Type, ScreenEntry> registeredScreens;
 
+		private void Reset()
+		{
+			initializeOnAwake = true;
+		}
+
 		private void Awake()
 		{
 			registeredScreens = new Dictionary<Type, ScreenEntry>();
@@ -184,6 +189,13 @@ namespace Muui
 			{
 				Debug.LogError($"The Screen type {typeof(T).Name} must implement {typeof(IPanelController).Name} or {typeof(IWindowController).Name}.");
 			}
+		}
+
+		public bool IsScreenRegistered<T>() where T : IScreenController
+		{
+			Type screenType = typeof(T);
+
+			return registeredScreens.ContainsKey(screenType);
 		}
 
 		private bool IsPrefabValid(IScreenController screen)
