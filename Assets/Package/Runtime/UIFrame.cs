@@ -28,7 +28,7 @@ namespace Muui
 			{
 				if (mainCanvas == null)
 				{
-					mainCanvas = GetComponent<Canvas>();
+					mainCanvas = GetComponentInChildren<Canvas>();
 				}
 
 				return mainCanvas;
@@ -131,7 +131,12 @@ namespace Muui
 				if (screenEntry.ReferenceCount <= 0)
 				{
 					Component instanceAsComponent = screenEntry.ScreenInstance as Component;
-					Destroy(instanceAsComponent.gameObject);
+
+					if (instanceAsComponent != null)
+					{
+						Destroy(instanceAsComponent.gameObject);
+					}
+
 					registeredScreens.Remove(screenType);
 				}
 			}
@@ -237,8 +242,10 @@ namespace Muui
 			{
 				Component prefabAsComponent = screenPrefab as Component;
 				Component screenInstance = Instantiate(prefabAsComponent, mainCanvas.transform);
-				screenEntry = new ScreenEntry(screenPrefab, (IScreenController)screenInstance);
+				IScreenController screenController = (IScreenController) screenInstance;
+				screenEntry = new ScreenEntry(screenPrefab, screenController);
 				layer.RegisterScreen((T)screenEntry.ScreenInstance);
+				layer.ReparentScreen(screenController, screenInstance.transform);
 				registeredScreens.Add(screenType, screenEntry);
 			}
 
