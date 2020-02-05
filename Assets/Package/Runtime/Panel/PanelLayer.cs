@@ -5,6 +5,8 @@ namespace Muui
 {
 	public class PanelLayer : BaseLayer<IPanelController>
 	{
+		internal PanelPriorityLayerList PriorityLayers { get => priorityLayers; set => priorityLayers = value; }
+
 		[SerializeField] private PanelPriorityLayerList priorityLayers = null;
 
 		public override void ReparentScreen(IScreenController controller, Transform screenTransform)

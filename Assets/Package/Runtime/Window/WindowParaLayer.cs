@@ -9,6 +9,11 @@ namespace Muui
 
 		private List<GameObject> containedScreens = new List<GameObject>();
 
+		internal void SetBackgroundShadow(GameObject backgroundShadow)
+		{
+			this.backgroundShadow = backgroundShadow;
+		}
+
 		public void AddScreen(Transform screenTransform)
 		{
 			screenTransform.SetParent(transform, false);

@@ -36,6 +36,11 @@ namespace Muui
 			screensTransitioning = new HashSet<IScreenController>();
 		}
 
+		internal void SetPriorityWindow(WindowParaLayer priorityParaLayer)
+		{
+			this.priorityParaLayer = priorityParaLayer;
+		}
+
 		public override Task ShowScreen(IWindowController screen)
 		{
 			return ShowScreen<IWindowProperties>(screen, null);
