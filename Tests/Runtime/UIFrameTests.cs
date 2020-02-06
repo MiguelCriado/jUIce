@@ -28,7 +28,7 @@ namespace Muui.Tests
 		}
 
 		[UnityTest]
-		public IEnumerator _00UIFrameObjectIsCreated()
+		public IEnumerator _00_UIFrameObjectIsCreated()
 		{
 			Assert.NotNull(uiFrame);
 			yield return null;
