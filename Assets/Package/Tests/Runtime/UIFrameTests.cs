@@ -9,7 +9,6 @@ namespace Muui.Tests
 {
 	public class UIFrameTests
 	{
-		private static readonly string UIFrameAddress = "UIFrameDefault";
 		private static readonly string PanelAPath = "Assets/Package/Tests/Runtime/Prefabs/Panel A.prefab";
 
 		private UIFrame uiFrame;
