@@ -12,9 +12,9 @@
 		{
 			get
 			{
-				if (Properties != null)
+				if (CurrentProperties != null)
 				{
-					return Properties.Priority;
+					return CurrentProperties.Priority;
 				}
 				else
 				{
