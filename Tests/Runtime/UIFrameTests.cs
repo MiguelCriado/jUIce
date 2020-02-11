@@ -10,6 +10,7 @@ namespace Muui.Tests
 	public class UIFrameTests
 	{
 		private static readonly string PanelAPath = "Assets/Package/Tests/Runtime/Prefabs/Panel A.prefab";
+		private static readonly string WindowWithPropertiesPath = "Assets/Package/Tests/Runtime/Prefabs/Window With Properties.prefab";
 
 		private UIFrame uiFrame;
 
@@ -140,6 +141,18 @@ namespace Muui.Tests
 			uiFrame.DisposeScreen(panelAPrefab);
 
 			Assert.IsFalse(uiFrame.IsScreenRegistered<PanelA>());
+			yield return null;
+		}
+
+		[UnityTest]
+		public IEnumerator RegisterScreen_WhenWindowWithPropertiesRegistered_ScreenIsRegistered()
+		{
+			uiFrame.Initialize();
+			WindowWithProperties windowPrefab = AssetDatabase.LoadAssetAtPath<WindowWithProperties>(WindowWithPropertiesPath);
+
+			uiFrame.RegisterScreen(windowPrefab);
+
+			Assert.IsTrue(uiFrame.IsScreenRegistered<WindowWithProperties>());
 			yield return null;
 		}
 	}
