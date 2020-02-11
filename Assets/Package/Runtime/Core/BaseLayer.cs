@@ -116,13 +116,14 @@ namespace Muui
 
 		protected virtual void ProcessScreenRegister(T controller)
 		{
+			registeredScreens.Add(controller.GetType(), controller);
 			controller.OnScreenDestroyed += OnScreenDestroyed;
-			registeredScreens.Remove(controller.GetType());
 		}
 
 		protected virtual void ProcessScreenUnregister(T controller)
 		{
-
+			controller.OnScreenDestroyed += OnScreenDestroyed;
+			registeredScreens.Remove(controller.GetType());
 		}
 
 		private void OnScreenDestroyed(IScreenController screen)
