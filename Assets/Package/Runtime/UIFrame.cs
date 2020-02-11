@@ -37,6 +37,8 @@ namespace Muui
 
 		public Camera UICamera => MainCanvas.worldCamera;
 
+		public IWindowController CurrentWindow => windowLayer.CurrentWindow;
+
 		[SerializeField] private bool initializeOnAwake;
 
 		private Canvas mainCanvas;
@@ -102,19 +104,19 @@ namespace Muui
 			{
 				Type screenType = typeof(T);
 
-				if (typeof(BasePanelController).IsAssignableFrom(screenType))
+				if (typeof(IPanelController).IsAssignableFrom(screenType))
 				{
-					BasePanelController screenAsPanel = screenPrefab as BasePanelController;
+					IPanelController screenAsPanel = screenPrefab as IPanelController;
 					ProcessScreenRegister(screenAsPanel, panelLayer);
 				}
-				else if (typeof(BaseWindowController).IsAssignableFrom(screenType))
+				else if (typeof(IWindowController).IsAssignableFrom(screenType))
 				{
-					BaseWindowController screenAsWindow = screenPrefab as BaseWindowController;
+					IWindowController screenAsWindow = screenPrefab as IWindowController;
 					ProcessScreenRegister(screenAsWindow, windowLayer);
 				}
 				else
 				{
-					Debug.LogError($"The Screen type {typeof(T).Name} must implement {typeof(BasePanelController).Name} or {typeof(BaseWindowController).Name}.");
+					Debug.LogError($"The Screen type {typeof(T).Name} must implement {typeof(IPanelController).Name} or {typeof(IWindowController).Name}.");
 				}
 			}
 		}
