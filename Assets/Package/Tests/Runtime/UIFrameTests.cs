@@ -155,5 +155,18 @@ namespace Muui.Tests
 			Assert.IsTrue(uiFrame.IsScreenRegistered<WindowWithProperties>());
 			yield return null;
 		}
+
+		[UnityTest]
+		public IEnumerator ShowScreen_WhenWindowWithPropertiesRegistered_ShowScreen()
+		{
+			uiFrame.Initialize();
+			WindowWithProperties windowPrefab = AssetDatabase.LoadAssetAtPath<WindowWithProperties>(WindowWithPropertiesPath);
+			uiFrame.RegisterScreen(windowPrefab);
+
+			uiFrame.ShowScreen<WindowWithProperties>();
+
+			Assert.IsTrue(uiFrame.CurrentWindow.GetType() == typeof(WindowWithProperties));
+			yield return null;
+		}
 	}
 }
