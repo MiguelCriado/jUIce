@@ -37,6 +37,8 @@ namespace Muui
 
 		public Camera UICamera => MainCanvas.worldCamera;
 
+		public IWindowController CurrentWindow => windowLayer.CurrentWindow;
+
 		[SerializeField] private bool initializeOnAwake;
 
 		private Canvas mainCanvas;
