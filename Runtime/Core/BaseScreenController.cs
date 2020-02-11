@@ -26,7 +26,7 @@ namespace Muui
 			set => outTransition = value;
 		}
 
-		protected T Properties
+		protected T CurrentProperties
 		{
 			get => properties;
 			set => properties = value;
