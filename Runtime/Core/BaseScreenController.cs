@@ -48,6 +48,8 @@ namespace Muui
 				{
 					CleanUpProperties();
 					SetProperties(typedProperties);
+					propertiesHaveBeenSet = true;
+					OnPropertiesSet();
 				}
 				else
 				{
@@ -97,8 +99,6 @@ namespace Muui
 		protected virtual void SetProperties(T properties)
 		{
 			this.properties = properties;
-			propertiesHaveBeenSet = true;
-			OnPropertiesSet();
 		}
 
 		protected virtual void OnShow()
