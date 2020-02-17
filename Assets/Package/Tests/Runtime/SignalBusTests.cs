@@ -5,7 +5,7 @@ using UnityEngine.TestTools;
 
 namespace Muui.Tests
 {
-	public class SignalBusTests : MonoBehaviour
+	public class SignalBusTests
 	{
 		private class TestSignal : ISignal
 		{

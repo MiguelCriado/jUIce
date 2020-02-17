@@ -66,24 +66,22 @@ namespace Muui
 			}
 			else
 			{
-				DoAnimation(inTransition, OnInAnimationFinished, true);
+				await DoAnimation(inTransition, true);
 
-				while (IsVisible == false)
-				{
-					await Task.Yield();
-				}
+				IsVisible = true;
+				OnInTransitionFinished?.Invoke(this);
 			}
 		}
 
 		public async Task Hide(bool animate = true)
 		{
-			DoAnimation(animate ? outTransition : null, OnOutAnimationFinished, false);
-			CleanUpProperties();
+			await DoAnimation(animate ? outTransition : null, false);
 
-			while (IsVisible)
-			{
-				await Task.Yield();
-			}
+			IsVisible = false;
+			gameObject.SetActive(false);
+			OnOutTransitionFinished?.Invoke(this);
+
+			CleanUpProperties();
 		}
 
 		protected virtual void OnPropertiesSet()
@@ -116,12 +114,11 @@ namespace Muui
 			propertiesHaveBeenSet = false;
 		}
 
-		private void DoAnimation(BaseTransition targetTransition, Action callbackWhenFinished, bool isVisible)
+		private async Task DoAnimation(BaseTransition targetTransition, bool isVisible)
 		{
 			if (targetTransition == null)
 			{
 				gameObject.SetActive(isVisible);
-				callbackWhenFinished?.Invoke();
 			}
 			else
 			{
@@ -130,21 +127,8 @@ namespace Muui
 					gameObject.SetActive(true);
 				}
 
-				targetTransition.Animate(transform, callbackWhenFinished);
+				await targetTransition.Animate(transform);
 			}
-		}
-
-		private void OnInAnimationFinished()
-		{
-			IsVisible = true;
-			OnInTransitionFinished?.Invoke(this);
-		}
-
-		private void OnOutAnimationFinished()
-		{
-			IsVisible = false;
-			gameObject.SetActive(false);
-			OnOutTransitionFinished?.Invoke(this);
 		}
 	}
 }
