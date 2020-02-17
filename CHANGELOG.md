@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Added
 - Widget element.
 
+## Changed
+- Now the screens are disabled immediately after registration.
+
 ## [0.1.3] - 2020-02-16
 ## Added
 - SignalBus class as an event dispatch mechanism.
