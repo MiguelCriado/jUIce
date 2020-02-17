@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Muui
@@ -26,30 +25,24 @@ namespace Muui
 
 		public async Task Show()
 		{
-			DoAnimation(InTransition, OnInTransitionFinished, true);
+			await DoAnimation(InTransition,true);
 
-			while (IsVisible == false)
-			{
-				await Task.Yield();
-			}
+			IsVisible = true;
 		}
 
 		public async Task Hide()
 		{
-			DoAnimation(OutTransition, OnOutTransitionFinished, false);
+			await DoAnimation(OutTransition, false);
 
-			while (IsVisible)
-			{
-				await Task.Yield();
-			}
+			IsVisible = false;
+			gameObject.SetActive(false);
 		}
 
-		private void DoAnimation(BaseTransition targetTransition, Action callbackWhenFinished, bool isVisible)
+		private async Task DoAnimation(BaseTransition targetTransition, bool isVisible)
 		{
 			if (targetTransition == null)
 			{
 				gameObject.SetActive(isVisible);
-				callbackWhenFinished?.Invoke();
 			}
 			else
 			{
@@ -58,19 +51,8 @@ namespace Muui
 					gameObject.SetActive(true);
 				}
 
-				targetTransition.Animate(transform, callbackWhenFinished);
+				await targetTransition.Animate(transform);
 			}
-		}
-
-		private void OnInTransitionFinished()
-		{
-			IsVisible = true;
-		}
-
-		private void OnOutTransitionFinished()
-		{
-			IsVisible = false;
-			gameObject.SetActive(false);
 		}
 	}
 }
