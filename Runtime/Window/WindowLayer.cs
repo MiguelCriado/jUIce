@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace Muui
 {
+#pragma warning disable 4014
 	public class WindowLayer : BaseLayer<IWindowController>
 	{
 		public delegate void WindowLayerDelegate();
@@ -281,4 +282,5 @@ namespace Muui
 			}
 		}
 	}
+#pragma warning restore 4014
 }
