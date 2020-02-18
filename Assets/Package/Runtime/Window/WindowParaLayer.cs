@@ -2,16 +2,22 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Muui
 {
 	public class WindowParaLayer : MonoBehaviour
 	{
+		internal delegate void CommonDelegate();
+
+		internal event CommonDelegate OnShadowClick;
+
 		[SerializeField] private GameObject backgroundShadow = null;
 		[SerializeField] private float shadowFadeTime;
 
 		private List<GameObject> containedScreens = new List<GameObject>();
 		private CanvasGroup shadowCanvasGroup;
+		private Button shadowButton;
 		private bool isHiding;
 
 		private void Reset()
@@ -22,12 +28,24 @@ namespace Muui
 		private void Awake()
 		{
 			InitializeCanvasGroup();
+			InitializeShadowButton();
+		}
+
+		private void OnEnable()
+		{
+			shadowButton.onClick.AddListener(OnButtonClick);
+		}
+
+		private void OnDisable()
+		{
+			shadowButton.onClick.RemoveListener(OnButtonClick);
 		}
 
 		internal void SetBackgroundShadow(GameObject backgroundShadow)
 		{
 			this.backgroundShadow = backgroundShadow;
 			InitializeCanvasGroup();
+			InitializeShadowButton();
 		}
 
 		public void AddScreen(Transform screenTransform)
@@ -142,6 +160,25 @@ namespace Muui
 
 				shadowCanvasGroup.alpha = 0;
 			}
+		}
+
+		private void InitializeShadowButton()
+		{
+			if (backgroundShadow != null)
+			{
+				shadowButton = backgroundShadow.GetComponent<Button>();
+
+				if (shadowButton == null)
+				{
+					shadowButton = backgroundShadow.AddComponent<Button>();
+					shadowButton.transition = Selectable.Transition.None;
+				}
+			}
+		}
+
+		private void OnButtonClick()
+		{
+			OnShadowClick?.Invoke();
 		}
 	}
 }
