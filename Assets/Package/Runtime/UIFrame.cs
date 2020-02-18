@@ -244,6 +244,7 @@ namespace Muui
 			{
 				Component prefabAsComponent = screenPrefab as Component;
 				Component screenInstance = Instantiate(prefabAsComponent, mainCanvas.transform);
+				screenInstance.gameObject.SetActive(false);
 				IScreenController screenController = (IScreenController) screenInstance;
 				screenEntry = new ScreenEntry(screenPrefab, screenController);
 				layer.RegisterScreen((T)screenEntry.ScreenInstance);

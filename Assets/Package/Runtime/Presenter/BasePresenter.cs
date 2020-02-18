@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace Muui
 {
+#pragma warning disable 0649
 	public abstract class BasePresenter<T> : MonoBehaviour where T : IScreenController
 	{
 		[SerializeField] private T screenPrefab;
@@ -24,6 +25,11 @@ namespace Muui
 		{
 			return uiFrame.ShowScreen<T>();
 		}
+
+		protected virtual Task HideScreen()
+		{
+			return uiFrame.HideScreen<T>();
+		}
 	}
 
 	public abstract class BasePresenter<T1, T2> : BasePresenter<T1>
@@ -35,4 +41,5 @@ namespace Muui
 			return uiFrame.ShowScreen<T1, T2>(properties);
 		}
 	}
+#pragma warning restore 0649
 }

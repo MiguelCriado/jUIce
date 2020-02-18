@@ -52,6 +52,11 @@ namespace Muui
 			set => this[(TKey)key] = (TValue)value;
 		}
 
+		public ObservableDictionary()
+		{
+			innerDictionary = new Dictionary<TKey, TValue>();
+		}
+
 		public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
 		{
 			return innerDictionary.GetEnumerator();

@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace Muui
 {
+#pragma warning disable 4014
 	public class WindowLayer : BaseLayer<IWindowController>
 	{
 		public delegate void WindowLayerDelegate();
@@ -36,9 +37,21 @@ namespace Muui
 			screensTransitioning = new HashSet<IScreenController>();
 		}
 
+		protected virtual void OnEnable()
+		{
+			if (priorityParaLayer != null)
+			{
+				priorityParaLayer.OnShadowClick -= OnPopupsShadowClick;
+				priorityParaLayer.OnShadowClick += OnPopupsShadowClick;
+			}
+		}
+
 		internal void SetPriorityWindow(WindowParaLayer priorityParaLayer)
 		{
 			this.priorityParaLayer = priorityParaLayer;
+
+			priorityParaLayer.OnShadowClick -= OnPopupsShadowClick;
+			priorityParaLayer.OnShadowClick += OnPopupsShadowClick;
 		}
 
 		public override Task ShowScreen(IWindowController screen)
@@ -167,6 +180,14 @@ namespace Muui
 			HideScreen(controller as IWindowController);
 		}
 
+		private void OnPopupsShadowClick()
+		{
+			if (CurrentWindow != null && CurrentWindow.IsPopup && CurrentWindow.CloseOnShadowClick)
+			{
+				HideScreen(CurrentWindow);
+			}
+		}
+
 		private bool ShouldEnqueue(IWindowController window, IWindowProperties properties)
 		{
 			bool result = false;
@@ -214,7 +235,7 @@ namespace Muui
 
 			if (windowEntry.Screen.IsPopup)
 			{
-				priorityParaLayer.DarkenBackground();
+				priorityParaLayer.ShowBackgroundShadow();
 			}
 
 			await windowEntry.Show();
@@ -261,4 +282,5 @@ namespace Muui
 			}
 		}
 	}
+#pragma warning restore 4014
 }
