@@ -4,8 +4,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-## Added
+## [0.1.4] - 2020-02-18
+### Added
 - Widget element.
 - A fade transition to Popups's background shadow when shown/hidden.
 - HideScreen method to BasePresenter.
@@ -13,12 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Method in BaseTransition to prepare animations.
 - Pragma directives to avoid warnings in projects.
 
-## Changed
+### Changed
 - Now the screens are disabled immediately after registration.
 - Transitions return a Task instead of callbacks on termination. 
 
 ## [0.1.3] - 2020-02-16
-## Added
+### Added
 - SignalBus class as an event dispatch mechanism.
 
 ## [0.1.2] - 2020-02-12
