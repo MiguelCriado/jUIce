@@ -31,16 +31,6 @@ namespace Muui
 			InitializeShadowButton();
 		}
 
-		private void OnEnable()
-		{
-			shadowButton.onClick.AddListener(OnButtonClick);
-		}
-
-		private void OnDisable()
-		{
-			shadowButton.onClick.RemoveListener(OnButtonClick);
-		}
-
 		internal void SetBackgroundShadow(GameObject backgroundShadow)
 		{
 			this.backgroundShadow = backgroundShadow;
@@ -173,6 +163,9 @@ namespace Muui
 					shadowButton = backgroundShadow.AddComponent<Button>();
 					shadowButton.transition = Selectable.Transition.None;
 				}
+
+				shadowButton.onClick.RemoveListener(OnButtonClick);
+				shadowButton.onClick.AddListener(OnButtonClick);
 			}
 		}
 
