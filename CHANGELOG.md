@@ -7,9 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ## Added
 - Widget element.
+- A fade transition to Popups's background shadow when shown/hidden. 
 
 ## Changed
 - Now the screens are disabled immediately after registration.
+- Transitions return a Task instead of callbacks on termination. 
 
 ## [0.1.3] - 2020-02-16
 ## Added

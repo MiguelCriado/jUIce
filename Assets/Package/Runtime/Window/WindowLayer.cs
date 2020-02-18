@@ -214,7 +214,7 @@ namespace Muui
 
 			if (windowEntry.Screen.IsPopup)
 			{
-				priorityParaLayer.DarkenBackground();
+				priorityParaLayer.ShowBackgroundShadow();
 			}
 
 			await windowEntry.Show();
