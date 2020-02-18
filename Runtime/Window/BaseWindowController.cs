@@ -8,9 +8,10 @@
 	public abstract class BaseWindowController<T> : BaseScreenController<T>, IWindowController
 		where T : IWindowProperties
 	{
-		public bool HideOnForegroundLost { get => CurrentProperties.HideOnForegroundLost; }
-		public bool IsPopup { get => CurrentProperties.IsPopup; }
-		public WindowPriority WindowPriority { get => CurrentProperties.WindowQueuePriority; }
+		public bool HideOnForegroundLost => CurrentProperties.HideOnForegroundLost;
+		public bool IsPopup => CurrentProperties.IsPopup;
+		public bool CloseOnShadowClick => CurrentProperties.CloseOnShadowClick;
+		public WindowPriority WindowPriority => CurrentProperties.WindowQueuePriority;
 
 		protected override void SetProperties(T properties)
 		{

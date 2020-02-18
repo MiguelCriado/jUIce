@@ -36,6 +36,16 @@ namespace Muui
 			screensTransitioning = new HashSet<IScreenController>();
 		}
 
+		protected virtual void OnEnable()
+		{
+			priorityParaLayer.OnShadowClick += OnPopupsShadowClick;
+		}
+
+		protected void OnDisable()
+		{
+			priorityParaLayer.OnShadowClick -= OnPopupsShadowClick;
+		}
+
 		internal void SetPriorityWindow(WindowParaLayer priorityParaLayer)
 		{
 			this.priorityParaLayer = priorityParaLayer;
@@ -165,6 +175,14 @@ namespace Muui
 		private void OnCloseRequestedByWindow(IScreenController controller)
 		{
 			HideScreen(controller as IWindowController);
+		}
+
+		private void OnPopupsShadowClick()
+		{
+			if (CurrentWindow != null && CurrentWindow.IsPopup && CurrentWindow.CloseOnShadowClick)
+			{
+				HideScreen(CurrentWindow);
+			}
 		}
 
 		private bool ShouldEnqueue(IWindowController window, IWindowProperties properties)
