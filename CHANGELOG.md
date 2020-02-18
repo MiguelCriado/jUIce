@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Widget element.
 - A fade transition to Popups's background shadow when shown/hidden.
 - HideScreen method to BasePresenter.
+- A new property for Popups to be closed on background shadow click. 
 
 ## Changed
 - Now the screens are disabled immediately after registration.
