@@ -38,17 +38,19 @@ namespace Muui
 
 		protected virtual void OnEnable()
 		{
-			priorityParaLayer.OnShadowClick += OnPopupsShadowClick;
-		}
-
-		protected void OnDisable()
-		{
-			priorityParaLayer.OnShadowClick -= OnPopupsShadowClick;
+			if (priorityParaLayer != null)
+			{
+				priorityParaLayer.OnShadowClick -= OnPopupsShadowClick;
+				priorityParaLayer.OnShadowClick += OnPopupsShadowClick;
+			}
 		}
 
 		internal void SetPriorityWindow(WindowParaLayer priorityParaLayer)
 		{
 			this.priorityParaLayer = priorityParaLayer;
+
+			priorityParaLayer.OnShadowClick -= OnPopupsShadowClick;
+			priorityParaLayer.OnShadowClick += OnPopupsShadowClick;
 		}
 
 		public override Task ShowScreen(IWindowController screen)

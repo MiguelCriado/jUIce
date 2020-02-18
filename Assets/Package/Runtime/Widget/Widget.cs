@@ -51,6 +51,8 @@ namespace Muui
 					gameObject.SetActive(true);
 				}
 
+				targetTransition.PrepareForAnimation(transform);
+
 				await targetTransition.Animate(transform);
 			}
 		}
