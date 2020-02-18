@@ -24,6 +24,11 @@ namespace Muui
 		{
 			return uiFrame.ShowScreen<T>();
 		}
+
+		protected virtual Task HideScreen()
+		{
+			return uiFrame.HideScreen<T>();
+		}
 	}
 
 	public abstract class BasePresenter<T1, T2> : BasePresenter<T1>
