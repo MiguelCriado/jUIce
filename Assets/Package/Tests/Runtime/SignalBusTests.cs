@@ -9,8 +9,7 @@ namespace Muui.Tests
 	{
 		private class TestSignal : ISignal
 		{
-			public int IntValue;
-			public bool BoolValue;
+
 		}
 
 		[UnityTest]

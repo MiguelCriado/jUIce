@@ -1,9 +1,9 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Muui
 {
+#pragma warning disable 0067
 	public abstract class BaseScreenController<T> : MonoBehaviour, IScreenController
 		where T : IScreenProperties
 	{
@@ -133,4 +133,5 @@ namespace Muui
 			}
 		}
 	}
+#pragma warning disable 0067
 }
