@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Muui
@@ -75,6 +76,8 @@ namespace Muui
 
 		public async Task Hide(bool animate = true)
 		{
+			WhileHiding();
+
 			await DoAnimation(animate ? outTransition : null, false);
 
 			IsVisible = false;
@@ -104,6 +107,11 @@ namespace Muui
 
 		}
 
+		protected virtual void WhileHiding()
+		{
+
+		}
+
 		private void CleanUpProperties()
 		{
 			if (propertiesHaveBeenSet)
@@ -129,7 +137,14 @@ namespace Muui
 
 				targetTransition.PrepareForAnimation(transform);
 
-				await targetTransition.Animate(transform);
+				try
+				{
+					await targetTransition.Animate(transform);
+				}
+				catch (Exception e)
+				{
+					Debug.LogError(e);
+				}
 			}
 		}
 	}

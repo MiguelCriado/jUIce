@@ -84,6 +84,11 @@ namespace Muui
 				windowHistory.Pop();
 				AddTransition(screen);
 
+				if (screen.IsPopup && NextWindowIsPopup() == false)
+				{
+					priorityParaLayer.HideBackgroundShadow();
+				}
+
 				await screen.Hide();
 
 				CurrentWindow = null;
@@ -262,6 +267,14 @@ namespace Muui
 			{
 				RequestScreenUnblock?.Invoke();
 			}
+		}
+
+		private bool NextWindowIsPopup()
+		{
+			bool nextWindowInQueueIsPopup = windowQueue.Count > 0 && windowQueue.Peek().Screen.IsPopup;
+			bool lastWindowInHistoryIsPopup = windowHistory.Count > 0 && windowHistory.Peek().Screen.IsPopup;
+
+			return nextWindowInQueueIsPopup || (windowQueue.Count == 0 && lastWindowInHistoryIsPopup);
 		}
 
 		private async Task ShowNextInQueue()
