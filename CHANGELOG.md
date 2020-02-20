@@ -6,7 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- A try/catch clause to Transition.Animate calls. 
+- A try/catch clause to Transition.Animate calls.
+- WhileHiding method to allow Screens to react to Hide actions.
 
 ## [0.1.4] - 2020-02-18
 ### Added

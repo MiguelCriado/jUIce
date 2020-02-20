@@ -76,6 +76,8 @@ namespace Muui
 
 		public async Task Hide(bool animate = true)
 		{
+			WhileHiding();
+
 			await DoAnimation(animate ? outTransition : null, false);
 
 			IsVisible = false;
@@ -101,6 +103,11 @@ namespace Muui
 		}
 
 		protected virtual void OnShow()
+		{
+
+		}
+
+		protected virtual void WhileHiding()
 		{
 
 		}
