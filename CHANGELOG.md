@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A try/catch clause to Transition.Animate calls.
 - WhileHiding method to allow Screens to react to Hide actions.
 
+### Changed
+- The behavior of the popup shadow to hide while closing the last one.
+
 ## [0.1.4] - 2020-02-18
 ### Added
 - Widget element.
