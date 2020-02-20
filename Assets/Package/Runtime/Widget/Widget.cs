@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Muui
@@ -53,7 +54,14 @@ namespace Muui
 
 				targetTransition.PrepareForAnimation(transform);
 
-				await targetTransition.Animate(transform);
+				try
+				{
+					await targetTransition.Animate(transform);
+				}
+				catch (Exception e)
+				{
+					Debug.LogError(e);
+				}
 			}
 		}
 	}
