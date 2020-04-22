@@ -1,57 +1,60 @@
-﻿using System.Collections;
-using NUnit.Framework;
-using UnityEngine.TestTools;
+﻿using NUnit.Framework;
 
 namespace Muui.Tests
 {
 	public class ObservableCommandTests
 	{
-		[UnityTest]
-		public IEnumerator Constructor_WithNoParameters_CanExecuteIsNotNull()
+		#region [Non Generic]
+
+		[Test]
+		public void Constructor_WithNoParameters_CanExecuteIsNotNull()
 		{
 			ObservableCommand command = new ObservableCommand();
 
 			Assert.IsNotNull(command.CanExecute);
-
-			yield return null;
 		}
 
-		[UnityTest]
-		public IEnumerator Constructor_WithNoParameters_CanExecuteValueIsTrue()
+		[Test]
+		public void Constructor_WithNoParameters_CanExecuteValueIsTrue()
 		{
 			ObservableCommand command = new ObservableCommand();
 
 			Assert.IsTrue(command.CanExecute.Value);
-
-			yield return null;
 		}
 
-		[UnityTest]
-		public IEnumerator Constructor_WithParameter_CanExecuteIsNotNull()
+		[Test]
+		public void Constructor_WithCanExecuteParameter_CanExecuteIsNotNull()
 		{
 			ObservableVariable<bool> canExecute = new ObservableVariable<bool>();
 
 			ObservableCommand command = new ObservableCommand(canExecute);
 
 			Assert.IsNotNull(command.CanExecute);
-
-			yield return null;
 		}
 
-		[UnityTest]
-		public IEnumerator Constructor_WithParameters_CanExecuteValueIsTrue()
+		[Test]
+		public void Constructor_WithCanExecuteParameter_CanExecuteValueIsTrue()
 		{
 			ObservableVariable<bool> canExecute = new ObservableVariable<bool>(true);
 
 			ObservableCommand command = new ObservableCommand(canExecute);
 
 			Assert.IsTrue(command.CanExecute.Value);
-
-			yield return null;
 		}
 
-		[UnityTest]
-		public IEnumerator Execute_WhenCanExecute_RaiseEvent()
+		[Test]
+		public void Constructor_WithCallbackParameter_OnRequestExecuteEventIsNotNull()
+		{
+			int callbackCount = 0;
+			ObservableCommand command = new ObservableCommand(() => callbackCount++);
+
+			command.Execute();
+
+			Assert.IsTrue(callbackCount == 1);
+		}
+
+		[Test]
+		public void Execute_WhenCanExecute_RaiseEvent()
 		{
 			ObservableCommand command = new ObservableCommand();
 			int callbackCount = 0;
@@ -60,12 +63,10 @@ namespace Muui.Tests
 			command.Execute();
 
 			Assert.IsTrue(callbackCount == 1);
-
-			yield return null;
 		}
 
-		[UnityTest]
-		public IEnumerator Execute_WhenCanNotExecute_DoNotRaiseEvent()
+		[Test]
+		public void Execute_WhenCanNotExecute_DoNotRaiseEvent()
 		{
 			ObservableVariable<bool> canExecute = new ObservableVariable<bool>();
 			ObservableCommand command = new ObservableCommand(canExecute);
@@ -76,56 +77,61 @@ namespace Muui.Tests
 			command.Execute();
 
 			Assert.IsTrue(callbackCount == 0);
-
-			yield return null;
 		}
 
-		[UnityTest]
-		public IEnumerator Generics_Constructor_WithNoParameters_CanExecuteIsNotNull()
+		#endregion
+
+		#region [Generic]
+
+				[Test]
+		public void Generic_Constructor_WithNoParameters_CanExecuteIsNotNull()
 		{
 			ObservableCommand<bool> command = new ObservableCommand<bool>();
 
 			Assert.IsNotNull(command.CanExecute);
-
-			yield return null;
 		}
 
-		[UnityTest]
-		public IEnumerator Generics_Constructor_WithNoParameters_CanExecuteValueIsTrue()
+		[Test]
+		public void Generic_Constructor_WithNoParameters_CanExecuteValueIsTrue()
 		{
 			ObservableCommand<int> command = new ObservableCommand<int>();
 
 			Assert.IsTrue(command.CanExecute.Value);
-
-			yield return null;
 		}
 
-		[UnityTest]
-		public IEnumerator Generics_Constructor_WithParameter_CanExecuteIsNotNull()
+		[Test]
+		public void Generic_Constructor_WithCanExecuteParameter_CanExecuteIsNotNull()
 		{
 			ObservableVariable<bool> canExecute = new ObservableVariable<bool>();
 
 			ObservableCommand<int> command = new ObservableCommand<int>(canExecute);
 
 			Assert.IsNotNull(command.CanExecute);
-
-			yield return null;
 		}
 
-		[UnityTest]
-		public IEnumerator Generics_Constructor_WithParameters_CanExecuteValueIsCopied()
+		[Test]
+		public void Generic_Constructor_WithCanExecuteParameter_CanExecuteValueIsTrue()
 		{
 			ObservableVariable<bool> canExecute = new ObservableVariable<bool>(true);
 
 			ObservableCommand<int> command = new ObservableCommand<int>(canExecute);
 
 			Assert.IsTrue(command.CanExecute.Value);
-
-			yield return null;
 		}
 
-		[UnityTest]
-		public IEnumerator Generics_Execute_WhenCanExecute_RaiseEvent()
+		[Test]
+		public void Generic_Constructor_WithCallbackParameter_OnRequestExecuteEventIsNotNull()
+		{
+			int callbackCount = 0;
+			ObservableCommand<int> command = new ObservableCommand<int>((value) => callbackCount++);
+
+			command.Execute(14);
+
+			Assert.IsTrue(callbackCount == 1);
+		}
+
+		[Test]
+		public void Generic_Execute_WhenCanExecute_RaiseEvent()
 		{
 			ObservableCommand<int> command = new ObservableCommand<int>();
 			int callbackCount = 0;
@@ -134,12 +140,10 @@ namespace Muui.Tests
 			command.Execute(14);
 
 			Assert.IsTrue(callbackCount == 1);
-
-			yield return null;
 		}
 
-		[UnityTest]
-		public IEnumerator Generics_Execute_WhenCanNotExecute_DoNotRaiseEvent()
+		[Test]
+		public void Generic_Execute_WhenCanNotExecute_DoNotRaiseEvent()
 		{
 			ObservableVariable<bool> canExecute = new ObservableVariable<bool>(true);
 			ObservableCommand<int> command = new ObservableCommand<int>(canExecute);
@@ -150,12 +154,10 @@ namespace Muui.Tests
 			command.Execute(14);
 
 			Assert.IsTrue(callbackCount == 0);
-
-			yield return null;
 		}
 
-		[UnityTest]
-		public IEnumerator Generics_Execute_WhenCanExecute_ParameterIsReceived()
+		[Test]
+		public void Generic_Execute_WhenCanExecute_ParameterIsReceived()
 		{
 			ObservableVariable<bool> canExecute = new ObservableVariable<bool>(true);
 			ObservableCommand<int> command = new ObservableCommand<int>(canExecute);
@@ -165,8 +167,8 @@ namespace Muui.Tests
 			command.Execute(14);
 
 			Assert.IsTrue(mirrorVariable == 14);
-
-			yield return null;
 		}
+
+		#endregion
 	}
 }
