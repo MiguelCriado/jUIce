@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -17,25 +16,10 @@ namespace Muui
 
 		[SerializeField] private WindowParaLayer priorityParaLayer = null;
 
-		private Queue<WindowHistoryEntry> windowQueue;
-		private Stack<WindowHistoryEntry> windowHistory;
-
-		private bool IsScreenTransitionInProgress
-		{
-			get { return screensTransitioning.Count > 0; }
-		}
-
-		private HashSet<IScreenController> screensTransitioning;
-
-		protected override void Awake()
-		{
-			base.Awake();
-
-			registeredScreens = new Dictionary<Type, IWindowController>();
-			windowQueue = new Queue<WindowHistoryEntry>();
-			windowHistory = new Stack<WindowHistoryEntry>();
-			screensTransitioning = new HashSet<IScreenController>();
-		}
+		private Queue<WindowHistoryEntry> windowQueue = new Queue<WindowHistoryEntry>();
+		private Stack<WindowHistoryEntry> windowHistory = new Stack<WindowHistoryEntry>();
+		private HashSet<IScreenController> screensTransitioning = new HashSet<IScreenController>();
+		private bool IsScreenTransitionInProgress => screensTransitioning.Count > 0;
 
 		protected virtual void OnEnable()
 		{

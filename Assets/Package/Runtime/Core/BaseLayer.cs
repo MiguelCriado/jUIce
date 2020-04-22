@@ -7,12 +7,7 @@ namespace Muui
 {
 	public abstract class BaseLayer<T> : MonoBehaviour where T : IScreenController
 	{
-		protected Dictionary<Type, T> registeredScreens;
-
-		protected virtual void Awake()
-		{
-			registeredScreens = new Dictionary<Type, T>();
-		}
+		protected Dictionary<Type, T> registeredScreens = new Dictionary<Type, T>();
 
 		public virtual void Initialize()
 		{

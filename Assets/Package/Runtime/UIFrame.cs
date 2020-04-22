@@ -46,7 +46,7 @@ namespace Muui
 		private WindowLayer windowLayer;
 		private GraphicRaycaster graphicRaycaster;
 
-		private Dictionary<Type, ScreenEntry> registeredScreens;
+		private Dictionary<Type, ScreenEntry> registeredScreens = new Dictionary<Type, ScreenEntry>();
 
 		private void Reset()
 		{
@@ -55,8 +55,6 @@ namespace Muui
 
 		private void Awake()
 		{
-			registeredScreens = new Dictionary<Type, ScreenEntry>();
-
 			if (initializeOnAwake)
 			{
 				Initialize();

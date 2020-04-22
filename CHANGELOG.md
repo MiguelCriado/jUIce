@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Fixed
 - A compilation error when targeting .Net Standard 2.0.
+- NullReferenceExceptions in UIFrame hierarchy when initializing Presenters on Awake.
 
 ## [0.1.5] - 2020-02-20
 ### Added
