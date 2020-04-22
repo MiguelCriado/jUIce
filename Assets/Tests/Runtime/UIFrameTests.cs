@@ -9,8 +9,8 @@ namespace Muui.Tests
 {
 	public class UIFrameTests
 	{
-		private static readonly string PanelAPath = "Assets/Package/Tests/Runtime/Prefabs/Panel A.prefab";
-		private static readonly string WindowWithPropertiesPath = "Assets/Package/Tests/Runtime/Prefabs/Window With Properties.prefab";
+		private static readonly string PanelAPath = "Assets/Tests/Runtime/Prefabs/Panel A.prefab";
+		private static readonly string WindowWithPropertiesPath = "Assets/Tests/Runtime/Prefabs/Window With Properties.prefab";
 
 		private UIFrame uiFrame;
 
