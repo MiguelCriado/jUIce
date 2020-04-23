@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Event initialization in ObservableCommand's constructor.
 - PresenterInitializer class.
+- CreateMenu entries to automatically create new Screen class files.
 
 ### Changed
 - Project structure from Package to Plugin.

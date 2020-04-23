@@ -7,24 +7,53 @@ namespace Muui.Editor
 {
 	public static class ClassFileWriter
 	{
+		public enum VisibilityModifier
+		{
+			Public,
+			Protected,
+			Private,
+			Internal
+		}
+
 		public class ClassDefinition
 		{
-			public enum Visibility
-			{
-				Public,
-				Protected,
-				Private,
-				Internal
-			}
-
 			public List<string> Imports;
 			public List<string> Attributes;
-			public Visibility ClassVisibility;
+			public VisibilityModifier VisibilityModifier;
 			public string Name;
 			public List<string> ClassGenerics;
 			public string Superclass;
 			public List<string> SuperclassGenerics;
 			public List<ClassDefinition> InnerClasses;
+			public List<MethodDefinition> Methods;
+			public string AdditionalBody;
+		}
+
+		public class MethodDefinition
+		{
+			public enum MethodModifier
+			{
+				None,
+				Virtual,
+				Override,
+				New,
+			}
+
+			public List<string> Attributes;
+			public VisibilityModifier VisibilityModifier;
+			public bool IsStatic;
+			public MethodModifier Modifier;
+			public string ReturnType;
+			public string Name;
+			public List<string> Generics;
+			public List<ParameterDefinition> Parameters;
+			public string Body;
+		}
+
+		public class ParameterDefinition
+		{
+			public string Type;
+			public string Name;
 		}
 
 		private static StringBuilder Builder = new StringBuilder();
@@ -104,7 +133,7 @@ namespace Muui.Editor
 		private static void WriteClassHeader(StreamWriter writer, int indentLevel, ClassDefinition definition)
 		{
 			string indentation = GetIndentation(indentLevel);
-			string visibility = definition.ClassVisibility.ToString().ToLower();
+			string visibility = definition.VisibilityModifier.ToString().ToLower();
 			writer.Write($"{indentation}{visibility} class {definition.Name}");
 			WriteGenericsList(writer, definition.ClassGenerics);
 			WriteSuperclass(writer, definition.Superclass, definition.SuperclassGenerics);
@@ -143,15 +172,21 @@ namespace Muui.Editor
 
 		private static void WriteClassBody(StreamWriter writer, int indentLevel, ClassDefinition definition)
 		{
-			var hasInnerClasses = WriteInnerClasses(writer, indentLevel, definition);
+			WriteInnerClasses(writer, indentLevel, definition);
+			WriteMethods(writer, indentLevel, definition);
+			WriteBody(writer, indentLevel, definition.AdditionalBody);
 
-			if (hasInnerClasses == false)
+			bool hasInnerClasses = definition.InnerClasses != null && definition.InnerClasses.Count > 0;
+			bool hasMethods = definition.Methods != null && definition.Methods.Count > 0;
+			bool hasAdditionalBody = string.IsNullOrEmpty(definition.AdditionalBody) == false;
+
+			if (!hasInnerClasses && !hasMethods && !hasAdditionalBody)
 			{
-				WriteLine(writer, 0, "");
+				writer.WriteLine();
 			}
 		}
 
-		private static bool WriteInnerClasses(StreamWriter writer, int indentLevel, ClassDefinition definition)
+		private static void WriteInnerClasses(StreamWriter writer, int indentLevel, ClassDefinition definition)
 		{
 			bool hasInnerClasses = definition.InnerClasses != null && definition.InnerClasses.Count > 0;
 
@@ -167,8 +202,169 @@ namespace Muui.Editor
 					}
 				}
 			}
+		}
 
-			return hasInnerClasses;
+		private static void WriteMethods(StreamWriter writer, int indentLevel, ClassDefinition definition)
+		{
+			bool hasMethods = definition.Methods != null && definition.Methods.Count > 0;
+
+			if (hasMethods)
+			{
+				if (definition.InnerClasses != null && definition.InnerClasses.Count > 0)
+				{
+					writer.WriteLine();
+				}
+
+				for (int i = 0; i < definition.Methods.Count; i++)
+				{
+					MethodDefinition method = definition.Methods[i];
+					WriteMethod(writer, indentLevel, method);
+
+					if (i < definition.Methods.Count - 1)
+					{
+						writer.WriteLine();
+					}
+				}
+			}
+		}
+
+		private static void WriteBody(StreamWriter writer, int indentLevel, string body)
+		{
+			if (string.IsNullOrEmpty(body) == false)
+			{
+				string[] bodyLines = body.Split('\n');
+
+				foreach (string line in bodyLines)
+				{
+					string trimmedLine = line.Trim(' ', '\t');
+					WriteLine(writer, indentLevel, trimmedLine);
+				}
+			}
+		}
+
+		private static void WriteMethod(StreamWriter writer, int indentLevel, MethodDefinition method)
+		{
+			WriteAttributes(writer, indentLevel, method.Attributes);
+			WriteMethodHeader(writer, indentLevel, method);
+			indentLevel++;
+			WriteMethodBody(writer, indentLevel, method);
+			indentLevel--;
+			WriteLine(writer, indentLevel, "}");
+		}
+
+		private static void WriteMethodHeader(StreamWriter writer, int indentLevel, MethodDefinition method)
+		{
+			writer.Write(GetIndentation(indentLevel));
+			writer.Write(method.VisibilityModifier.ToString().ToLower());
+			writer.Write(GetStatic(method.IsStatic));
+			writer.Write(GetMethodModifier(method.Modifier));
+			writer.Write(" ");
+			writer.Write(method.ReturnType);
+			writer.Write(" ");
+			writer.Write(method.Name);
+			writer.Write(GetMethodGenerics(method.Generics));
+			writer.Write("(");
+			writer.Write(GetMethodParameters(method.Parameters));
+			writer.WriteLine(")");
+			WriteLine(writer, indentLevel, "{");
+		}
+
+		private static string GetStatic(bool isStatic)
+		{
+			string result = string.Empty;
+
+			if (isStatic)
+			{
+				result = " static";
+			}
+
+			return result;
+		}
+
+		private static string GetMethodModifier(MethodDefinition.MethodModifier modifier)
+		{
+			string result = string.Empty;
+
+			if (modifier != MethodDefinition.MethodModifier.None)
+			{
+				result = $" {modifier.ToString().ToLower()}";
+			}
+
+			return result;
+		}
+
+		private static string GetMethodGenerics(List<string> generics)
+		{
+			Builder.Length = 0;
+
+			if (generics != null && generics.Count > 0)
+			{
+				Builder.Append("<");
+
+				for (int i = 0; i < generics.Count; i++)
+				{
+					Builder.Append(generics[i]);
+
+					if (i < generics.Count - 1)
+					{
+						Builder.Append(", ");
+					}
+				}
+
+				Builder.Append(">");
+			}
+
+			return Builder.ToString();
+		}
+
+		private static string GetMethodParameters(List<ParameterDefinition> parameters)
+		{
+			Builder.Length = 0;
+
+			if (parameters != null && parameters.Count > 0)
+			{
+				for (int i = 0; i < parameters.Count; i++)
+				{
+					Builder.Append($"{parameters[i].Type} {parameters[i].Name}");
+
+					if (i < parameters.Count - 1)
+					{
+						Builder.Append(", ");
+					}
+				}
+			}
+
+			return Builder.ToString();
+		}
+
+		private static void WriteMethodBody(StreamWriter writer, int indentLevel, MethodDefinition method)
+		{
+			WriteOverrideCallToBase(writer, indentLevel, method);
+			WriteBody(writer, indentLevel, method.Body);
+		}
+
+		private static void WriteOverrideCallToBase(StreamWriter writer, int indentLevel, MethodDefinition method)
+		{
+			if (method.Modifier == MethodDefinition.MethodModifier.Override)
+			{
+				writer.Write(GetIndentation(indentLevel));
+				writer.Write($"base.{method.Name}(");
+
+				if (method.Parameters != null && method.Parameters.Count > 0)
+				{
+					for (int i = 0; i < method.Parameters.Count; i++)
+					{
+						writer.Write($"{method.Parameters[i].Name}");
+
+						if (i < method.Parameters.Count - 1)
+						{
+							writer.Write(", ");
+						}
+					}
+				}
+
+				writer.WriteLine(");");
+			}
 		}
 
 		private static int WriteNamespaceClosingBracket(StreamWriter writer, int indentLevel)
