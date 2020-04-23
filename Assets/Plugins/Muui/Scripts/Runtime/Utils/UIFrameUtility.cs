@@ -1,18 +1,14 @@
 ﻿using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace Muui
 {
-	public class MenuHelpers
+	public static class UIFrameUtility
 	{
 		private static readonly string UIMaskName = "UI";
 
-		#if UNITY_EDITOR
-		[MenuItem("GameObject/UI/Muui/Default UI Frame")]
-		#endif
 		public static UIFrame CreateDefaultUIFrame()
 		{
 			GameObject uiFrame = new GameObject("UI Frame");
@@ -58,9 +54,10 @@ namespace Muui
 
 		private static Camera CreateCamera()
 		{
-			GameObject gameObject= new GameObject("UI Camera");
+			GameObject gameObject = new GameObject("UI Camera");
 			Camera result = gameObject.AddComponent<Camera>();
-			result.cullingMask = 1 << LayerMask.NameToLayer(UIMaskName);;
+			result.cullingMask = 1 << LayerMask.NameToLayer(UIMaskName);
+			;
 			return result;
 		}
 

@@ -1,0 +1,15 @@
+{
+    "name": "Muui.Editor",
+    "references": [
+        "GUID:6640779ff9805d44f99b6eadf414d408"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
