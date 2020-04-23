@@ -17,7 +17,7 @@ namespace Muui.Tests
 		[SetUp]
 		public void Setup()
 		{
-			uiFrame = MenuHelpers.CreateDefaultUIFrame();
+			uiFrame = UIFrameUtility.CreateDefaultUIFrame();
 		}
 
 		[TearDown]
