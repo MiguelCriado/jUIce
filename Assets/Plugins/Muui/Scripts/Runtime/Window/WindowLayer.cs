@@ -134,18 +134,18 @@ namespace Muui
 		{
 			base.ProcessScreenRegister(controller);
 
-			controller.OnInTransitionFinished += OnInAnimationFinished;
-			controller.OnOutTransitionFinished += OnOutAnimationFinished;
-			controller.OnCloseRequest += OnCloseRequestedByWindow;
+			controller.InTransitionFinished += OnInAnimationFinished;
+			controller.OutTransitionFinished += OnOutAnimationFinished;
+			controller.CloseRequested += OnCloseRequestedByWindow;
 		}
 
 		protected override void ProcessScreenUnregister(IWindowController controller)
 		{
 			base.ProcessScreenUnregister(controller);
 
-			controller.OnInTransitionFinished -= OnInAnimationFinished;
-			controller.OnOutTransitionFinished -= OnOutAnimationFinished;
-			controller.OnCloseRequest -= OnCloseRequestedByWindow;
+			controller.InTransitionFinished -= OnInAnimationFinished;
+			controller.OutTransitionFinished -= OnOutAnimationFinished;
+			controller.CloseRequested -= OnCloseRequestedByWindow;
 		}
 
 		private void OnInAnimationFinished(IScreenController controller)

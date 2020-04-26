@@ -28,9 +28,9 @@
 			}
 		}
 
-		protected override void OnShow()
+		protected override void OnShowing()
 		{
-			base.OnShow();
+			base.OnShowing();
 
 			transform.SetAsLastSibling();
 		}

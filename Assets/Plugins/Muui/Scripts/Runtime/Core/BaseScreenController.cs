@@ -8,10 +8,10 @@ namespace Muui
 	public abstract class BaseScreenController<T> : MonoBehaviour, IScreenController
 		where T : IScreenProperties
 	{
-		public event ScreenControllerDelegate OnInTransitionFinished;
-		public event ScreenControllerDelegate OnOutTransitionFinished;
-		public event ScreenControllerDelegate OnCloseRequest;
-		public event ScreenControllerDelegate OnScreenDestroyed;
+		public event ScreenControllerDelegate InTransitionFinished;
+		public event ScreenControllerDelegate OutTransitionFinished;
+		public event ScreenControllerDelegate CloseRequested;
+		public event ScreenControllerDelegate ScreenDestroyed;
 
 		public bool IsVisible { get; private set; }
 
@@ -50,7 +50,7 @@ namespace Muui
 					CleanUpProperties();
 					SetProperties(typedProperties);
 					propertiesHaveBeenSet = true;
-					OnPropertiesSet();
+					SubscribeToProperties();
 				}
 				else
 				{
@@ -59,35 +59,35 @@ namespace Muui
 				}
 			}
 
-			OnShow();
+			OnShowing();
 
 			if (gameObject.activeSelf)
 			{
-				OnInTransitionFinished?.Invoke(this);
+				OnInTransitionFinished();
 			}
 			else
 			{
 				await DoAnimation(inTransition, true);
 
 				IsVisible = true;
-				OnInTransitionFinished?.Invoke(this);
+				OnInTransitionFinished();
 			}
 		}
 
 		public async Task Hide(bool animate = true)
 		{
-			WhileHiding();
+			OnHiding();
 
 			await DoAnimation(animate ? outTransition : null, false);
 
 			IsVisible = false;
 			gameObject.SetActive(false);
-			OnOutTransitionFinished?.Invoke(this);
+			OnOutTransitionFinished();
 
 			CleanUpProperties();
 		}
 
-		protected virtual void OnPropertiesSet()
+		protected virtual void SubscribeToProperties()
 		{
 
 		}
@@ -102,14 +102,24 @@ namespace Muui
 			this.properties = properties;
 		}
 
-		protected virtual void OnShow()
+		protected virtual void OnShowing()
 		{
 
 		}
 
-		protected virtual void WhileHiding()
+		protected virtual void OnInTransitionFinished()
+		{
+			InTransitionFinished?.Invoke(this);
+		}
+
+		protected virtual void OnHiding()
 		{
 
+		}
+
+		protected virtual void OnOutTransitionFinished()
+		{
+			OutTransitionFinished?.Invoke(this);
 		}
 
 		private void CleanUpProperties()

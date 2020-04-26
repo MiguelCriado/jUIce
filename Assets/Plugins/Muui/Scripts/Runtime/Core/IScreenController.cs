@@ -6,10 +6,10 @@ namespace Muui
 
 	public interface IScreenController
 	{
-		event ScreenControllerDelegate OnInTransitionFinished;
-		event ScreenControllerDelegate OnOutTransitionFinished;
-		event ScreenControllerDelegate OnCloseRequest;
-		event ScreenControllerDelegate OnScreenDestroyed;
+		event ScreenControllerDelegate InTransitionFinished;
+		event ScreenControllerDelegate OutTransitionFinished;
+		event ScreenControllerDelegate CloseRequested;
+		event ScreenControllerDelegate ScreenDestroyed;
 
 		bool IsVisible { get; }
 
