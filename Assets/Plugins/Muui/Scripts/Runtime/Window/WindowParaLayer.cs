@@ -10,7 +10,7 @@ namespace Muui
 	{
 		internal delegate void CommonDelegate();
 
-		internal event CommonDelegate OnShadowClick;
+		internal event CommonDelegate ShadowClicked;
 
 		[SerializeField] private GameObject backgroundShadow = null;
 		[SerializeField] private float shadowFadeTime;
@@ -164,14 +164,14 @@ namespace Muui
 					shadowButton.transition = Selectable.Transition.None;
 				}
 
-				shadowButton.onClick.RemoveListener(OnButtonClick);
-				shadowButton.onClick.AddListener(OnButtonClick);
+				shadowButton.onClick.RemoveListener(OnShadowClicked);
+				shadowButton.onClick.AddListener(OnShadowClicked);
 			}
 		}
 
-		private void OnButtonClick()
+		private void OnShadowClicked()
 		{
-			OnShadowClick?.Invoke();
+			ShadowClicked?.Invoke();
 		}
 	}
 }

@@ -25,8 +25,8 @@ namespace Muui
 		{
 			if (priorityParaLayer != null)
 			{
-				priorityParaLayer.OnShadowClick -= OnPopupsShadowClick;
-				priorityParaLayer.OnShadowClick += OnPopupsShadowClick;
+				priorityParaLayer.ShadowClicked -= PopupsShadowClicked;
+				priorityParaLayer.ShadowClicked += PopupsShadowClicked;
 			}
 		}
 
@@ -34,8 +34,8 @@ namespace Muui
 		{
 			this.priorityParaLayer = priorityParaLayer;
 
-			priorityParaLayer.OnShadowClick -= OnPopupsShadowClick;
-			priorityParaLayer.OnShadowClick += OnPopupsShadowClick;
+			priorityParaLayer.ShadowClicked -= PopupsShadowClicked;
+			priorityParaLayer.ShadowClicked += PopupsShadowClicked;
 		}
 
 		public override Task ShowScreen(IWindowController screen)
@@ -169,7 +169,7 @@ namespace Muui
 			HideScreen(controller as IWindowController);
 		}
 
-		private void OnPopupsShadowClick()
+		private void PopupsShadowClicked()
 		{
 			if (CurrentWindow != null && CurrentWindow.IsPopup && CurrentWindow.CloseOnShadowClick)
 			{
