@@ -6,12 +6,12 @@ namespace Muui
 {
 	public class ObservableCollection<T> : Collection<T>, IObservableCollection<T>
 	{
-		public event CollectionAddDelegate<T> OnAdd;
-		public event CollectionCountChangeDelegate OnCountChange;
-		public event CollectionRemoveDelegate<T> OnRemove;
-		public event CollectionMoveEvent<T> OnMove;
-		public event CollectionReplaceEvent<T> OnReplace;
-		public event CollectionResetEvent OnReset;
+		public event CollectionAddEventHandler<T> ItemAdded;
+		public event CollectionCountChangeEventHandler CountChanged;
+		public event CollectionRemoveEventHandler<T> ItemRemoved;
+		public event CollectionMoveEventHandler<T> ItemMoved;
+		public event CollectionReplaceEventHandler<T> ItemReplaced;
+		public event CollectionResetEventHandler Reset;
 
 		public ObservableCollection()
 		{
@@ -46,20 +46,35 @@ namespace Muui
 			int previousCount = Count;
 			base.ClearItems();
 
-			OnReset?.Invoke();
+			OnReset();
 
 			if (previousCount > 0)
 			{
-				OnCountChange?.Invoke(previousCount, Count);
+				OnCountChanged(previousCount);
 			}
+		}
+
+		protected virtual void OnReset()
+		{
+			Reset?.Invoke();
+		}
+
+		protected virtual void OnCountChanged(int previousCount)
+		{
+			CountChanged?.Invoke(previousCount, Count);
 		}
 
 		protected override void InsertItem(int index, T item)
 		{
 			base.InsertItem(index, item);
 
-			OnAdd?.Invoke(index, item);
-			OnCountChange?.Invoke(Count - 1, Count);
+			OnItemAdded(index, item);
+			OnCountChanged(Count - 1);
+		}
+
+		protected virtual void OnItemAdded(int index, T item)
+		{
+			ItemAdded?.Invoke(index, item);
 		}
 
 		protected virtual void MoveItem(int oldIndex, int newIndex)
@@ -68,7 +83,12 @@ namespace Muui
 			base.RemoveItem(oldIndex);
 			base.InsertItem(newIndex, item);
 
-			OnMove?.Invoke(oldIndex, newIndex, item);
+			OnItemMoved(oldIndex, newIndex, item);
+		}
+
+		protected virtual void OnItemMoved(int oldIndex, int newIndex, T item)
+		{
+			ItemMoved?.Invoke(oldIndex, newIndex, item);
 		}
 
 		protected override void RemoveItem(int index)
@@ -76,8 +96,13 @@ namespace Muui
 			T item = this[index];
 			base.RemoveItem(index);
 
-			OnRemove?.Invoke(index, item);
-			OnCountChange?.Invoke(Count + 1, Count);
+			OnItemRemoved(index, item);
+			OnCountChanged(Count + 1);
+		}
+
+		protected virtual void OnItemRemoved(int index, T item)
+		{
+			ItemRemoved?.Invoke(index, item);
 		}
 
 		protected override void SetItem(int index, T item)
@@ -85,7 +110,12 @@ namespace Muui
 			T oldItem = this[index];
 			base.SetItem(index, item);
 
-			OnReplace?.Invoke(index, oldItem, item);
+			OnItemReplaced(index, oldItem, item);
+		}
+
+		protected virtual void OnItemReplaced(int index, T oldValue, T newValue)
+		{
+			ItemReplaced?.Invoke(index, oldValue, newValue);
 		}
 	}
 }

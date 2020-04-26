@@ -2,23 +2,23 @@
 
 namespace Muui
 {
-	public delegate void DictionaryAddDelegate<TKey, TValue>(TKey key, TValue value);
+	public delegate void DictionaryAddEventHandler<TKey, TValue>(TKey key, TValue value);
 
-	public delegate void DictionaryCountChangeDelegate(int count);
+	public delegate void DictionaryCountChangeEventHandler(int count);
 
-	public delegate void DictionaryRemoveDelegate<TKey, TValue>(TKey key, TValue value);
+	public delegate void DictionaryRemoveEventHandler<TKey, TValue>(TKey key, TValue value);
 
-	public delegate void DictionaryReplaceDelegate<TKey, TValue>(TKey key, TValue oldValue, TValue newValue);
+	public delegate void DictionaryReplaceEventHandler<TKey, TValue>(TKey key, TValue oldValue, TValue newValue);
 
-	public delegate void DictionaryResetDelegate();
+	public delegate void DictionaryResetEventHandler();
 
 	public interface IReadOnlyObservableDictionary<TKey, TValue> : IEnumerable<KeyValuePair<TKey, TValue>>
 	{
-		event DictionaryAddDelegate<TKey, TValue> OnAdd;
-		event DictionaryCountChangeDelegate OnCountChange;
-		event DictionaryRemoveDelegate<TKey, TValue> OnRemove;
-		event DictionaryReplaceDelegate<TKey, TValue> OnReplace;
-		event DictionaryResetDelegate OnReset;
+		event DictionaryAddEventHandler<TKey, TValue> EntryAdded;
+		event DictionaryCountChangeEventHandler CountChanged;
+		event DictionaryRemoveEventHandler<TKey, TValue> EntryRemoved;
+		event DictionaryReplaceEventHandler<TKey, TValue> EntryReplaced;
+		event DictionaryResetEventHandler Reset;
 
 		int Count { get; }
 		TValue this[TKey index] { get; }

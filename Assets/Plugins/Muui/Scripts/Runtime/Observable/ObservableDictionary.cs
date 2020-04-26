@@ -6,11 +6,11 @@ namespace Muui
 {
 	public class ObservableDictionary<TKey, TValue> : IObservableDictionary<TKey, TValue>, IDictionary
 	{
-		public event DictionaryAddDelegate<TKey, TValue> OnAdd;
-		public event DictionaryCountChangeDelegate OnCountChange;
-		public event DictionaryRemoveDelegate<TKey, TValue> OnRemove;
-		public event DictionaryReplaceDelegate<TKey, TValue> OnReplace;
-		public event DictionaryResetDelegate OnReset;
+		public event DictionaryAddEventHandler<TKey, TValue> EntryAdded;
+		public event DictionaryCountChangeEventHandler CountChanged;
+		public event DictionaryRemoveEventHandler<TKey, TValue> EntryRemoved;
+		public event DictionaryReplaceEventHandler<TKey, TValue> EntryReplaced;
+		public event DictionaryResetEventHandler Reset;
 
 		public int Count => innerDictionary.Count;
 		public bool IsSynchronized => ((IDictionary)innerDictionary).IsSynchronized;
@@ -35,13 +35,13 @@ namespace Muui
 				if (TryGetValue(key, out TValue oldValue))
 				{
 					innerDictionary[key] = value;
-					OnReplace?.Invoke(key, oldValue, value);
+					OnEntryReplaced(key, oldValue, value);
 				}
 				else
 				{
 					innerDictionary[key] = value;
-					OnAdd?.Invoke(key, value);
-					OnCountChange?.Invoke(Count);
+					OnEntryAdded(key, value);
+					OnCountChanged();
 				}
 			}
 		}
@@ -76,8 +76,8 @@ namespace Muui
 		{
 			innerDictionary.Add(key, value);
 
-			OnAdd?.Invoke(key, value);
-			OnCountChange?.Invoke(Count);
+			OnEntryAdded(key, value);
+			OnCountChanged();
 		}
 
 		public void Add(KeyValuePair<TKey, TValue> item)
@@ -100,8 +100,8 @@ namespace Muui
 
 				if (result == true)
 				{
-					OnRemove?.Invoke(key, oldValue);
-					OnCountChange?.Invoke(Count);
+					OnEntryRemoved(key, oldValue);
+					OnCountChanged();
 				}
 			}
 
@@ -131,11 +131,11 @@ namespace Muui
 			int lastCount = Count;
 			innerDictionary.Clear();
 
-			OnReset?.Invoke();
+			OnReset();
 
 			if (lastCount > 0)
 			{
-				OnCountChange?.Invoke(Count);
+				OnCountChanged();
 			}
 		}
 
@@ -168,6 +168,31 @@ namespace Muui
 		public void CopyTo(Array array, int index)
 		{
 			((IDictionary)innerDictionary).CopyTo(array, index);
+		}
+
+		protected virtual void OnEntryReplaced(TKey key, TValue oldValue, TValue newValue)
+		{
+			EntryReplaced?.Invoke(key, oldValue, newValue);
+		}
+
+		protected virtual void OnEntryAdded(TKey key, TValue value)
+		{
+			EntryAdded?.Invoke(key, value);
+		}
+
+		protected virtual void OnCountChanged()
+		{
+			CountChanged?.Invoke(Count);
+		}
+
+		protected virtual void OnEntryRemoved(TKey key, TValue value)
+		{
+			EntryRemoved?.Invoke(key, value);
+		}
+
+		protected virtual void OnReset()
+		{
+			Reset?.Invoke();
 		}
 	}
 }

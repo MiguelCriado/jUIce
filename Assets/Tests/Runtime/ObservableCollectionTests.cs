@@ -142,7 +142,7 @@ namespace Muui.Tests
 		{
 			ObservableCollection<int> collection = new ObservableCollection<int>();
 			bool isCallbackRaised = false;
-			collection.OnAdd += (index, value) => isCallbackRaised = true;
+			collection.ItemAdded += (index, value) => isCallbackRaised = true;
 
 			collection.Add(14);
 
@@ -156,7 +156,7 @@ namespace Muui.Tests
 		{
 			ObservableCollection<int> collection = new ObservableCollection<int>();
 			int callbackCount = 0;
-			collection.OnAdd += (index, value) => callbackCount++;
+			collection.ItemAdded += (index, value) => callbackCount++;
 
 			collection.Add(14);
 
@@ -170,7 +170,7 @@ namespace Muui.Tests
 		{
 			ObservableCollection<int> collection = new ObservableCollection<int>();
 			int callbackIndex = -1;
-			collection.OnAdd += (index, value) => callbackIndex = index;
+			collection.ItemAdded += (index, value) => callbackIndex = index;
 
 			collection.Add(14);
 
@@ -184,7 +184,7 @@ namespace Muui.Tests
 		{
 			ObservableCollection<int> collection = new ObservableCollection<int>();
 			int callbackValue = -1;
-			collection.OnAdd += (index, value) => callbackValue = value;
+			collection.ItemAdded += (index, value) => callbackValue = value;
 
 			collection.Add(14);
 
@@ -198,7 +198,7 @@ namespace Muui.Tests
 		{
 			ObservableCollection<int> collection = new ObservableCollection<int>() {0, 1, 2};
 			int callbackCount = 0;
-			collection.OnAdd += (index, value) => callbackCount++;
+			collection.ItemAdded += (index, value) => callbackCount++;
 
 			collection.Insert(1, 14);
 
@@ -212,7 +212,7 @@ namespace Muui.Tests
 		{
 			ObservableCollection<int> collection = new ObservableCollection<int>() {0, 1, 2};
 			int callbackCount = 0;
-			collection.OnCountChange += (count, newCount) => callbackCount++;
+			collection.CountChanged += (count, newCount) => callbackCount++;
 
 			collection.Add(3);
 
@@ -226,7 +226,7 @@ namespace Muui.Tests
 		{
 			ObservableCollection<int> collection = new ObservableCollection<int>() {0, 1, 2};
 			int callbackCount = 0;
-			collection.OnCountChange += (count, newCount) => callbackCount++;
+			collection.CountChanged += (count, newCount) => callbackCount++;
 
 			collection.Remove(0);
 
@@ -240,7 +240,7 @@ namespace Muui.Tests
 		{
 			ObservableCollection<int> collection = new ObservableCollection<int>() {0, 1, 2};
 			int callbackCount = 0;
-			collection.OnRemove += (index, value) => callbackCount++;
+			collection.ItemRemoved += (index, value) => callbackCount++;
 
 			collection.Remove(0);
 
@@ -254,7 +254,7 @@ namespace Muui.Tests
 		{
 			ObservableCollection<int> collection = new ObservableCollection<int>() {0, 1, 2};
 			int callbackCount = 0;
-			collection.OnMove += (index, newIndex, value) => callbackCount++;
+			collection.ItemMoved += (index, newIndex, value) => callbackCount++;
 
 			collection.Move(0, 2);
 
@@ -268,7 +268,7 @@ namespace Muui.Tests
 		{
 			ObservableCollection<int> collection = new ObservableCollection<int>() {0, 1, 2};
 			int callbackCount = 0;
-			collection.OnReplace += (index, value, newValue) => callbackCount++;
+			collection.ItemReplaced += (index, value, newValue) => callbackCount++;
 
 			collection[0] = 2;
 
@@ -282,7 +282,7 @@ namespace Muui.Tests
 		{
 			ObservableCollection<int> collection = new ObservableCollection<int>() {0, 1, 2};
 			int callbackCount = 0;
-			collection.OnReset += () => callbackCount++;
+			collection.Reset += () => callbackCount++;
 
 			collection.Clear();
 

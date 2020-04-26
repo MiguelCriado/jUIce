@@ -2,26 +2,26 @@
 
 namespace Muui
 {
-	public delegate void CollectionAddDelegate<T>(int index, T value);
+	public delegate void CollectionAddEventHandler<T>(int index, T value);
 
-	public delegate void CollectionCountChangeDelegate(int oldCount, int newCount);
+	public delegate void CollectionCountChangeEventHandler(int oldCount, int newCount);
 
-	public delegate void CollectionRemoveDelegate<T>(int index, T value);
+	public delegate void CollectionRemoveEventHandler<T>(int index, T value);
 
-	public delegate void CollectionMoveEvent<T>(int oldIndex, int newIndex, T value);
+	public delegate void CollectionMoveEventHandler<T>(int oldIndex, int newIndex, T value);
 
-	public delegate void CollectionReplaceEvent<T>(int index, T oldValue, T newValue);
+	public delegate void CollectionReplaceEventHandler<T>(int index, T oldValue, T newValue);
 
-	public delegate void CollectionResetEvent();
+	public delegate void CollectionResetEventHandler();
 
 	public interface IReadOnlyObservableCollection<T> : IEnumerable<T>
 	{
-		event CollectionAddDelegate<T> OnAdd;
-		event CollectionCountChangeDelegate OnCountChange;
-		event CollectionRemoveDelegate<T> OnRemove;
-		event CollectionMoveEvent<T> OnMove;
-		event CollectionReplaceEvent<T> OnReplace;
-		event CollectionResetEvent OnReset;
+		event CollectionAddEventHandler<T> ItemAdded;
+		event CollectionCountChangeEventHandler CountChanged;
+		event CollectionRemoveEventHandler<T> ItemRemoved;
+		event CollectionMoveEventHandler<T> ItemMoved;
+		event CollectionReplaceEventHandler<T> ItemReplaced;
+		event CollectionResetEventHandler Reset;
 
 		int Count { get; }
 		T this[int index] { get; }

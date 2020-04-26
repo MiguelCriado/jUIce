@@ -1,11 +1,11 @@
 ﻿namespace Muui
 {
-	public delegate void ObservableCommandDelegate<T>(T parameter);
-	public delegate void ObservableCommandDelegate();
+	public delegate void ObservableCommandEventHandler<T>(T parameter);
+	public delegate void ObservableCommandEventHandler();
 
 	public interface IObservableCommand
 	{
-		event ObservableCommandDelegate OnRequestExecute;
+		event ObservableCommandEventHandler ExecuteRequested;
 
 		IReadOnlyObservableVariable<bool> CanExecute { get; }
 
@@ -14,7 +14,7 @@
 
 	public interface IObservableCommand<T>
 	{
-		event ObservableCommandDelegate<T> OnRequestExecute;
+		event ObservableCommandEventHandler<T> ExecuteRequested;
 
 		IReadOnlyObservableVariable<bool> CanExecute { get; }
 

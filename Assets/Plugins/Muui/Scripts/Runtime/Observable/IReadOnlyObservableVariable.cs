@@ -1,10 +1,10 @@
 ﻿namespace Muui
 {
-	public delegate void ObservableVariableDelegate<T>(T newValue);
+	public delegate void ObservableVariableEventHandler<T>(T newValue);
 
 	public interface IReadOnlyObservableVariable<T>
 	{
-		event ObservableVariableDelegate<T> OnChange;
+		event ObservableVariableEventHandler<T> Changed;
 
 		bool HasValue { get; }
 		T Value { get; }

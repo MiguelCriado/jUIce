@@ -2,7 +2,7 @@
 {
 	public class ObservableCommand : IObservableCommand
 	{
-		public event ObservableCommandDelegate OnRequestExecute;
+		public event ObservableCommandEventHandler ExecuteRequested;
 
 		public IReadOnlyObservableVariable<bool> CanExecute { get; }
 
@@ -16,14 +16,14 @@
 
 		}
 
-		public ObservableCommand(ObservableCommandDelegate onRequestCallback) : this()
+		public ObservableCommand(ObservableCommandEventHandler onRequestCallback) : this()
 		{
-			OnRequestExecute = onRequestCallback;
+			ExecuteRequested = onRequestCallback;
 		}
 
-		public ObservableCommand(IObservableVariable<bool> canExecuteSource, ObservableCommandDelegate onRequestCallback) : this(canExecuteSource)
+		public ObservableCommand(IObservableVariable<bool> canExecuteSource, ObservableCommandEventHandler onRequestCallback) : this(canExecuteSource)
 		{
-			OnRequestExecute = onRequestCallback;
+			ExecuteRequested = onRequestCallback;
 		}
 
 		public bool Execute()
@@ -32,17 +32,22 @@
 
 			if (CanExecute.Value)
 			{
-				OnRequestExecute?.Invoke();
+				OnExecuteRequested();
 				result = true;
 			}
 
 			return result;
 		}
+
+		protected virtual void OnExecuteRequested()
+		{
+			ExecuteRequested?.Invoke();
+		}
 	}
 
 	public class ObservableCommand<T> : IObservableCommand<T>
 	{
-		public event ObservableCommandDelegate<T> OnRequestExecute;
+		public event ObservableCommandEventHandler<T> ExecuteRequested;
 
 		public IReadOnlyObservableVariable<bool> CanExecute { get; }
 
@@ -56,14 +61,14 @@
 
 		}
 
-		public ObservableCommand(ObservableCommandDelegate<T> onRequestCallback) : this()
+		public ObservableCommand(ObservableCommandEventHandler<T> onRequestCallback) : this()
 		{
-			OnRequestExecute = onRequestCallback;
+			ExecuteRequested = onRequestCallback;
 		}
 
-		public ObservableCommand(IObservableVariable<bool> canExecuteSource, ObservableCommandDelegate<T> onRequestCallback) : this(canExecuteSource)
+		public ObservableCommand(IObservableVariable<bool> canExecuteSource, ObservableCommandEventHandler<T> onRequestCallback) : this(canExecuteSource)
 		{
-			OnRequestExecute = onRequestCallback;
+			ExecuteRequested = onRequestCallback;
 		}
 
 		public bool Execute(T parameter)
@@ -72,11 +77,16 @@
 
 			if (CanExecute.Value)
 			{
-				OnRequestExecute?.Invoke(parameter);
+				OnExecuteRequested(parameter);
 				result = true;
 			}
 
 			return result;
+		}
+
+		protected virtual void OnExecuteRequested(T parameter)
+		{
+			ExecuteRequested?.Invoke(parameter);
 		}
 	}
 }

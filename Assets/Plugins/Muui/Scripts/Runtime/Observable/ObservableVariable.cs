@@ -6,7 +6,7 @@ namespace Muui
 	[Serializable]
 	public class ObservableVariable<T> : IObservableVariable<T>
 	{
-		public event ObservableVariableDelegate<T> OnChange;
+		public event ObservableVariableEventHandler<T> Changed;
 
 		public bool HasValue { get; protected set; }
 
@@ -19,7 +19,7 @@ namespace Muui
 				if (value.Equals(this.value) == false)
 				{
 					SetValue(value);
-					OnChange?.Invoke(value);
+					OnChanged(value);
 				}
 			}
 		}
@@ -34,6 +34,11 @@ namespace Muui
 		public ObservableVariable(T initialValue)
 		{
 			SetValue(initialValue);
+		}
+
+		protected virtual void OnChanged(T newValue)
+		{
+			Changed?.Invoke(newValue);
 		}
 
 		private void SetValue(T newValue)

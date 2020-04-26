@@ -7,10 +7,10 @@ namespace Muui
 #pragma warning disable 4014
 	public class WindowLayer : BaseLayer<IWindowController>
 	{
-		public delegate void WindowLayerDelegate();
+		public delegate void WindowLayerEventHandler();
 
-		public event WindowLayerDelegate RequestScreenBlock;
-		public event WindowLayerDelegate RequestScreenUnblock;
+		public event WindowLayerEventHandler RequestScreenBlock;
+		public event WindowLayerEventHandler RequestScreenUnblock;
 
 		public IWindowController CurrentWindow { get; private set; }
 
@@ -25,8 +25,8 @@ namespace Muui
 		{
 			if (priorityParaLayer != null)
 			{
-				priorityParaLayer.OnShadowClick -= OnPopupsShadowClick;
-				priorityParaLayer.OnShadowClick += OnPopupsShadowClick;
+				priorityParaLayer.ShadowClicked -= PopupsShadowClicked;
+				priorityParaLayer.ShadowClicked += PopupsShadowClicked;
 			}
 		}
 
@@ -34,8 +34,8 @@ namespace Muui
 		{
 			this.priorityParaLayer = priorityParaLayer;
 
-			priorityParaLayer.OnShadowClick -= OnPopupsShadowClick;
-			priorityParaLayer.OnShadowClick += OnPopupsShadowClick;
+			priorityParaLayer.ShadowClicked -= PopupsShadowClicked;
+			priorityParaLayer.ShadowClicked += PopupsShadowClicked;
 		}
 
 		public override Task ShowScreen(IWindowController screen)
@@ -134,18 +134,18 @@ namespace Muui
 		{
 			base.ProcessScreenRegister(controller);
 
-			controller.OnInTransitionFinished += OnInAnimationFinished;
-			controller.OnOutTransitionFinished += OnOutAnimationFinished;
-			controller.OnCloseRequest += OnCloseRequestedByWindow;
+			controller.InTransitionFinished += OnInAnimationFinished;
+			controller.OutTransitionFinished += OnOutAnimationFinished;
+			controller.CloseRequested += OnCloseRequestedByWindow;
 		}
 
 		protected override void ProcessScreenUnregister(IWindowController controller)
 		{
 			base.ProcessScreenUnregister(controller);
 
-			controller.OnInTransitionFinished -= OnInAnimationFinished;
-			controller.OnOutTransitionFinished -= OnOutAnimationFinished;
-			controller.OnCloseRequest -= OnCloseRequestedByWindow;
+			controller.InTransitionFinished -= OnInAnimationFinished;
+			controller.OutTransitionFinished -= OnOutAnimationFinished;
+			controller.CloseRequested -= OnCloseRequestedByWindow;
 		}
 
 		private void OnInAnimationFinished(IScreenController controller)
@@ -169,7 +169,7 @@ namespace Muui
 			HideScreen(controller as IWindowController);
 		}
 
-		private void OnPopupsShadowClick()
+		private void PopupsShadowClicked()
 		{
 			if (CurrentWindow != null && CurrentWindow.IsPopup && CurrentWindow.CloseOnShadowClick)
 			{
