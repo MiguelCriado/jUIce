@@ -14,11 +14,11 @@ namespace Muui
 
 	public interface IReadOnlyObservableDictionary<TKey, TValue> : IEnumerable<KeyValuePair<TKey, TValue>>
 	{
-		event DictionaryAddDelegate<TKey, TValue> OnAdd;
-		event DictionaryCountChangeDelegate OnCountChange;
-		event DictionaryRemoveDelegate<TKey, TValue> OnRemove;
-		event DictionaryReplaceDelegate<TKey, TValue> OnReplace;
-		event DictionaryResetDelegate OnReset;
+		event DictionaryAddDelegate<TKey, TValue> EntryAdded;
+		event DictionaryCountChangeDelegate CountChanged;
+		event DictionaryRemoveDelegate<TKey, TValue> EntryRemoved;
+		event DictionaryReplaceDelegate<TKey, TValue> EntryReplaced;
+		event DictionaryResetDelegate Reset;
 
 		int Count { get; }
 		TValue this[TKey index] { get; }

@@ -16,12 +16,12 @@ namespace Muui
 
 	public interface IReadOnlyObservableCollection<T> : IEnumerable<T>
 	{
-		event CollectionAddDelegate<T> OnAdd;
-		event CollectionCountChangeDelegate OnCountChange;
-		event CollectionRemoveDelegate<T> OnRemove;
-		event CollectionMoveEvent<T> OnMove;
-		event CollectionReplaceEvent<T> OnReplace;
-		event CollectionResetEvent OnReset;
+		event CollectionAddDelegate<T> ItemAdded;
+		event CollectionCountChangeDelegate CountChanged;
+		event CollectionRemoveDelegate<T> ItemRemoved;
+		event CollectionMoveEvent<T> ItemMoved;
+		event CollectionReplaceEvent<T> ItemReplaced;
+		event CollectionResetEvent Reset;
 
 		int Count { get; }
 		T this[int index] { get; }

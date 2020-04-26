@@ -58,7 +58,7 @@ namespace Muui.Tests
 		{
 			ObservableCommand command = new ObservableCommand();
 			int callbackCount = 0;
-			command.OnRequestExecute += () => callbackCount++;
+			command.ExecuteRequested += () => callbackCount++;
 
 			command.Execute();
 
@@ -72,7 +72,7 @@ namespace Muui.Tests
 			ObservableCommand command = new ObservableCommand(canExecute);
 			canExecute.Value = false;
 			int callbackCount = 0;
-			command.OnRequestExecute += () => callbackCount++;
+			command.ExecuteRequested += () => callbackCount++;
 
 			command.Execute();
 
@@ -135,7 +135,7 @@ namespace Muui.Tests
 		{
 			ObservableCommand<int> command = new ObservableCommand<int>();
 			int callbackCount = 0;
-			command.OnRequestExecute += (int value) => callbackCount++;
+			command.ExecuteRequested += (int value) => callbackCount++;
 
 			command.Execute(14);
 
@@ -149,7 +149,7 @@ namespace Muui.Tests
 			ObservableCommand<int> command = new ObservableCommand<int>(canExecute);
 			canExecute.Value = false;
 			int callbackCount = 0;
-			command.OnRequestExecute += (int value) => callbackCount++;
+			command.ExecuteRequested += (int value) => callbackCount++;
 
 			command.Execute(14);
 
@@ -162,7 +162,7 @@ namespace Muui.Tests
 			ObservableVariable<bool> canExecute = new ObservableVariable<bool>(true);
 			ObservableCommand<int> command = new ObservableCommand<int>(canExecute);
 			int mirrorVariable = -1;
-			command.OnRequestExecute += (int value) => mirrorVariable = value;
+			command.ExecuteRequested += (int value) => mirrorVariable = value;
 
 			command.Execute(14);
 

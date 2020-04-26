@@ -4,7 +4,7 @@
 
 	public interface IReadOnlyObservableVariable<T>
 	{
-		event ObservableVariableDelegate<T> OnChange;
+		event ObservableVariableDelegate<T> Changed;
 
 		bool HasValue { get; }
 		T Value { get; }

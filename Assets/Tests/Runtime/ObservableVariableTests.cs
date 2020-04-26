@@ -50,7 +50,7 @@ namespace Muui.Tests
 		public IEnumerator Subscribe_WhenValueChange_CallCallback()
 		{
 			ObservableVariable<int> variable = new ObservableVariable<int>();
-			variable.OnChange += CopyIntVariable;
+			variable.Changed += CopyIntVariable;
 
 			variable.Value = 14;
 
@@ -64,7 +64,7 @@ namespace Muui.Tests
 		{
 			ObservableVariable<int> variable = new ObservableVariable<int>();
 
-			variable.OnChange += IncrementCallbackCount;
+			variable.Changed += IncrementCallbackCount;
 
 			Assert.IsTrue(callbackCount == 0);
 
@@ -75,7 +75,7 @@ namespace Muui.Tests
 		public IEnumerator Subscribe_WhenValueChange_OnlyOneCallCallbackIsRaised()
 		{
 			ObservableVariable<int> variable = new ObservableVariable<int>();
-			variable.OnChange += IncrementCallbackCount;
+			variable.Changed += IncrementCallbackCount;
 
 			variable.Value = 42;
 
@@ -88,10 +88,10 @@ namespace Muui.Tests
 		public IEnumerator Unsubscribe_WhenValueChange_DontCallCallback()
 		{
 			ObservableVariable<int> variable = new ObservableVariable<int>();
-			variable.OnChange += CopyIntVariable;
+			variable.Changed += CopyIntVariable;
 			variable.Value = 14;
 
-			variable.OnChange -= CopyIntVariable;
+			variable.Changed -= CopyIntVariable;
 			variable.Value = 42;
 
 			Assert.IsTrue(intMirrorVariable == 14);
