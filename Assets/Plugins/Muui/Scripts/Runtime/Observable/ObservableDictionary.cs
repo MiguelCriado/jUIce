@@ -6,11 +6,11 @@ namespace Muui
 {
 	public class ObservableDictionary<TKey, TValue> : IObservableDictionary<TKey, TValue>, IDictionary
 	{
-		public event DictionaryAddDelegate<TKey, TValue> EntryAdded;
-		public event DictionaryCountChangeDelegate CountChanged;
-		public event DictionaryRemoveDelegate<TKey, TValue> EntryRemoved;
-		public event DictionaryReplaceDelegate<TKey, TValue> EntryReplaced;
-		public event DictionaryResetDelegate Reset;
+		public event DictionaryAddEventHandler<TKey, TValue> EntryAdded;
+		public event DictionaryCountChangeEventHandler CountChanged;
+		public event DictionaryRemoveEventHandler<TKey, TValue> EntryRemoved;
+		public event DictionaryReplaceEventHandler<TKey, TValue> EntryReplaced;
+		public event DictionaryResetEventHandler Reset;
 
 		public int Count => innerDictionary.Count;
 		public bool IsSynchronized => ((IDictionary)innerDictionary).IsSynchronized;

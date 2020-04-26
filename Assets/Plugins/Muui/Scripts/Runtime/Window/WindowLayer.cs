@@ -7,10 +7,10 @@ namespace Muui
 #pragma warning disable 4014
 	public class WindowLayer : BaseLayer<IWindowController>
 	{
-		public delegate void WindowLayerDelegate();
+		public delegate void WindowLayerEventHandler();
 
-		public event WindowLayerDelegate RequestScreenBlock;
-		public event WindowLayerDelegate RequestScreenUnblock;
+		public event WindowLayerEventHandler RequestScreenBlock;
+		public event WindowLayerEventHandler RequestScreenUnblock;
 
 		public IWindowController CurrentWindow { get; private set; }
 

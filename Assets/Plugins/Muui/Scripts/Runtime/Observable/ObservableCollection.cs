@@ -6,12 +6,12 @@ namespace Muui
 {
 	public class ObservableCollection<T> : Collection<T>, IObservableCollection<T>
 	{
-		public event CollectionAddDelegate<T> ItemAdded;
-		public event CollectionCountChangeDelegate CountChanged;
-		public event CollectionRemoveDelegate<T> ItemRemoved;
-		public event CollectionMoveEvent<T> ItemMoved;
-		public event CollectionReplaceEvent<T> ItemReplaced;
-		public event CollectionResetEvent Reset;
+		public event CollectionAddEventHandler<T> ItemAdded;
+		public event CollectionCountChangeEventHandler CountChanged;
+		public event CollectionRemoveEventHandler<T> ItemRemoved;
+		public event CollectionMoveEventHandler<T> ItemMoved;
+		public event CollectionReplaceEventHandler<T> ItemReplaced;
+		public event CollectionResetEventHandler Reset;
 
 		public ObservableCollection()
 		{

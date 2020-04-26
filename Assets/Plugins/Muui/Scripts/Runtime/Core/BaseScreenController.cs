@@ -8,10 +8,10 @@ namespace Muui
 	public abstract class BaseScreenController<T> : MonoBehaviour, IScreenController
 		where T : IScreenProperties
 	{
-		public event ScreenControllerDelegate InTransitionFinished;
-		public event ScreenControllerDelegate OutTransitionFinished;
-		public event ScreenControllerDelegate CloseRequested;
-		public event ScreenControllerDelegate ScreenDestroyed;
+		public event ScreenControllerEventHandler InTransitionFinished;
+		public event ScreenControllerEventHandler OutTransitionFinished;
+		public event ScreenControllerEventHandler CloseRequested;
+		public event ScreenControllerEventHandler ScreenDestroyed;
 
 		public bool IsVisible { get; private set; }
 

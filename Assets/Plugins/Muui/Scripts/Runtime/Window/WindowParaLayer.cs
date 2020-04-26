@@ -8,9 +8,9 @@ namespace Muui
 {
 	public class WindowParaLayer : MonoBehaviour
 	{
-		internal delegate void CommonDelegate();
+		internal delegate void WindowParaLayerEventHandler();
 
-		internal event CommonDelegate ShadowClicked;
+		internal event WindowParaLayerEventHandler ShadowClicked;
 
 		[SerializeField] private GameObject backgroundShadow = null;
 		[SerializeField] private float shadowFadeTime;

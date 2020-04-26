@@ -6,7 +6,7 @@ namespace Muui
 	[Serializable]
 	public class ObservableVariable<T> : IObservableVariable<T>
 	{
-		public event ObservableVariableDelegate<T> Changed;
+		public event ObservableVariableEventHandler<T> Changed;
 
 		public bool HasValue { get; protected set; }
 

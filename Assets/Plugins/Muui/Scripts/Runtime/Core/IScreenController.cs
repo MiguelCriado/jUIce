@@ -2,14 +2,14 @@
 
 namespace Muui
 {
-	public delegate void ScreenControllerDelegate(IScreenController controller);
+	public delegate void ScreenControllerEventHandler(IScreenController controller);
 
 	public interface IScreenController
 	{
-		event ScreenControllerDelegate InTransitionFinished;
-		event ScreenControllerDelegate OutTransitionFinished;
-		event ScreenControllerDelegate CloseRequested;
-		event ScreenControllerDelegate ScreenDestroyed;
+		event ScreenControllerEventHandler InTransitionFinished;
+		event ScreenControllerEventHandler OutTransitionFinished;
+		event ScreenControllerEventHandler CloseRequested;
+		event ScreenControllerEventHandler ScreenDestroyed;
 
 		bool IsVisible { get; }
 
