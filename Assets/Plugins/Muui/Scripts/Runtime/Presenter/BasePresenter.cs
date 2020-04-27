@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Muui
 {
 #pragma warning disable 0649
-	public abstract class BasePresenter<T> : MonoBehaviour where T : IScreenController
+	public abstract class BasePresenter<T> : MonoBehaviour, IPresenter where T : IScreenController
 	{
 		[SerializeField] private T screenPrefab;
 

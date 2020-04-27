@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Muui
 {
@@ -23,7 +24,7 @@ namespace Muui
 		{
 			if (uiFrame)
 			{
-				BasePresenter<IScreenController>[] childPresenters = GetComponentsInChildren<BasePresenter<IScreenController>>(true);
+				IPresenter[] childPresenters = GetComponentsInChildren<IPresenter>(true);
 
 				foreach (var presenter in childPresenters)
 				{
