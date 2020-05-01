@@ -1,5 +1,5 @@
-# muui
-Muui is a framework built on top of Unity's uGui solution. It provides a series of systems and guidelines to boost your UI development within Unity.
+# Maui
+Maui is a framework built on top of Unity's uGui solution. It provides a series of systems and guidelines to boost your UI development within Unity.
 
 This project is based on the amazing [deVoid UI Framework](https://github.com/yankooliveira/uiframework) by Yanko Oliveira. 
 
