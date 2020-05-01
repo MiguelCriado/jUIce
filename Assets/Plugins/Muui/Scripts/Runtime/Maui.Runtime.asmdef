@@ -1,8 +1,6 @@
 {
-    "name": "Muui.Editor",
-    "references": [
-        "GUID:6640779ff9805d44f99b6eadf414d408"
-    ],
+    "name": "Maui.Runtime",
+    "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

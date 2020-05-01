@@ -1,4 +1,4 @@
-﻿namespace Muui
+﻿namespace Maui
 {
 	public abstract class BasePanelController : BasePanelController<PanelProperties>
 	{

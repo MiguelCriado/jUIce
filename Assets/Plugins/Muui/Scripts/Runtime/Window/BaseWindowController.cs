@@ -1,4 +1,4 @@
-﻿namespace Muui
+﻿namespace Maui
 {
 	public abstract class BaseWindowController : BaseWindowController<WindowProperties>
 	{

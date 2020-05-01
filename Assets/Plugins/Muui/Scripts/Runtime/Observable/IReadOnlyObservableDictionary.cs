@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Muui
+namespace Maui
 {
 	public delegate void DictionaryAddEventHandler<TKey, TValue>(TKey key, TValue value);
 

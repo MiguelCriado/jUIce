@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Muui
+namespace Maui
 {
 	public delegate void CollectionAddEventHandler<T>(int index, T value);
 

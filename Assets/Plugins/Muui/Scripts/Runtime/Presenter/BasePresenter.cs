@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using UnityEngine;
 
-namespace Muui
+namespace Maui
 {
 #pragma warning disable 0649
 	public abstract class BasePresenter<T> : MonoBehaviour, IPresenter where T : IScreenController

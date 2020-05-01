@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace Muui
+namespace Maui
 {
 #pragma warning disable 4014
 	public class WindowLayer : BaseLayer<IWindowController>

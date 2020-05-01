@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace Muui
+namespace Maui
 {
 	[Serializable]
 	public class WindowProperties : IWindowProperties

@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using UnityEngine;
 
-namespace Muui
+namespace Maui
 {
 	public abstract class BaseTransition : MonoBehaviour
 	{

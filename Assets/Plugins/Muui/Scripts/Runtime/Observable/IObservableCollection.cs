@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Muui
+namespace Maui
 {
 	public interface IObservableCollection<T> : IList<T>, IReadOnlyObservableCollection<T>
 	{

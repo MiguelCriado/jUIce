@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Muui
+namespace Maui
 {
 	public class ObservableDictionary<TKey, TValue> : IObservableDictionary<TKey, TValue>, IDictionary
 	{

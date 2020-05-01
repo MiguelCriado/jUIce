@@ -1,7 +1,6 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace Muui
+namespace Maui
 {
 	public class PresenterInitializer : MonoBehaviour
 	{

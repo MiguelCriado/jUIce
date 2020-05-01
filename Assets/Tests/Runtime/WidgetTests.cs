@@ -3,7 +3,7 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-namespace Muui.Tests
+namespace Maui.Tests
 {
 	public class WidgetTests
 	{

@@ -3,7 +3,7 @@ using System.IO;
 using System.Text;
 using UnityEditor;
 
-namespace Muui.Editor
+namespace Maui.Editor
 {
 	public static class ClassFileWriter
 	{

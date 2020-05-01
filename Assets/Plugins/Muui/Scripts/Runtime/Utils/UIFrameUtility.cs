@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace Muui
+namespace Maui
 {
 	public static class UIFrameUtility
 	{

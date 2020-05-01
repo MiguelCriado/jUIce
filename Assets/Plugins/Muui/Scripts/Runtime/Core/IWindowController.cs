@@ -1,4 +1,4 @@
-﻿namespace Muui
+﻿namespace Maui
 {
 	public interface IWindowController : IScreenController
 	{

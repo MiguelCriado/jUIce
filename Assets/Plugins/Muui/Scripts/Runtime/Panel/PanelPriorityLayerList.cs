@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Muui
+namespace Maui
 {
 	[Serializable]
 	public class PanelPriorityLayerList

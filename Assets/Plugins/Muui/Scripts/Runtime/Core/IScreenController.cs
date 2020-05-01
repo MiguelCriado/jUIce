@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Muui
+namespace Maui
 {
 	public delegate void ScreenControllerEventHandler(IScreenController controller);
 

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace Muui
+namespace Maui
 {
 	public class ObservableCollection<T> : Collection<T>, IObservableCollection<T>
 	{

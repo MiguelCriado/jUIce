@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Muui
+namespace Maui
 {
 	public class UIFrame : MonoBehaviour
 	{

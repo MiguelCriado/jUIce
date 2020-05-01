@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine.TestTools;
 
-namespace Muui.Tests
+namespace Maui.Tests
 {
 	public class ObservableCollectionTests
 	{

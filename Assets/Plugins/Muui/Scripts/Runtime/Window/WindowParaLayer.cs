@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Muui
+namespace Maui
 {
 	public class WindowParaLayer : MonoBehaviour
 	{

@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Project structure from Package to Plugin.
 - Event naming to follow .NET conventions.
+- Project name from Muui to Maui.
+- Root namespace from Muui to Maui.
 
 ### Fixed
 - A compilation error when targeting .Net Standard 2.0.

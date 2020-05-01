@@ -1,4 +1,4 @@
-﻿namespace Muui
+﻿namespace Maui
 {
 	public delegate void ObservableCommandEventHandler<T>(T parameter);
 	public delegate void ObservableCommandEventHandler();

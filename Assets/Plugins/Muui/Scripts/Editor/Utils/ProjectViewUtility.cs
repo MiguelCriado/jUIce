@@ -2,7 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Muui.Editor
+namespace Maui.Editor
 {
 	public class ProjectViewUtility
 	{

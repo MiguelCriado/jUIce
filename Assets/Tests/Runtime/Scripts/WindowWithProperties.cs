@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Muui.Tests
+namespace Maui.Tests
 {
 	public class WindowWithProperties : BaseWindowController<WindowWithProperties.Properties>
 	{

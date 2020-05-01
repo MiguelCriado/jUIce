@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace Muui
+namespace Maui
 {
 #pragma warning disable 0067
 	public abstract class BaseScreenController<T> : MonoBehaviour, IScreenController

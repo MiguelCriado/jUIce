@@ -1,9 +1,9 @@
 {
-    "name": "Muui.Runtime.Tests",
+    "name": "Maui.Runtime.Tests",
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
-        "Muui.Runtime"
+        "Maui.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
