@@ -8,9 +8,9 @@ EditorBuildSettings:
   - enabled: 0
     path: 
     guid: 00000000000000000000000000000000
-  - enabled: 1
-    path: Assets/Examples/Scenes/Example-00.unity
-    guid: dea001f26412df24baedbc6bc4e8d81c
+  - enabled: 0
+    path: 
+    guid: 00000000000000000000000000000000
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: 7d9c4707333582c42abbecfb43e769ac,
       type: 2}

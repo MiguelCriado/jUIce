@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.6] - 2020-05-02
+### Added
+- Event initialization in ObservableCommand's constructor.
+- PresenterInitializer class.
+- CreateMenu entries to automatically create new Screen class files.
+
+### Changed
+- Project structure from Package to Plugin.
+- Event naming to follow .NET conventions.
+- Project name from Muui to Maui.
+- Root namespace from Muui to Maui.
+
+### Fixed
+- A compilation error when targeting .Net Standard 2.0.
+- NullReferenceExceptions in UIFrame hierarchy when initializing Presenters on Awake.
+
 ## [0.1.5] - 2020-02-20
 ### Added
 - A try/catch clause to Transition.Animate calls.
