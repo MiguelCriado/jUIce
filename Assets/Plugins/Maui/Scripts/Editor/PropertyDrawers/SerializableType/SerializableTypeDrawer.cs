@@ -31,10 +31,10 @@ namespace Maui.Editor
 
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
-			CacheElements(property);
-			RefreshCurrentIndex();
-
 			EditorGUI.BeginProperty(position, label, property);
+
+			CacheElements(property);
+			RefreshCurrentIndex(property);
 
 			position = DrawLabel(position, label);
 
@@ -46,9 +46,9 @@ namespace Maui.Editor
 
 			if (index != currentIndex)
 			{
-				string selectedType = cachedOptions[index];
-
 				Undo.RecordObject(property.serializedObject.targetObject, $"{fieldInfo.Name} type changed");
+				
+				string selectedType = cachedOptions[index];
 				target.Type = typeMap[selectedType].Type;
 
 				currentIndex = index;
@@ -92,11 +92,15 @@ namespace Maui.Editor
 			{
 				foreach (Type type in assembly.GetTypes())
 				{
-					if (typeConstraint.BaseType.IsAssignableFrom(type))
+					if (typeConstraint == null || typeConstraint.BaseType.IsAssignableFrom(type))
 					{
 						string typeName = type.FullName;
-						typeMap.Add(typeName, new TypeEntry(options.Count, type));
-						options.Add(typeName);
+
+						if (typeMap.ContainsKey(typeName) == false)
+						{
+							typeMap.Add(typeName, new TypeEntry(options.Count, type));
+							options.Add(typeName);
+						}
 					}
 				}
 			}
@@ -104,10 +108,22 @@ namespace Maui.Editor
 			cachedOptions = options.ToArray();
 		}
 
-		private void RefreshCurrentIndex()
+		private void RefreshCurrentIndex(SerializedProperty property)
 		{
-			string typeName = target.Type.FullName;
-			currentIndex = typeMap[typeName].Index;
+			if (target.Type != null)
+			{
+				string typeName = target.Type.FullName;
+
+				if (typeMap.TryGetValue(typeName, out TypeEntry entry))
+				{
+					currentIndex = entry.Index;
+				}
+			}
+			else if (typeMap.Count > 0)
+			{
+				TypeEntry firstEntry = typeMap[cachedOptions[0]];
+				target.Type = firstEntry.Type;
+			}
 		}
 	}
 }

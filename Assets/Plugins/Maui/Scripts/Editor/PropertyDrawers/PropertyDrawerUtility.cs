@@ -10,22 +10,52 @@ namespace Maui.Editor
 		public static T GetActualObjectForSerializedProperty<T>(FieldInfo fieldInfo, SerializedProperty property) where T : class
 		{
 			T result = null;
-			var obj = fieldInfo.GetValue(property.serializedObject.targetObject);
 
-			if (obj != null)
+			var targetObject = ResolveTargetObject(property);
+			var field = fieldInfo.GetValue(targetObject);
+
+			if (field != null)
 			{
-				if (obj.GetType().IsArray)
+				if (field.GetType().IsArray)
 				{
 					var index = Convert.ToInt32(new string(property.propertyPath.Where(c => char.IsDigit(c)).ToArray()));
-					result = ((T[])obj)[index];
+					result = ((T[])field)[index];
 				}
 				else
 				{
-					result = obj as T;
+					result = field as T;
 				}
 			}
 
 			return result;
+		}
+
+		private static object ResolveTargetObject(SerializedProperty property)
+		{
+			object targetObject = property.serializedObject.targetObject;
+			string[] tokens = property.propertyPath.Split('.');
+
+			for (int i = 0; i < tokens.Length - 1; i++)
+			{
+				Type type = targetObject.GetType();
+				FieldInfo info = null;
+				BindingFlags bindingFlags =
+					BindingFlags.Public
+					| BindingFlags.NonPublic
+					| BindingFlags.Static
+					| BindingFlags.Instance
+					| BindingFlags.DeclaredOnly;
+
+				while (info == null && type != null)
+				{
+					info = type.GetField(tokens[i], bindingFlags);
+					type = type.BaseType;
+				}
+
+				targetObject = info.GetValue(targetObject);
+			}
+
+			return targetObject;
 		}
 	}
 }

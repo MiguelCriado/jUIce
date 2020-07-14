@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace Maui
@@ -8,15 +9,17 @@ namespace Maui
 	{
 		private Text text;
 
-		private void Awake()
+		[SerializeField] private List<BindingInfo> bindingList;
+
+		protected override void Awake()
 		{
+			base.Awake();
+			
 			text = GetComponent<Text>();
 		}
 
 		protected override void Refresh(string value)
 		{
-			this.
-
 			text.text = value;
 		}
 	}
