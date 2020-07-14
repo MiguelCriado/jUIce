@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 namespace Maui
@@ -8,9 +7,7 @@ namespace Maui
 	public class TextBinder : Binder<string>
 	{
 		private Text text;
-
-		[SerializeField] private List<BindingInfo> bindingList;
-
+		
 		protected override void Awake()
 		{
 			base.Awake();

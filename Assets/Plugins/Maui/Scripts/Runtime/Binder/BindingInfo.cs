@@ -7,7 +7,13 @@ namespace Maui
 	public class BindingInfo
 	{
 		public Type Type => type.Type;
-		public ViewModelComponent ViewModelContainer => viewModelContainer;
+
+		public ViewModelComponent ViewModelContainer
+		{
+			get => viewModelContainer;
+			set => viewModelContainer = value;
+		}
+
 		public string PropertyName => propertyName;
 
 		[SerializeField] private SerializableType type;
@@ -17,19 +23,6 @@ namespace Maui
 		public BindingInfo(Type targetType)
 		{
 			type = new SerializableType(targetType);
-		}
-
-		public IObservableVariable<T> ResolveProperty<T>(Component context)
-		{
-			// TODO: check that T is equivalent to Type
-			IObservableVariable<T> result = null;
-
-			if (viewModelContainer != null)
-			{
-
-			}
-
-			return result;
 		}
 	}
 }

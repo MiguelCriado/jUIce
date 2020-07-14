@@ -8,10 +8,10 @@ namespace Maui
 	{
 		public IReadOnlyObservableVariable<T> Property => exposedProperty;
 		
-		private BindingInfo bindingInfo;
-		private Component context;
+		private readonly BindingInfo bindingInfo;
+		private readonly Component context;
+		private readonly ObservableVariable<T> exposedProperty;
 		private IObservableVariable<T> boundProperty;
-		private ObservableVariable<T> exposedProperty;
 
 		public Binding(BindingInfo bindingInfo, Component context)
 		{
@@ -22,7 +22,13 @@ namespace Maui
 
 		public void Bind()
 		{
-			// TODO: find ViewModelContainer if bindingInfo doesn't have one
+			if (bindingInfo.ViewModelContainer == null && string.IsNullOrEmpty(bindingInfo.PropertyName) == false)
+			{
+				Type targetType = typeof(IReadOnlyObservableVariable<>);
+				targetType = targetType.MakeGenericType(typeof(T));
+
+				bindingInfo.ViewModelContainer = FindViewModelComponent(targetType, context.transform);
+			}
 			
 			if (bindingInfo.ViewModelContainer != null)
 			{
@@ -48,6 +54,39 @@ namespace Maui
 			}
 
 			boundProperty = null;
+		}
+		
+		private ViewModelComponent FindViewModelComponent(Type targetType, Transform transform)
+		{
+			ViewModelComponent result = null;
+			ViewModelComponent[] viewModels = transform.GetComponents<ViewModelComponent>();
+
+			int i = 0;
+
+			while (result == null && i < viewModels.Length)
+			{
+				ViewModelComponent next = viewModels[i];
+				Type type = next.ExpectedType;
+					
+				if (type != null)
+				{
+					PropertyInfo propertyInfo = type.GetProperty(bindingInfo.PropertyName);
+
+					if (propertyInfo != null && targetType.IsAssignableFrom(propertyInfo.PropertyType))
+					{
+						result = next;
+					}
+				}
+					
+				i++;
+			}
+
+			if (result == null && transform.parent != null)
+			{
+				result = FindViewModelComponent(targetType, transform.parent);
+			}
+
+			return result;
 		}
 
 		private void Bind(IViewModel viewModel, string propertyName)
