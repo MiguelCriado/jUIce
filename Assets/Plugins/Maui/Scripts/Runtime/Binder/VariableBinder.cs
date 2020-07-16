@@ -2,15 +2,15 @@
 
 namespace Maui
 {
-	public abstract class Binder<T> : MonoBehaviour, IBinder<T>
+	public abstract class VariableBinder<T> : MonoBehaviour, IBinder<T>
 	{
 		[SerializeField] private BindingInfo bindingInfo = new BindingInfo(typeof(T));
 
-		private Binding<T> binding;
+		private VariableBinding<T> binding;
 
 		protected virtual void Awake()
 		{
-			binding = new Binding<T>(bindingInfo, this);
+			binding = new VariableBinding<T>(bindingInfo, this);
 			binding.Property.Changed += BoundPropertyChangedHandler;
 		}
 
