@@ -5,8 +5,9 @@ using UnityEngine;
 namespace Maui
 {
 #pragma warning disable 0067
-	public abstract class BaseScreenController<T> : MonoBehaviour, IScreenController
-		where T : IScreenProperties
+	[RequireComponent(typeof(ViewModelComponent))]
+	public abstract class BaseScreenController<T> : MonoBehaviour, IScreenController<T>, IViewModelInjector<T>
+		where T : IViewModel
 	{
 		public event ScreenControllerEventHandler InTransitionFinished;
 		public event ScreenControllerEventHandler OutTransitionFinished;
@@ -27,36 +28,26 @@ namespace Maui
 			set => outTransition = value;
 		}
 
-		protected T CurrentProperties
-		{
-			get => properties;
-			set => properties = value;
-		}
+		public ViewModelComponent Target => targetComponent;
 
+		[Header("Target ViewModel Component")]
+		[SerializeField] private ViewModelComponent targetComponent;
 		[Header("Screen Animations")]
 		[SerializeField] private BaseTransition inTransition;
 		[SerializeField] private BaseTransition outTransition;
-		[Header("Screen Properties")]
-		[SerializeField] private T properties;
 
-		private bool propertiesHaveBeenSet;
+		protected T viewModel;
 
-		public async Task Show(IScreenProperties properties = null)
+		protected void Reset()
 		{
-			if (properties != null)
+			targetComponent = GetComponentInChildren<ViewModelComponent>();
+		}
+
+		public async Task Show(T viewModel)
+		{
+			if (viewModel != null)
 			{
-				if (properties is T typedProperties)
-				{
-					CleanUpProperties();
-					SetProperties(typedProperties);
-					propertiesHaveBeenSet = true;
-					SubscribeToProperties();
-				}
-				else
-				{
-					Debug.LogError($"Properties passed have wrong type! ({properties.GetType()} instead of {typeof(T)})");
-					return;
-				}
+				SetViewModel(viewModel);
 			}
 
 			OnShowing();
@@ -83,23 +74,16 @@ namespace Maui
 			IsVisible = false;
 			gameObject.SetActive(false);
 			OnOutTransitionFinished();
-
-			CleanUpProperties();
 		}
 
-		protected virtual void SubscribeToProperties()
+		protected virtual void SetViewModel(T viewModel)
 		{
+			this.viewModel = viewModel;
 
-		}
-
-		protected virtual void UnsubscribeFromProperties()
-		{
-
-		}
-
-		protected virtual void SetProperties(T properties)
-		{
-			this.properties = properties;
+			if (targetComponent != null)
+			{
+				targetComponent.Set(viewModel);
+			}
 		}
 
 		protected virtual void OnShowing()
@@ -109,7 +93,7 @@ namespace Maui
 
 		protected virtual void OnInTransitionFinished()
 		{
-			InTransitionFinished?.Invoke(this);
+			InTransitionFinished?.Invoke((IScreenController)this);
 		}
 
 		protected virtual void OnHiding()
@@ -119,17 +103,7 @@ namespace Maui
 
 		protected virtual void OnOutTransitionFinished()
 		{
-			OutTransitionFinished?.Invoke(this);
-		}
-
-		private void CleanUpProperties()
-		{
-			if (propertiesHaveBeenSet)
-			{
-				UnsubscribeFromProperties();
-			}
-
-			propertiesHaveBeenSet = false;
+			OutTransitionFinished?.Invoke((IScreenController)this);
 		}
 
 		private async Task DoAnimation(BaseTransition targetTransition, bool isVisible)

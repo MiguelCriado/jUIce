@@ -5,17 +5,17 @@ namespace Maui
 	public struct WindowHistoryEntry
 	{
 		public readonly IWindowController Screen;
-		public readonly IWindowProperties Properties;
+		public readonly IViewModel ViewModel;
 
-		public WindowHistoryEntry(IWindowController screen, IWindowProperties properties)
+		public WindowHistoryEntry(IWindowController screen, IViewModel viewModel)
 		{
 			Screen = screen;
-			Properties = properties;
+			ViewModel = viewModel;
 		}
 
 		public Task Show()
 		{
-			return Screen.Show(Properties);
+			return Screen.Show(ViewModel);
 		}
 	}
 }

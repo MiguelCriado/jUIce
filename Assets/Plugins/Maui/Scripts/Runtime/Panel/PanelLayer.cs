@@ -25,12 +25,12 @@ namespace Maui
 
 		public override Task ShowScreen(IPanelController screen)
 		{
-			return screen.Show();
+			return screen.Show(null);
 		}
 
-		public override Task ShowScreen<TProps>(IPanelController screen, TProps properties)
+		public override Task ShowScreen<T>(IPanelController screen, T viewModel) 
 		{
-			return screen.Show(properties);
+			return screen.Show(viewModel);
 		}
 
 		public override Task HideScreen(IPanelController screen)

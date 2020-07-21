@@ -1,9 +1,7 @@
-﻿using System;
-
-namespace Maui
+﻿namespace Maui
 {
 	public interface IViewModelInjector<T> where T : IViewModel
 	{
-		Type ViewModelType { get; }
+		ViewModelComponent Target { get; }
 	}
 }

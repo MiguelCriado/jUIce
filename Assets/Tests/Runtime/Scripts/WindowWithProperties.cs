@@ -1,13 +1,7 @@
-﻿using System;
-
-namespace Maui.Tests
+﻿namespace Maui.Tests
 {
-	public class WindowWithProperties : BaseWindowController<WindowWithProperties.Properties>
+	public class WindowWithProperties : BaseWindowController<IViewModel>
 	{
-		[Serializable]
-		public class Properties : WindowProperties
-		{
-			public IObservableVariable<int> MyIntVariable;
-		}
+
 	}
 }

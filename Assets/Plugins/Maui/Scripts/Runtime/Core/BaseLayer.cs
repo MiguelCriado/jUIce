@@ -28,10 +28,10 @@ namespace Maui
 			}
 		}
 
-		public abstract Task ShowScreen<TProps>(T screen, TProps properties) where TProps : IScreenProperties;
+		public abstract Task ShowScreen<TViewModel>(T screen, TViewModel properties) where TViewModel : IViewModel;
 
-		public async Task ShowScreen<TProps>(Type screenType, TProps properties)
-			where TProps : IScreenProperties
+		public async Task ShowScreen<TViewModel>(Type screenType, TViewModel properties)
+			where TViewModel : IViewModel
 		{
 			if (registeredScreens.TryGetValue(screenType, out T controller))
 			{

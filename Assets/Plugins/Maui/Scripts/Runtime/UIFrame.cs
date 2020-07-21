@@ -160,17 +160,17 @@ namespace Maui
 			}
 		}
 
-		public async Task ShowScreen<T1, T2>(T2 properties) where T2 : IScreenProperties
+		public async Task ShowScreen<T1, T2>(T2 viewModel) where T2 : IViewModel
 		{
 			Type screenType = typeof(T1);
 
 			if (typeof(IPanelController).IsAssignableFrom(screenType))
 			{
-				await panelLayer.ShowScreen(screenType, properties);
+				await panelLayer.ShowScreen(screenType, viewModel);
 			}
 			else if (typeof(IWindowController).IsAssignableFrom(screenType))
 			{
-				await windowLayer.ShowScreen(screenType, properties);
+				await windowLayer.ShowScreen(screenType, viewModel);
 			}
 			else
 			{

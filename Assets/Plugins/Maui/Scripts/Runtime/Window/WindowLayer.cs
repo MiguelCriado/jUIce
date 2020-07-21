@@ -40,22 +40,21 @@ namespace Maui
 
 		public override Task ShowScreen(IWindowController screen)
 		{
-			return ShowScreen<IWindowProperties>(screen, null);
+			return ShowScreen<IViewModel>(screen, null);
 		}
 
-		public override Task ShowScreen<TProps>(IWindowController screen, TProps properties)
+		public override Task ShowScreen<TViewModel>(IWindowController screen, TViewModel viewModel)
 		{
 			Task result;
-			IWindowProperties windowProperties = properties as WindowProperties;
 
-			if (ShouldEnqueue(screen, windowProperties))
+			if (ShouldEnqueue(screen))
 			{
-				EnqueueWindow(screen, windowProperties);
+				EnqueueWindow(screen, viewModel);
 				result = Task.CompletedTask;
 			}
 			else
 			{
-				result = DoShow(screen, windowProperties);
+				result = DoShow(screen, viewModel);
 			}
 
 			return result;
@@ -177,29 +176,15 @@ namespace Maui
 			}
 		}
 
-		private bool ShouldEnqueue(IWindowController window, IWindowProperties properties)
+		private bool ShouldEnqueue(IWindowController window)
 		{
-			bool result = false;
-
-			if (CurrentWindow == null && windowQueue.Count == 0)
-			{
-				result = false;
-			}
-			else if (properties != null && properties.SupressPrefabProperties)
-			{
-				result = properties.WindowQueuePriority != WindowPriority.ForceForeground;
-			}
-			else if (window.WindowPriority != WindowPriority.ForceForeground)
-			{
-				result = true;
-			}
-
-			return result;
+			return window.WindowPriority != WindowPriority.ForceForeground
+			       && (CurrentWindow != null || windowQueue.Count > 0);
 		}
 
-		private void EnqueueWindow(IWindowController window, IWindowProperties properties)
+		private void EnqueueWindow(IWindowController window, IViewModel viewModel)
 		{
-			windowQueue.Enqueue(new WindowHistoryEntry(window, properties));
+			windowQueue.Enqueue(new WindowHistoryEntry(window, viewModel));
 		}
 
 		private async Task DoShow(WindowHistoryEntry windowEntry)
@@ -232,9 +217,9 @@ namespace Maui
 			CurrentWindow = windowEntry.Screen;
 		}
 
-		private Task DoShow(IWindowController window, IWindowProperties properties)
+		private Task DoShow(IWindowController window, IViewModel viewModel)
 		{
-			return DoShow(new WindowHistoryEntry(window, properties));
+			return DoShow(new WindowHistoryEntry(window, viewModel));
 		}
 
 		private void AddTransition(IScreenController screen)

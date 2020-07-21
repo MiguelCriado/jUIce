@@ -1,31 +1,24 @@
-﻿namespace Maui
+﻿using System.Threading.Tasks;
+using UnityEngine;
+
+namespace Maui
 {
-	public abstract class BasePanelController : BasePanelController<PanelProperties>
+	public abstract class BasePanelController : BasePanelController<IViewModel>
 	{
 
 	}
 
 	public abstract class BasePanelController<T> : BaseScreenController<T>, IPanelController
-		where T : IPanelProperties
+		where T : IViewModel
 	{
-		public PanelPriority Priority
-		{
-			get
-			{
-				if (CurrentProperties != null)
-				{
-					return CurrentProperties.Priority;
-				}
-				else
-				{
-					return PanelPriority.None;
-				}
-			}
-		}
+		public PanelPriority Priority => priority;
 
-		protected sealed override void SetProperties(T properties)
+		[Header("Panel Properties")]
+		[SerializeField] private PanelPriority priority;
+		
+		public Task Show(IViewModel viewModel)
 		{
-			base.SetProperties(properties);
+			return base.Show((T) viewModel);
 		}
 	}
 }

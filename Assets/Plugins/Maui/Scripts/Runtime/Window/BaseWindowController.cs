@@ -1,33 +1,32 @@
-﻿namespace Maui
+﻿using System.Threading.Tasks;
+using UnityEngine;
+
+namespace Maui
 {
-	public abstract class BaseWindowController : BaseWindowController<WindowProperties>
+	public abstract class BaseWindowController : BaseWindowController<IViewModel>
 	{
 
 	}
 
 	public abstract class BaseWindowController<T> : BaseScreenController<T>, IWindowController
-		where T : IWindowProperties
+		where T : IViewModel
 	{
-		public bool HideOnForegroundLost => CurrentProperties.HideOnForegroundLost;
-		public bool IsPopup => CurrentProperties.IsPopup;
-		public bool CloseOnShadowClick => CurrentProperties.CloseOnShadowClick;
-		public WindowPriority WindowPriority => CurrentProperties.WindowQueuePriority;
+		public WindowPriority WindowPriority => windowQueuePriority;
+		public bool HideOnForegroundLost => hideOnForegroundLost;
+		public bool IsPopup => isPopup;
+		public bool CloseOnShadowClick => closeOnShadowClick;
 
-		protected override void SetProperties(T properties)
+		[Header("Window Properties")]
+		[SerializeField] private WindowPriority windowQueuePriority = WindowPriority.ForceForeground;
+		[SerializeField] private bool hideOnForegroundLost = true;
+		[SerializeField] private bool isPopup;
+		[SerializeField] private bool closeOnShadowClick = true;
+
+		public Task Show(IViewModel viewModel)
 		{
-			if (properties != null)
-			{
-				if (properties.SupressPrefabProperties == false)
-				{
-					properties.HideOnForegroundLost = CurrentProperties.HideOnForegroundLost;
-					properties.WindowQueuePriority = CurrentProperties.WindowQueuePriority;
-					properties.IsPopup = CurrentProperties.IsPopup;
-				}
-
-				CurrentProperties = properties;
-			}
+			return base.Show((T) viewModel);
 		}
-
+		
 		protected override void OnShowing()
 		{
 			base.OnShowing();

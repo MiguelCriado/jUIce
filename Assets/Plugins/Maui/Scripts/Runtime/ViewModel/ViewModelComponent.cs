@@ -8,15 +8,14 @@ namespace Maui
 		public event EventHandler<IViewModel> ViewModelChanged;
 
 		public Type ExpectedType => expectedType.Type;
-		public IViewModel ViewModel => viewModel;
+		public IViewModel ViewModel { get; private set; }
 
 		[TypeConstraint(typeof(IViewModel))]
 		[SerializeField] private SerializableType expectedType;
-		[SerializeField] private IViewModel viewModel;
 
 		public void Set(IViewModel viewModel)
 		{
-			this.viewModel = viewModel;
+			ViewModel = viewModel;
 			OnViewModelChanged();
 		}
 
