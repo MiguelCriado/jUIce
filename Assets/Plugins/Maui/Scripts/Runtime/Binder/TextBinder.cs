@@ -4,7 +4,7 @@ using UnityEngine.UI;
 namespace Maui
 {
 	[RequireComponent(typeof(Text))]
-	public class TextBinder : VariableBinder<string>
+	public class TextBinder : VariableBinder<object>
 	{
 		private Text text;
 		
@@ -15,9 +15,9 @@ namespace Maui
 			text = GetComponent<Text>();
 		}
 
-		protected override void Refresh(string value)
+		protected override void Refresh(object value)
 		{
-			text.text = value;
+			text.text = value.ToString();
 		}
 	}
 }
