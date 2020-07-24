@@ -100,7 +100,7 @@ namespace Maui
 		{
 			if (IsPrefabValid(screenPrefab))
 			{
-				Type screenType = typeof(T);
+				Type screenType = screenPrefab.GetType();
 
 				if (typeof(IPanelController).IsAssignableFrom(screenType))
 				{

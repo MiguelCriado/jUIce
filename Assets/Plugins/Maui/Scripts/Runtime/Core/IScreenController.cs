@@ -4,12 +4,7 @@ namespace Maui
 {
 	public delegate void ScreenControllerEventHandler(IScreenController controller);
 
-	public interface IScreenController : IScreenController<IViewModel>
-	{
-		
-	}
-	
-	public interface IScreenController<in T>  where T : IViewModel
+	public interface IScreenController
 	{
 		event ScreenControllerEventHandler InTransitionFinished;
 		event ScreenControllerEventHandler OutTransitionFinished;
@@ -18,7 +13,7 @@ namespace Maui
 
 		bool IsVisible { get; }
 		
-		Task Show(T viewModel);
+		Task Show(IViewModel viewModel);
 
 		Task Hide(bool animate = true);
 	}

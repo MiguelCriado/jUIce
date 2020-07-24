@@ -6,7 +6,7 @@ namespace Maui
 {
 #pragma warning disable 0067
 	[RequireComponent(typeof(ViewModelComponent))]
-	public abstract class BaseScreenController<T> : MonoBehaviour, IScreenController<T>, IViewModelInjector<T>
+	public abstract class BaseScreenController<T> : MonoBehaviour, IScreenController, IViewModelInjector<T>
 		where T : IViewModel
 	{
 		public event ScreenControllerEventHandler InTransitionFinished;
@@ -43,11 +43,18 @@ namespace Maui
 			targetComponent = GetComponentInChildren<ViewModelComponent>();
 		}
 
-		public async Task Show(T viewModel)
+		public async Task Show(IViewModel viewModel)
 		{
 			if (viewModel != null)
 			{
-				SetViewModel(viewModel);
+				if (viewModel is T typedViewModel)
+				{
+					SetViewModel(typedViewModel);
+				}
+				else
+				{
+					Debug.LogError($"ViewModel passed have wrong type! ({viewModel.GetType()} instead of {typeof(T)})");
+				}
 			}
 
 			OnShowing();
