@@ -19,8 +19,7 @@ namespace Maui
 
 		protected override Type GetBindingType()
 		{
-			Type result = typeof(IObservableCommand);
-			return result;
+			return typeof(IObservableCommand);
 		}
 
 		protected override void BindProperty(object property)
@@ -74,9 +73,7 @@ namespace Maui
 
 		protected override Type GetBindingType()
 		{
-			Type result = typeof(IObservableCommand<>);
-			result = result.MakeGenericType(typeof(T));
-			return result;
+			return typeof(IObservableCommand<T>);
 		}
 
 		protected override void BindProperty(object property)

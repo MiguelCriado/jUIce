@@ -17,9 +17,7 @@ namespace Maui
 
 		protected override Type GetBindingType()
 		{
-			Type result = typeof(IReadOnlyObservableCollection<>);
-			result = result.MakeGenericType(typeof(T));
-			return result;
+			return typeof(IReadOnlyObservableCollection<>);
 		}
 
 		protected override void BindProperty(object property)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
@@ -6,8 +7,8 @@ namespace Maui
 {
 	public abstract class Binding : IBinding
 	{
-		protected BindingInfo bindingInfo;
-		protected Component context;
+		protected readonly BindingInfo bindingInfo;
+		protected readonly Component context;
 
 		public Binding(BindingInfo bindingInfo, Component context)
 		{
@@ -20,7 +21,7 @@ namespace Maui
 			if (bindingInfo.ViewModelContainer == null && string.IsNullOrEmpty(bindingInfo.PropertyName) == false)
 			{
 				Type bindingType = GetBindingType();
-				bindingInfo.ViewModelContainer = FindViewModelComponent(bindingType, context.transform);
+				bindingInfo.ViewModelContainer = FindViewModelComponent(context.transform, bindingType);
 			}
 			
 			if (bindingInfo.ViewModelContainer != null)
@@ -63,34 +64,16 @@ namespace Maui
 
 		protected abstract void UnbindProperty();
 		
-		private ViewModelComponent FindViewModelComponent(Type targetType, Transform transform)
+		private static ViewModelComponent FindViewModelComponent(Transform context, Type targetType)
 		{
 			ViewModelComponent result = null;
-			ViewModelComponent[] viewModels = transform.GetComponents<ViewModelComponent>();
-
-			int i = 0;
-
-			while (result == null && i < viewModels.Length)
+			
+			using (var iterator = BindingUtils.GetBindings(context, targetType).GetEnumerator())
 			{
-				ViewModelComponent next = viewModels[i];
-				Type type = next.ExpectedType;
-					
-				if (type != null)
+				if (iterator.MoveNext())
 				{
-					PropertyInfo propertyInfo = type.GetProperty(bindingInfo.PropertyName);
-
-					if (propertyInfo != null && targetType.IsAssignableFrom(propertyInfo.PropertyType))
-					{
-						result = next;
-					}
+					result = iterator.Current.ViewModelComponent;
 				}
-					
-				i++;
-			}
-
-			if (result == null && transform.parent != null)
-			{
-				result = FindViewModelComponent(targetType, transform.parent);
 			}
 
 			return result;

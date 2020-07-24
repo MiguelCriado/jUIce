@@ -18,9 +18,7 @@ namespace Maui
 
 		protected override Type GetBindingType()
 		{
-			Type result = typeof(IReadOnlyObservableVariable<>);
-			result = result.MakeGenericType(typeof(T));
-			return result;
+			return typeof(IReadOnlyObservableVariable<T>);
 		}
 
 		protected override void BindProperty(object property)
@@ -34,7 +32,7 @@ namespace Maui
 			}
 			else
 			{
-				Debug.LogError($"Property type ({property.GetType()}) different from expected type \"{typeof(IReadOnlyObservableVariable<T>)}");
+				Debug.LogError($"Property type ({property.GetType()}) different from expected type ({typeof(IReadOnlyObservableVariable<T>)})");
 			}
 		}
 

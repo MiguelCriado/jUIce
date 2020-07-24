@@ -4,10 +4,15 @@ namespace Maui
 {
 	public abstract class VariableBinder<T> : MonoBehaviour, IBinder<T>
 	{
-		[SerializeField] private BindingInfo bindingInfo = new BindingInfo(typeof(T));
+		[SerializeField] private BindingInfo bindingInfo = new BindingInfo(typeof(IReadOnlyObservableVariable<T>));
 
 		private VariableBinding<T> binding;
 
+		protected virtual void Reset()
+		{
+			bindingInfo = new BindingInfo(typeof(IReadOnlyObservableVariable<T>));
+		}
+		
 		protected virtual void Awake()
 		{
 			binding = new VariableBinding<T>(bindingInfo, this);

@@ -70,23 +70,6 @@ namespace Maui.Editor
 			return position;
 		}
 
-		private static T GetComponentInParents<T>(Component component, bool includeSelf) where T : Component 
-		{
-			T result = null;
-
-			if (includeSelf)
-			{
-				result = component.GetComponent<T>();
-			}
-
-			if (result == null && component.transform.parent != null)
-			{
-				result = GetComponentInParents<T>(component.transform.parent, true);
-			}
-
-			return result;
-		}
-		
 		private static void SetBinding(SerializedProperty property, ViewModelComponent viewModelComponent, string propertyName)
 		{
 			property.FindPropertyRelative(ViewModelContainerId).objectReferenceValue = viewModelComponent;
@@ -125,31 +108,13 @@ namespace Maui.Editor
 			bindingMap = new Dictionary<string, BindingEntry>();
 			List<string> options = new List<string>();
 
-			ViewModelComponent viewModel = GetComponentInParents<ViewModelComponent>(baseComponent, true);
-
-			while (viewModel != null)
+			foreach (Maui.BindingEntry entry in BindingUtils.GetBindings(baseComponent.transform, target.Type))
 			{
-				Type type = viewModel.ExpectedType;
-
-				if (type != null)
-				{
-					Type variableType = typeof(IReadOnlyObservableVariable<>);
-					variableType = variableType.MakeGenericType(target.Type);
-
-					foreach (PropertyInfo propertyInfo in type.GetRuntimeProperties())
-					{
-						if (variableType.IsAssignableFrom(propertyInfo.PropertyType))
-						{
-							string id = $"{viewModel.gameObject.name}/{propertyInfo.Name}";
-							bindingMap.Add(id, new BindingEntry(options.Count, viewModel, propertyInfo.Name));
-							options.Add(id);
-						}
-					}
-				}
-
-				viewModel = GetComponentInParents<ViewModelComponent>(viewModel, false);
+				string id = $"{entry.ViewModelComponent.gameObject.name}/{entry.PropertyName}";
+				bindingMap.Add(id, new BindingEntry(options.Count, entry.ViewModelComponent, entry.PropertyName));
+				options.Add(id);
 			}
-
+			
 			cachedOptions = options.ToArray();
 		}
 

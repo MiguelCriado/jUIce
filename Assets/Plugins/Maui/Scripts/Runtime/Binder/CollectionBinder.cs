@@ -4,7 +4,7 @@ namespace Maui
 {
 	public abstract class CollectionBinder<T> : MonoBehaviour, IBinder<T>
 	{
-		[SerializeField] private BindingInfo bindingInfo = new BindingInfo(typeof(T));
+		[SerializeField] private BindingInfo bindingInfo = new BindingInfo(typeof(IReadOnlyObservableCollection<T>));
 
 		private CollectionBinding<T> binding;
 

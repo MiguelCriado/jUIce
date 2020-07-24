@@ -16,12 +16,12 @@ namespace Maui
 			binding.Property.CanExecute.Changed += OnCommandCanExecuteChanged;
 		}
 		
-		protected void OnEnable()
+		protected virtual void OnEnable()
 		{
 			binding.Bind();
 		}
 
-		protected void OnDisable()
+		protected virtual void OnDisable()
 		{
 			binding.Unbind();
 		}
@@ -36,7 +36,7 @@ namespace Maui
 	
 	public abstract class CommandBinder<T> : MonoBehaviour, IBinder<T>
 	{
-		[SerializeField] private BindingInfo bindingInfo = new BindingInfo(typeof(T));
+		[SerializeField] private BindingInfo bindingInfo = new BindingInfo(typeof(IObservableCommand<T>));
 
 		protected bool CanExecute => binding.Property.CanExecute.Value;
 
