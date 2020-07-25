@@ -49,6 +49,8 @@ namespace Maui.Editor
 			var indent = EditorGUI.indentLevel;
 			EditorGUI.indentLevel = 0;
 
+			EditorGUI.BeginDisabledGroup(Application.isPlaying);
+			
 			if (cachedOptions.Length > 0)
 			{
 				DrawPicker(position, property);
@@ -57,6 +59,8 @@ namespace Maui.Editor
 			{
 				DrawPropertyNameField(position, property);
 			}
+			
+			EditorGUI.EndDisabledGroup();
 
 			// Set indent back to what it was
 			EditorGUI.indentLevel = indent;
