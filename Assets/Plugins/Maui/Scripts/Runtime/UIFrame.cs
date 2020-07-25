@@ -160,9 +160,9 @@ namespace Maui
 			}
 		}
 
-		public async Task ShowScreen<T1, T2>(T2 viewModel) where T2 : IViewModel
+		public async Task ShowScreen<T>(IViewModel viewModel) where T : IScreenController
 		{
-			Type screenType = typeof(T1);
+			Type screenType = typeof(T);
 
 			if (typeof(IPanelController).IsAssignableFrom(screenType))
 			{
@@ -174,7 +174,7 @@ namespace Maui
 			}
 			else
 			{
-				Debug.LogError($"The Screen type {typeof(T1).Name} must implement {typeof(IPanelController).Name} or {typeof(IWindowController).Name}.");
+				Debug.LogError($"The Screen type {typeof(T).Name} must implement {typeof(IPanelController).Name} or {typeof(IWindowController).Name}.");
 			}
 		}
 
