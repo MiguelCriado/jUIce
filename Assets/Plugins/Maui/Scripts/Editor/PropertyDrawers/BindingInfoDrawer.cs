@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Runtime.Remoting;
+﻿using System.Collections.Generic;
 using UnityEditor;
-using UnityEditor.UIElements;
 using UnityEngine;
 
 namespace Maui.Editor
@@ -44,8 +40,7 @@ namespace Maui.Editor
 			RefreshCurrentIndex(property);
 
 			position = DrawLabel(position, label);
-
-			// Don't make child fields be indented
+			
 			var indent = EditorGUI.indentLevel;
 			EditorGUI.indentLevel = 0;
 
@@ -62,7 +57,6 @@ namespace Maui.Editor
 			
 			EditorGUI.EndDisabledGroup();
 
-			// Set indent back to what it was
 			EditorGUI.indentLevel = indent;
 
 			EditorGUI.EndProperty();
