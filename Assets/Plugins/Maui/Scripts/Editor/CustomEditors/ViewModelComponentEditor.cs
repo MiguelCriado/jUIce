@@ -19,8 +19,9 @@ namespace Maui.Editor
 			serializedObject.Update();
 			
 			var injector = viewModelComponent.GetComponent<IViewModelInjector>();
-			bool shouldDisableEditor = injector != null && injector.Target == viewModelComponent;
 			RefreshType(injector);
+			
+			bool shouldDisableEditor = injector != null && injector.Target == viewModelComponent;
 			EditorGUI.BeginDisabledGroup(shouldDisableEditor);
 			
 			EditorGUILayout.PropertyField(expectedTypeProperty);

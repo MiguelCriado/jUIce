@@ -4,17 +4,17 @@
 	{
 		public ViewModel(T data)
 		{
-			Initialize(data);
+			SetData(data);
 		}
 
 		public void SetData(object data)
 		{
 			if (data is T dataAsType)
 			{
-				Initialize(dataAsType);
+				SetData(dataAsType);
 			}
 		}
 
-		protected abstract void Initialize(T data);
+		protected abstract void SetData(T data);
 	}
 }

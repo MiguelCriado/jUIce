@@ -92,7 +92,7 @@ namespace Maui.Editor
 			{
 				foreach (Type type in assembly.GetTypes())
 				{
-					if (typeConstraint == null || typeConstraint.BaseType.IsAssignableFrom(type))
+					if (IsMatchingType(type, typeConstraint))
 					{
 						string typeName = type.FullName;
 
@@ -106,6 +106,51 @@ namespace Maui.Editor
 			}
 
 			cachedOptions = options.ToArray();
+		}
+
+		private static bool IsMatchingType(Type type, TypeConstraintAttribute constraint)
+		{
+			return  constraint == null 
+			        || (DoesMatchInstantiableRestriction(type, constraint)
+			            && IsAssignableFrom(constraint.BaseType, type));
+		}
+
+		private static bool DoesMatchInstantiableRestriction(Type type, TypeConstraintAttribute constraint)
+		{
+			return !constraint.ForceInstantiableType ||
+			       (!type.IsAbstract && !type.IsInterface && !type.IsGenericTypeDefinition);
+		}
+
+		private static bool IsAssignableFrom(Type a, Type b)
+		{
+			return a.IsAssignableFrom(b) || IsAssignableToGenericType(b, a);
+		}
+
+		private static bool IsAssignableToGenericType(Type givenType, Type genericType)
+		{
+			var interfaceTypes = givenType.GetInterfaces();
+
+			foreach (var it in interfaceTypes)
+			{
+				if (it.IsGenericType && it.GetGenericTypeDefinition() == genericType)
+				{
+					return true;
+				}
+			}
+
+			if (givenType.IsGenericType && givenType.GetGenericTypeDefinition() == genericType)
+			{
+				return true;
+			}
+
+			Type baseType = givenType.BaseType;
+
+			if (baseType == null)
+			{
+				return false;
+			}
+
+			return IsAssignableToGenericType(baseType, genericType);
 		}
 
 		private void RefreshCurrentIndex(SerializedProperty property)
