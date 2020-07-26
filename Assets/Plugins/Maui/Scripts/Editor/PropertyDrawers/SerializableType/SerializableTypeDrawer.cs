@@ -21,7 +21,7 @@ namespace Maui.Editor
 			}
 		}
 
-		private static readonly string TypeReferenceFieldName;
+		private static readonly string TypeReferenceFieldName = "typeReference";
 
 		private bool isCached;
 		private SerializableType target;
@@ -49,7 +49,7 @@ namespace Maui.Editor
 				Undo.RecordObject(property.serializedObject.targetObject, $"{fieldInfo.Name} type changed");
 				
 				string selectedType = cachedOptions[index];
-				target.Type = typeMap[selectedType].Type;
+				SetType(property, typeMap[selectedType].Type);
 
 				currentIndex = index;
 			}
@@ -167,8 +167,15 @@ namespace Maui.Editor
 			else if (typeMap.Count > 0)
 			{
 				TypeEntry firstEntry = typeMap[cachedOptions[0]];
-				target.Type = firstEntry.Type;
+				SetType(property, firstEntry.Type);
 			}
+		}
+
+		private void SetType(SerializedProperty property, Type type)
+		{
+			SerializedProperty typeName = property.FindPropertyRelative(TypeReferenceFieldName);
+			target.Type = type;
+			typeName.stringValue = type.AssemblyQualifiedName;
 		}
 	}
 }
