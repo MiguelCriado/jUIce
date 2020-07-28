@@ -1,6 +1,6 @@
 ﻿namespace Maui
 {
-	public interface IPanelController : IScreenController
+	public interface IPanel : IView
 	{
 		PanelPriority Priority { get; }
 	}

@@ -6,13 +6,13 @@ namespace Maui
 {
 #pragma warning disable 0067
 	[RequireComponent(typeof(ViewModelComponent))]
-	public abstract class BaseScreenController<T> : MonoBehaviour, IScreenController, IViewModelInjector
+	public abstract class BaseView<T> : MonoBehaviour, IView, IViewModelInjector
 		where T : IViewModel
 	{
-		public event ScreenControllerEventHandler InTransitionFinished;
-		public event ScreenControllerEventHandler OutTransitionFinished;
-		public event ScreenControllerEventHandler CloseRequested;
-		public event ScreenControllerEventHandler ScreenDestroyed;
+		public event ViewEventHandler InTransitionFinished;
+		public event ViewEventHandler OutTransitionFinished;
+		public event ViewEventHandler CloseRequested;
+		public event ViewEventHandler ViewDestroyed;
 
 		public bool IsVisible { get; private set; }
 
@@ -33,7 +33,7 @@ namespace Maui
 
 		[Header("Target ViewModel Component")]
 		[SerializeField] private ViewModelComponent targetComponent;
-		[Header("Screen Animations")]
+		[Header("View Animations")]
 		[SerializeField] private BaseTransition inTransition;
 		[SerializeField] private BaseTransition outTransition;
 
@@ -90,7 +90,7 @@ namespace Maui
 
 			if (targetComponent != null)
 			{
-				targetComponent.Set(viewModel);
+				targetComponent.ViewModel = viewModel;
 			}
 		}
 
@@ -101,7 +101,7 @@ namespace Maui
 
 		protected virtual void OnInTransitionFinished()
 		{
-			InTransitionFinished?.Invoke((IScreenController)this);
+			InTransitionFinished?.Invoke((IView)this);
 		}
 
 		protected virtual void OnHiding()
@@ -111,7 +111,7 @@ namespace Maui
 
 		protected virtual void OnOutTransitionFinished()
 		{
-			OutTransitionFinished?.Invoke((IScreenController)this);
+			OutTransitionFinished?.Invoke((IView)this);
 		}
 
 		private async Task DoAnimation(BaseTransition targetTransition, bool isVisible)

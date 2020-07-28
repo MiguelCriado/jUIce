@@ -1,6 +1,6 @@
 ﻿namespace Maui
 {
-	public interface IWindowController : IScreenController
+	public interface IWindow : IView
 	{
 		bool HideOnForegroundLost { get; }
 		bool IsPopup { get; }

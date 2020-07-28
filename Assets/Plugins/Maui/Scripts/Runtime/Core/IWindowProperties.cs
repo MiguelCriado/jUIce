@@ -1,6 +1,6 @@
 ﻿namespace Maui
 {
-	public interface IWindowProperties : IScreenProperties
+	public interface IWindowProperties : IViewProperties
 	{
 		WindowPriority WindowQueuePriority { get; set; }
 		bool HideOnForegroundLost { get; set; }

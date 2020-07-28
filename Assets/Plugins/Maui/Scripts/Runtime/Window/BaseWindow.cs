@@ -3,12 +3,12 @@ using UnityEngine;
 
 namespace Maui
 {
-	public abstract class BaseWindowController : BaseWindowController<IViewModel>
+	public abstract class BaseWindow : BaseWindow<IViewModel>
 	{
 
 	}
 
-	public abstract class BaseWindowController<T> : BaseScreenController<T>, IWindowController
+	public abstract class BaseWindow<T> : BaseView<T>, IWindow
 		where T : IViewModel
 	{
 		public WindowPriority WindowPriority => windowQueuePriority;

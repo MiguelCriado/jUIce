@@ -5,127 +5,127 @@ using UnityEngine;
 
 namespace Maui
 {
-	public abstract class BaseLayer<T> : MonoBehaviour where T : IScreenController
+	public abstract class BaseLayer<T> : MonoBehaviour where T : IView
 	{
-		protected Dictionary<Type, T> registeredScreens = new Dictionary<Type, T>();
+		protected readonly Dictionary<Type, T> registeredViews = new Dictionary<Type, T>();
 
 		public virtual void Initialize()
 		{
 
 		}
 
-		public abstract Task ShowScreen(T screen);
+		public abstract Task ShowView(T view);
 
-		public async Task ShowScreen(Type screenType)
+		public async Task ShowView(Type viewType)
 		{
-			if (registeredScreens.TryGetValue(screenType, out T controller))
+			if (registeredViews.TryGetValue(viewType, out T controller))
 			{
-				await ShowScreen(controller);
+				await ShowView(controller);
 			}
 			else
 			{
-				Debug.LogError($"Screen with type {screenType} not registered to this layer!");
+				Debug.LogError($"View with type {viewType} not registered to this layer!");
 			}
 		}
 
-		public abstract Task ShowScreen<TViewModel>(T screen, TViewModel properties) where TViewModel : IViewModel;
+		public abstract Task ShowView<TViewModel>(T view, TViewModel properties) where TViewModel : IViewModel;
 
-		public async Task ShowScreen<TViewModel>(Type screenType, TViewModel properties)
+		public async Task ShowView<TViewModel>(Type viewType, TViewModel properties)
 			where TViewModel : IViewModel
 		{
-			if (registeredScreens.TryGetValue(screenType, out T controller))
+			if (registeredViews.TryGetValue(viewType, out T controller))
 			{
-				await ShowScreen(controller, properties);
+				await ShowView(controller, properties);
 			}
 			else
 			{
-				Debug.LogError($"Screen with type {screenType} not registered to this layer!");
+				Debug.LogError($"View with type {viewType} not registered to this layer!");
 			}
 		}
 
-		public abstract Task HideScreen(T screen);
+		public abstract Task HideView(T view);
 
-		public async Task HideScreen(Type screenType)
+		public async Task HideView(Type viewType)
 		{
-			if (registeredScreens.TryGetValue(screenType, out T controller))
+			if (registeredViews.TryGetValue(viewType, out T controller))
 			{
-				await HideScreen(controller);
+				await HideView(controller);
 			}
 			else
 			{
-				Debug.LogError($"Could not hide screen of type {screenType} as it is not registered to this layer!");
+				Debug.LogError($"Could not hide view of type {viewType} as it is not registered to this layer!");
 			}
 		}
 
 		public virtual Task HideAll(bool animate = true)
 		{
-			Task[] tasks = new Task[registeredScreens.Count];
+			Task[] tasks = new Task[registeredViews.Count];
 			int i = 0;
 
-			foreach (KeyValuePair<Type,T> screenEntry in registeredScreens)
+			foreach (KeyValuePair<Type,T> viewEntry in registeredViews)
 			{
-				tasks[i] = screenEntry.Value.Hide(animate);
+				tasks[i] = viewEntry.Value.Hide(animate);
 				i++;
 			}
 
 			return Task.WhenAll(tasks);
 		}
 
-		public virtual void ReparentScreen(IScreenController controller, Transform screenTransform)
+		public virtual void ReparentView(IView view, Transform viewTransform)
 		{
-			screenTransform.SetParent(transform, false);
+			viewTransform.SetParent(transform, false);
 		}
 
-		public void RegisterScreen(T controller)
+		public void RegisterView(T view)
 		{
-			Type controllerType = controller.GetType();
+			Type viewType = view.GetType();
 
-			if (registeredScreens.ContainsKey(controllerType) == false)
+			if (registeredViews.ContainsKey(viewType) == false)
 			{
-				ProcessScreenRegister(controller);
+				ProcessViewRegister(view);
 			}
 			else
 			{
-				Debug.LogError($"Screen controller already registered for type {controllerType}");
+				Debug.LogError($"View view already registered for type {viewType}");
 			}
 		}
 
-		public void UnregisterScreen(T controller)
+		public void UnregisterView(T view)
 		{
-			Type controllerType = controller.GetType();
+			Type viewType = view.GetType();
 
-			if (registeredScreens.ContainsKey(controllerType))
+			if (registeredViews.ContainsKey(viewType))
 			{
-				ProcessScreenUnregister(controller);
+				ProcessViewUnregister(view);
 			}
 			else
 			{
-				Debug.LogError($"Screen controller not registered for type {controllerType}");
+				Debug.LogError($"View view not registered for type {viewType}");
 			}
 		}
 
-		public bool IsScreenRegistered<TScreen>() where TScreen : T
+		public bool IsViewRegistered<TView>() where TView : T
 		{
-			return registeredScreens.ContainsKey(typeof(TScreen));
+			return registeredViews.ContainsKey(typeof(TView));
 		}
 
-		protected virtual void ProcessScreenRegister(T controller)
+		protected virtual void ProcessViewRegister(T view)
 		{
-			registeredScreens.Add(controller.GetType(), controller);
-			controller.ScreenDestroyed += OnScreenDestroyed;
+			registeredViews.Add(view.GetType(), view);
+			view.ViewDestroyed += OnViewDestroyed;
 		}
 
-		protected virtual void ProcessScreenUnregister(T controller)
+		protected virtual void ProcessViewUnregister(T view)
 		{
-			controller.ScreenDestroyed += OnScreenDestroyed;
-			registeredScreens.Remove(controller.GetType());
+			view.ViewDestroyed += OnViewDestroyed;
+			registeredViews.Remove(view.GetType());
 		}
 
-		private void OnScreenDestroyed(IScreenController screen)
+		private void OnViewDestroyed(IView view)
 		{
-			if (registeredScreens.ContainsKey(screen.GetType()))
+			if (registeredViews.ContainsKey(view.GetType()))
 			{
-				UnregisterScreen((T)screen);
+				UnregisterView((T)view);
 			}
 		}
 	}

@@ -4,18 +4,18 @@ namespace Maui
 {
 	public struct WindowHistoryEntry
 	{
-		public readonly IWindowController Screen;
+		public readonly IWindow View;
 		public readonly IViewModel ViewModel;
 
-		public WindowHistoryEntry(IWindowController screen, IViewModel viewModel)
+		public WindowHistoryEntry(IWindow view, IViewModel viewModel)
 		{
-			Screen = screen;
+			View = view;
 			ViewModel = viewModel;
 		}
 
 		public Task Show()
 		{
-			return Screen.Show(ViewModel);
+			return View.Show(ViewModel);
 		}
 	}
 }
