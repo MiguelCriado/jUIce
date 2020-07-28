@@ -1,0 +1,23 @@
+﻿using UnityEngine;
+using UnityEngine.UI;
+
+namespace Maui
+{
+	[RequireComponent(typeof(Text))]
+	public class TextBinder : VariableBinder<object>
+	{
+		private Text text;
+		
+		protected override void Awake()
+		{
+			base.Awake();
+			
+			text = GetComponent<Text>();
+		}
+
+		protected override void Refresh(object value)
+		{
+			text.text = value.ToString();
+		}
+	}
+}

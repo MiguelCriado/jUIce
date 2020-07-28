@@ -1,6 +1,6 @@
 ﻿namespace Maui
 {
-	public delegate void ObservableCommandEventHandler<T>(T parameter);
+	public delegate void ObservableCommandEventHandler<in T>(T parameter);
 	public delegate void ObservableCommandEventHandler();
 
 	public interface IObservableCommand

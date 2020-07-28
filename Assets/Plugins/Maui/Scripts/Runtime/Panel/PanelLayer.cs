@@ -3,47 +3,47 @@ using UnityEngine;
 
 namespace Maui
 {
-	public class PanelLayer : BaseLayer<IPanelController>
+	public class PanelLayer : BaseLayer<IPanel>
 	{
 		internal PanelPriorityLayerList PriorityLayers { get => priorityLayers; set => priorityLayers = value; }
 
 		[SerializeField] private PanelPriorityLayerList priorityLayers = null;
 
-		public override void ReparentScreen(IScreenController controller, Transform screenTransform)
+		public override void ReparentView(IView view, Transform viewTransform)
 		{
-			IPanelController panelController = controller as IPanelController;
+			IPanel panel = view as IPanel;
 
-			if (panelController != null)
+			if (panel != null)
 			{
-				ReparentToParaLayer(panelController.Priority, screenTransform);
+				ReparentToParaLayer(panel.Priority, viewTransform);
 			}
 			else
 			{
-				base.ReparentScreen(controller, screenTransform);
+				base.ReparentView(view, viewTransform);
 			}
 		}
 
-		public override Task ShowScreen(IPanelController screen)
+		public override Task ShowView(IPanel view)
 		{
-			return screen.Show();
+			return view.Show(null);
 		}
 
-		public override Task ShowScreen<TProps>(IPanelController screen, TProps properties)
+		public override Task ShowView<T>(IPanel view, T viewModel) 
 		{
-			return screen.Show(properties);
+			return view.Show(viewModel);
 		}
 
-		public override Task HideScreen(IPanelController screen)
+		public override Task HideView(IPanel view)
 		{
-			return screen.Hide();
+			return view.Hide();
 		}
 
 		public bool IsPanelVisible<T>()
 		{
 			bool result = false;
-			IPanelController panel;
+			IPanel panel;
 
-			if (registeredScreens.TryGetValue(typeof(T), out panel))
+			if (registeredViews.TryGetValue(typeof(T), out panel))
 			{
 				result = panel.IsVisible;
 			}
@@ -51,7 +51,7 @@ namespace Maui
 			return result;
 		}
 
-		private void ReparentToParaLayer(PanelPriority priority, Transform screenTransform)
+		private void ReparentToParaLayer(PanelPriority priority, Transform viewTransform)
 		{
 			Transform parentTransform;
 
@@ -60,7 +60,7 @@ namespace Maui
 				parentTransform = transform;
 			}
 
-			screenTransform.SetParent(parentTransform, false);
+			viewTransform.SetParent(parentTransform, false);
 		}
 	}
 }

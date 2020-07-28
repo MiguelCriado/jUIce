@@ -8,16 +8,16 @@ namespace Maui
 {
 	public class UIFrame : MonoBehaviour
 	{
-		private class ScreenEntry
+		private class ViewEntry
 		{
-			public IScreenController ScreenPrefab;
-			public IScreenController ScreenInstance;
+			public IView ViewPrefab;
+			public IView ViewInstance;
 			public int ReferenceCount;
 
-			public ScreenEntry(IScreenController screenPrefab, IScreenController screenInstance)
+			public ViewEntry(IView viewPrefab, IView viewInstance)
 			{
-				ScreenPrefab = screenPrefab;
-				ScreenInstance = screenInstance;
+				ViewPrefab = viewPrefab;
+				ViewInstance = viewInstance;
 				ReferenceCount = 0;
 			}
 		}
@@ -37,7 +37,7 @@ namespace Maui
 
 		public Camera UICamera => MainCanvas.worldCamera;
 
-		public IWindowController CurrentWindow => windowLayer.CurrentWindow;
+		public IWindow CurrentWindow => windowLayer.CurrentWindow;
 
 		[SerializeField] private bool initializeOnAwake;
 
@@ -46,7 +46,7 @@ namespace Maui
 		private WindowLayer windowLayer;
 		private GraphicRaycaster graphicRaycaster;
 
-		private Dictionary<Type, ScreenEntry> registeredScreens = new Dictionary<Type, ScreenEntry>();
+		private Dictionary<Type, ViewEntry> registeredViews = new Dictionary<Type, ViewEntry>();
 
 		private void Reset()
 		{
@@ -88,140 +88,140 @@ namespace Maui
 				else
 				{
 					windowLayer.Initialize();
-					windowLayer.RequestScreenBlock += OnRequestScreenBlock;
-					windowLayer.RequestScreenUnblock += OnRequestScreenUnblock;
+					windowLayer.RequestViewBlock += OnRequestViewBlock;
+					windowLayer.RequestViewUnblock += OnRequestViewUnblock;
 				}
 			}
 
 			graphicRaycaster = MainCanvas.GetComponent<GraphicRaycaster>();
 		}
 
-		public void RegisterScreen<T>(T screenPrefab) where T : IScreenController
+		public void RegisterView<T>(T viewPrefab) where T : IView
 		{
-			if (IsPrefabValid(screenPrefab))
+			if (IsPrefabValid(viewPrefab))
 			{
-				Type screenType = typeof(T);
+				Type viewType = viewPrefab.GetType();
 
-				if (typeof(IPanelController).IsAssignableFrom(screenType))
+				if (typeof(IPanel).IsAssignableFrom(viewType))
 				{
-					IPanelController screenAsPanel = screenPrefab as IPanelController;
-					ProcessScreenRegister(screenAsPanel, panelLayer);
+					IPanel viewAsPanel = viewPrefab as IPanel;
+					ProcessViewRegister(viewAsPanel, panelLayer);
 				}
-				else if (typeof(IWindowController).IsAssignableFrom(screenType))
+				else if (typeof(IWindow).IsAssignableFrom(viewType))
 				{
-					IWindowController screenAsWindow = screenPrefab as IWindowController;
-					ProcessScreenRegister(screenAsWindow, windowLayer);
+					IWindow viewAsWindow = viewPrefab as IWindow;
+					ProcessViewRegister(viewAsWindow, windowLayer);
 				}
 				else
 				{
-					Debug.LogError($"The Screen type {typeof(T).Name} must implement {typeof(IPanelController).Name} or {typeof(IWindowController).Name}.");
+					Debug.LogError($"The View type {typeof(T).Name} must implement {typeof(IPanel).Name} or {typeof(IWindow).Name}.");
 				}
 			}
 		}
 
-		public void DisposeScreen<T>(T screenPrefab) where T : IScreenController
+		public void DisposeView<T>(T viewPrefab) where T : IView
 		{
-			Type screenType = screenPrefab.GetType();
+			Type viewType = viewPrefab.GetType();
 
-			if (registeredScreens.TryGetValue(screenType, out ScreenEntry screenEntry)
-				&& screenEntry.ScreenPrefab == (IScreenController) screenPrefab)
+			if (registeredViews.TryGetValue(viewType, out ViewEntry viewEntry)
+				&& viewEntry.ViewPrefab == (IView) viewPrefab)
 			{
-				screenEntry.ReferenceCount--;
+				viewEntry.ReferenceCount--;
 
-				if (screenEntry.ReferenceCount <= 0)
+				if (viewEntry.ReferenceCount <= 0)
 				{
-					Component instanceAsComponent = screenEntry.ScreenInstance as Component;
+					Component instanceAsComponent = viewEntry.ViewInstance as Component;
 
 					if (instanceAsComponent != null)
 					{
 						Destroy(instanceAsComponent.gameObject);
 					}
 
-					registeredScreens.Remove(screenType);
+					registeredViews.Remove(viewType);
 				}
 			}
 		}
 
-		public async Task ShowScreen<T>() where T : IScreenController
+		public async Task ShowView<T>() where T : IView
 		{
-			Type screenType = typeof(T);
+			Type viewType = typeof(T);
 
-			if (typeof(IPanelController).IsAssignableFrom(screenType))
+			if (typeof(IPanel).IsAssignableFrom(viewType))
 			{
-				await panelLayer.ShowScreen(screenType);
+				await panelLayer.ShowView(viewType);
 			}
-			else if (typeof(IWindowController).IsAssignableFrom(screenType))
+			else if (typeof(IWindow).IsAssignableFrom(viewType))
 			{
-				await windowLayer.ShowScreen(screenType);
+				await windowLayer.ShowView(viewType);
 			}
 			else
 			{
-				Debug.LogError($"The Screen type {typeof(T).Name} must implement {typeof(IPanelController).Name} or {typeof(IWindowController).Name}.");
+				Debug.LogError($"The View type {typeof(T).Name} must implement {typeof(IPanel).Name} or {typeof(IWindow).Name}.");
 			}
 		}
 
-		public async Task ShowScreen<T1, T2>(T2 properties) where T2 : IScreenProperties
+		public async Task ShowView<T>(IViewModel viewModel) where T : IView
 		{
-			Type screenType = typeof(T1);
+			Type viewType = typeof(T);
 
-			if (typeof(IPanelController).IsAssignableFrom(screenType))
+			if (typeof(IPanel).IsAssignableFrom(viewType))
 			{
-				await panelLayer.ShowScreen(screenType, properties);
+				await panelLayer.ShowView(viewType, viewModel);
 			}
-			else if (typeof(IWindowController).IsAssignableFrom(screenType))
+			else if (typeof(IWindow).IsAssignableFrom(viewType))
 			{
-				await windowLayer.ShowScreen(screenType, properties);
+				await windowLayer.ShowView(viewType, viewModel);
 			}
 			else
 			{
-				Debug.LogError($"The Screen type {typeof(T1).Name} must implement {typeof(IPanelController).Name} or {typeof(IWindowController).Name}.");
+				Debug.LogError($"The View type {typeof(T).Name} must implement {typeof(IPanel).Name} or {typeof(IWindow).Name}.");
 			}
 		}
 
-		public async Task HideScreen<T>() where T : IScreenController
+		public async Task HideView<T>() where T : IView
 		{
-			Type screenType = typeof(T);
+			Type viewType = typeof(T);
 
-			if (typeof(IPanelController).IsAssignableFrom(screenType))
+			if (typeof(IPanel).IsAssignableFrom(viewType))
 			{
-				await panelLayer.HideScreen(screenType);
+				await panelLayer.HideView(viewType);
 			}
-			else if (typeof(IWindowController).IsAssignableFrom(screenType))
+			else if (typeof(IWindow).IsAssignableFrom(viewType))
 			{
-				await windowLayer.HideScreen(screenType);
+				await windowLayer.HideView(viewType);
 			}
 			else
 			{
-				Debug.LogError($"The Screen type {typeof(T).Name} must implement {typeof(IPanelController).Name} or {typeof(IWindowController).Name}.");
+				Debug.LogError($"The View type {typeof(T).Name} must implement {typeof(IPanel).Name} or {typeof(IWindow).Name}.");
 			}
 		}
 
-		public bool IsScreenRegistered<T>() where T : IScreenController
+		public bool IsViewRegistered<T>() where T : IView
 		{
-			Type screenType = typeof(T);
+			Type viewType = typeof(T);
 
-			return registeredScreens.ContainsKey(screenType);
+			return registeredViews.ContainsKey(viewType);
 		}
 
-		private bool IsPrefabValid(IScreenController screen)
+		private bool IsPrefabValid(IView view)
 		{
-			Component screenAsComponent = screen as Component;
+			Component viewAsComponent = view as Component;
 
-			if (screenAsComponent == null)
+			if (viewAsComponent == null)
 			{
-				Debug.LogError($"The Screen to register must derive from {typeof(Component).Name}");
+				Debug.LogError($"The View to register must derive from {typeof(Component).Name}");
 				return false;
 			}
 
-			if (IsPrefab(screenAsComponent.gameObject) == false)
+			if (IsPrefab(viewAsComponent.gameObject) == false)
 			{
-				Debug.LogError($"{screenAsComponent.gameObject.name} must be a Prefab.");
+				Debug.LogError($"{viewAsComponent.gameObject.name} must be a Prefab.");
 				return false;
 			}
 
-			if (registeredScreens.TryGetValue(screen.GetType(), out ScreenEntry entry) && entry.ScreenPrefab != screen)
+			if (registeredViews.TryGetValue(view.GetType(), out ViewEntry entry) && entry.ViewPrefab != view)
 			{
-				Debug.LogError($"{screen.GetType().Name} already registered with a different Prefab.");
+				Debug.LogError($"{view.GetType().Name} already registered with a different Prefab.");
 				return false;
 			}
 
@@ -233,27 +233,27 @@ namespace Maui
 			return gameObject.scene.rootCount == 0;
 		}
 
-		private void ProcessScreenRegister<T>(T screenPrefab, BaseLayer<T> layer) where T : IScreenController
+		private void ProcessViewRegister<T>(T viewPrefab, BaseLayer<T> layer) where T : IView
 		{
-			Type screenType = screenPrefab.GetType();
-			ScreenEntry screenEntry;
+			Type viewType = viewPrefab.GetType();
+			ViewEntry viewEntry;
 
-			if (registeredScreens.TryGetValue(screenType, out screenEntry) == false)
+			if (registeredViews.TryGetValue(viewType, out viewEntry) == false)
 			{
-				Component prefabAsComponent = screenPrefab as Component;
-				Component screenInstance = Instantiate(prefabAsComponent, mainCanvas.transform);
-				screenInstance.gameObject.SetActive(false);
-				IScreenController screenController = (IScreenController) screenInstance;
-				screenEntry = new ScreenEntry(screenPrefab, screenController);
-				layer.RegisterScreen((T)screenEntry.ScreenInstance);
-				layer.ReparentScreen(screenController, screenInstance.transform);
-				registeredScreens.Add(screenType, screenEntry);
+				Component prefabAsComponent = viewPrefab as Component;
+				Component viewInstance = Instantiate(prefabAsComponent, mainCanvas.transform);
+				viewInstance.gameObject.SetActive(false);
+				IView view = (IView) viewInstance;
+				viewEntry = new ViewEntry(viewPrefab, view);
+				layer.RegisterView((T)viewEntry.ViewInstance);
+				layer.ReparentView(view, viewInstance.transform);
+				registeredViews.Add(viewType, viewEntry);
 			}
 
-			screenEntry.ReferenceCount++;
+			viewEntry.ReferenceCount++;
 		}
 
-		private void OnRequestScreenBlock()
+		private void OnRequestViewBlock()
 		{
 			if (graphicRaycaster != null)
 			{
@@ -261,7 +261,7 @@ namespace Maui
 			}
 		}
 
-		private void OnRequestScreenUnblock()
+		private void OnRequestViewUnblock()
 		{
 			if (graphicRaycaster != null)
 			{

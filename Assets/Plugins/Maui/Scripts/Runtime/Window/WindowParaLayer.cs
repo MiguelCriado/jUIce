@@ -15,7 +15,7 @@ namespace Maui
 		[SerializeField] private GameObject backgroundShadow = null;
 		[SerializeField] private float shadowFadeTime;
 
-		private List<GameObject> containedScreens = new List<GameObject>();
+		private List<GameObject> containedViews = new List<GameObject>();
 		private CanvasGroup shadowCanvasGroup;
 		private Button shadowButton;
 		private bool isHiding;
@@ -38,10 +38,10 @@ namespace Maui
 			InitializeShadowButton();
 		}
 
-		public void AddScreen(Transform screenTransform)
+		public void AddView(Transform viewTransform)
 		{
-			screenTransform.SetParent(transform, false);
-			containedScreens.Add(screenTransform.gameObject);
+			viewTransform.SetParent(transform, false);
+			containedViews.Add(viewTransform.gameObject);
 		}
 
 		public void RefreshDarken()
@@ -89,9 +89,9 @@ namespace Maui
 			bool result = false;
 			int i = 0;
 
-			while (result == false && i < containedScreens.Count)
+			while (result == false && i < containedViews.Count)
 			{
-				if (containedScreens[i] != null && containedScreens[i].activeSelf)
+				if (containedViews[i] != null && containedViews[i].activeSelf)
 				{
 					result = true;
 				}

@@ -30,7 +30,7 @@ namespace Maui
 		{
 
 		}
-
+		
 		public ObservableVariable(T initialValue)
 		{
 			SetValue(initialValue);

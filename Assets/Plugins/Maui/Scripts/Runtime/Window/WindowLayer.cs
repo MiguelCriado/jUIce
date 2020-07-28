@@ -5,21 +5,21 @@ using UnityEngine;
 namespace Maui
 {
 #pragma warning disable 4014
-	public class WindowLayer : BaseLayer<IWindowController>
+	public class WindowLayer : BaseLayer<IWindow>
 	{
 		public delegate void WindowLayerEventHandler();
 
-		public event WindowLayerEventHandler RequestScreenBlock;
-		public event WindowLayerEventHandler RequestScreenUnblock;
+		public event WindowLayerEventHandler RequestViewBlock;
+		public event WindowLayerEventHandler RequestViewUnblock;
 
-		public IWindowController CurrentWindow { get; private set; }
+		public IWindow CurrentWindow { get; private set; }
 
 		[SerializeField] private WindowParaLayer priorityParaLayer = null;
 
 		private Queue<WindowHistoryEntry> windowQueue = new Queue<WindowHistoryEntry>();
 		private Stack<WindowHistoryEntry> windowHistory = new Stack<WindowHistoryEntry>();
-		private HashSet<IScreenController> screensTransitioning = new HashSet<IScreenController>();
-		private bool IsScreenTransitionInProgress => screensTransitioning.Count > 0;
+		private HashSet<IView> viewsTransitioning = new HashSet<IView>();
+		private bool IsViewTransitionInProgress => viewsTransitioning.Count > 0;
 
 		protected virtual void OnEnable()
 		{
@@ -38,42 +38,41 @@ namespace Maui
 			priorityParaLayer.ShadowClicked += PopupsShadowClicked;
 		}
 
-		public override Task ShowScreen(IWindowController screen)
+		public override Task ShowView(IWindow view)
 		{
-			return ShowScreen<IWindowProperties>(screen, null);
+			return ShowView<IViewModel>(view, null);
 		}
 
-		public override Task ShowScreen<TProps>(IWindowController screen, TProps properties)
+		public override Task ShowView<TViewModel>(IWindow view, TViewModel viewModel)
 		{
 			Task result;
-			IWindowProperties windowProperties = properties as WindowProperties;
 
-			if (ShouldEnqueue(screen, windowProperties))
+			if (ShouldEnqueue(view))
 			{
-				EnqueueWindow(screen, windowProperties);
+				EnqueueWindow(view, viewModel);
 				result = Task.CompletedTask;
 			}
 			else
 			{
-				result = DoShow(screen, windowProperties);
+				result = DoShow(view, viewModel);
 			}
 
 			return result;
 		}
 
-		public override async Task HideScreen(IWindowController screen)
+		public override async Task HideView(IWindow view)
 		{
-			if (screen == CurrentWindow)
+			if (view == CurrentWindow)
 			{
 				windowHistory.Pop();
-				AddTransition(screen);
+				AddTransition(view);
 
-				if (screen.IsPopup && NextWindowIsPopup() == false)
+				if (view.IsPopup && NextWindowIsPopup() == false)
 				{
 					priorityParaLayer.HideBackgroundShadow();
 				}
 
-				await screen.Hide();
+				await view.Hide();
 
 				CurrentWindow = null;
 
@@ -91,7 +90,7 @@ namespace Maui
 				Debug.LogErrorFormat
 				(
 					"Hide requested on Window {0} but that's not the currently open one ({1})! Ignoring request.",
-					screen.GetType().Name,
+					view.GetType().Name,
 					CurrentWindow != null ? CurrentWindow.GetType().Name : "current is null"
 				);
 			}
@@ -106,57 +105,57 @@ namespace Maui
 			windowHistory.Clear();
 		}
 
-		public override void ReparentScreen(IScreenController controller, Transform screenTransform)
+		public override void ReparentView(IView view, Transform viewTransform)
 		{
-			IWindowController window = controller as IWindowController;
+			IWindow window = view as IWindow;
 			bool doBaseReparent = true;
 
 			if (window == null)
 			{
-				Debug.LogError($"Screen {screenTransform.name} is not a Window!");
+				Debug.LogError($"View {viewTransform.name} is not a Window!");
 			}
 			else
 			{
 				if (window.IsPopup)
 				{
-					priorityParaLayer.AddScreen(screenTransform);
+					priorityParaLayer.AddView(viewTransform);
 					doBaseReparent = false;
 				}
 			}
 
 			if (doBaseReparent)
 			{
-				base.ReparentScreen(controller, screenTransform);
+				base.ReparentView(view, viewTransform);
 			}
 		}
 
-		protected override void ProcessScreenRegister(IWindowController controller)
+		protected override void ProcessViewRegister(IWindow view)
 		{
-			base.ProcessScreenRegister(controller);
+			base.ProcessViewRegister(view);
 
-			controller.InTransitionFinished += OnInAnimationFinished;
-			controller.OutTransitionFinished += OnOutAnimationFinished;
-			controller.CloseRequested += OnCloseRequestedByWindow;
+			view.InTransitionFinished += OnInAnimationFinished;
+			view.OutTransitionFinished += OnOutAnimationFinished;
+			view.CloseRequested += OnCloseRequestedByWindow;
 		}
 
-		protected override void ProcessScreenUnregister(IWindowController controller)
+		protected override void ProcessViewUnregister(IWindow view)
 		{
-			base.ProcessScreenUnregister(controller);
+			base.ProcessViewUnregister(view);
 
-			controller.InTransitionFinished -= OnInAnimationFinished;
-			controller.OutTransitionFinished -= OnOutAnimationFinished;
-			controller.CloseRequested -= OnCloseRequestedByWindow;
+			view.InTransitionFinished -= OnInAnimationFinished;
+			view.OutTransitionFinished -= OnOutAnimationFinished;
+			view.CloseRequested -= OnCloseRequestedByWindow;
 		}
 
-		private void OnInAnimationFinished(IScreenController controller)
+		private void OnInAnimationFinished(IView controller)
 		{
 			RemoveTransition(controller);
 		}
 
-		private void OnOutAnimationFinished(IScreenController controller)
+		private void OnOutAnimationFinished(IView controller)
 		{
 			RemoveTransition(controller);
-			IWindowController window = controller as IWindowController;
+			IWindow window = controller as IWindow;
 
 			if (window.IsPopup)
 			{
@@ -164,99 +163,85 @@ namespace Maui
 			}
 		}
 
-		private void OnCloseRequestedByWindow(IScreenController controller)
+		private void OnCloseRequestedByWindow(IView controller)
 		{
-			HideScreen(controller as IWindowController);
+			HideView(controller as IWindow);
 		}
 
 		private void PopupsShadowClicked()
 		{
 			if (CurrentWindow != null && CurrentWindow.IsPopup && CurrentWindow.CloseOnShadowClick)
 			{
-				HideScreen(CurrentWindow);
+				HideView(CurrentWindow);
 			}
 		}
 
-		private bool ShouldEnqueue(IWindowController window, IWindowProperties properties)
+		private bool ShouldEnqueue(IWindow window)
 		{
-			bool result = false;
-
-			if (CurrentWindow == null && windowQueue.Count == 0)
-			{
-				result = false;
-			}
-			else if (properties != null && properties.SupressPrefabProperties)
-			{
-				result = properties.WindowQueuePriority != WindowPriority.ForceForeground;
-			}
-			else if (window.WindowPriority != WindowPriority.ForceForeground)
-			{
-				result = true;
-			}
-
-			return result;
+			return window.WindowPriority != WindowPriority.ForceForeground
+			       && (CurrentWindow != null || windowQueue.Count > 0);
 		}
 
-		private void EnqueueWindow(IWindowController window, IWindowProperties properties)
+		private void EnqueueWindow(IWindow window, IViewModel viewModel)
 		{
-			windowQueue.Enqueue(new WindowHistoryEntry(window, properties));
+			windowQueue.Enqueue(new WindowHistoryEntry(window, viewModel));
 		}
 
 		private async Task DoShow(WindowHistoryEntry windowEntry)
 		{
-			if (CurrentWindow == windowEntry.Screen)
+			if (CurrentWindow == windowEntry.View)
 			{
 				Debug.LogWarning(
 					string.Format(
 						"[WindowUILayer] The requested WindowId ({0}) is already open! This will add a duplicate to the " +
 						"history and might cause inconsistent behaviour. It is recommended that if you need to open the same" +
-						"screen multiple times (eg: when implementing a warning message pop-up), it closes itself upon the player input" +
+						"view multiple times (eg: when implementing a warning message pop-up), it closes itself upon the player input" +
 						"that triggers the continuation of the flow."
 						, CurrentWindow.GetType().Name));
 			}
-			else if (CurrentWindow != null && CurrentWindow.HideOnForegroundLost && !windowEntry.Screen.IsPopup)
+			else if (CurrentWindow != null && CurrentWindow.HideOnForegroundLost && !windowEntry.View.IsPopup)
 			{
 				CurrentWindow.Hide();
 			}
 
 			windowHistory.Push(windowEntry);
-			AddTransition(windowEntry.Screen);
+			AddTransition(windowEntry.View);
 
-			if (windowEntry.Screen.IsPopup)
+			if (windowEntry.View.IsPopup)
 			{
 				priorityParaLayer.ShowBackgroundShadow();
 			}
 
 			await windowEntry.Show();
 
-			CurrentWindow = windowEntry.Screen;
+			CurrentWindow = windowEntry.View;
 		}
 
-		private Task DoShow(IWindowController window, IWindowProperties properties)
+		private Task DoShow(IWindow window, IViewModel viewModel)
 		{
-			return DoShow(new WindowHistoryEntry(window, properties));
+			return DoShow(new WindowHistoryEntry(window, viewModel));
 		}
 
-		private void AddTransition(IScreenController screen)
+		private void AddTransition(IView view)
 		{
-			screensTransitioning.Add(screen);
-			RequestScreenBlock?.Invoke();
+			viewsTransitioning.Add(view);
+			RequestViewBlock?.Invoke();
 		}
 
-		private void RemoveTransition(IScreenController screen)
+		private void RemoveTransition(IView view)
 		{
-			screensTransitioning.Remove(screen);
+			viewsTransitioning.Remove(view);
 
-			if (IsScreenTransitionInProgress == false)
+			if (IsViewTransitionInProgress == false)
 			{
-				RequestScreenUnblock?.Invoke();
+				RequestViewUnblock?.Invoke();
 			}
 		}
 
 		private bool NextWindowIsPopup()
 		{
-			bool nextWindowInQueueIsPopup = windowQueue.Count > 0 && windowQueue.Peek().Screen.IsPopup;
-			bool lastWindowInHistoryIsPopup = windowHistory.Count > 0 && windowHistory.Peek().Screen.IsPopup;
+			bool nextWindowInQueueIsPopup = windowQueue.Count > 0 && windowQueue.Peek().View.IsPopup;
+			bool lastWindowInHistoryIsPopup = windowHistory.Count > 0 && windowHistory.Peek().View.IsPopup;
 
 			return nextWindowInQueueIsPopup || (windowQueue.Count == 0 && lastWindowInHistoryIsPopup);
 		}

@@ -1,8 +1,8 @@
 ﻿namespace Maui
 {
-	public delegate void ObservableVariableEventHandler<T>(T newValue);
+	public delegate void ObservableVariableEventHandler<in T>(T newValue);
 
-	public interface IReadOnlyObservableVariable<T>
+	public interface IReadOnlyObservableVariable<out T>
 	{
 		event ObservableVariableEventHandler<T> Changed;
 
