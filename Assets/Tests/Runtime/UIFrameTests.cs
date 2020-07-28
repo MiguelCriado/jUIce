@@ -81,9 +81,9 @@ namespace Maui.Tests
 			uiFrame.Initialize();
 			PanelA panelAPrefab = AssetDatabase.LoadAssetAtPath<PanelA>(PanelAPath);
 
-			uiFrame.RegisterScreen(panelAPrefab);
+			uiFrame.RegisterView(panelAPrefab);
 
-			Assert.IsTrue(uiFrame.IsScreenRegistered<PanelA>());
+			Assert.IsTrue(uiFrame.IsViewRegistered<PanelA>());
 			yield return null;
 		}
 
@@ -93,10 +93,10 @@ namespace Maui.Tests
 			uiFrame.Initialize();
 			PanelA panelAPrefab = AssetDatabase.LoadAssetAtPath<PanelA>(PanelAPath);
 
-			uiFrame.RegisterScreen(panelAPrefab);
-			uiFrame.DisposeScreen(panelAPrefab);
+			uiFrame.RegisterView(panelAPrefab);
+			uiFrame.DisposeView(panelAPrefab);
 
-			Assert.IsFalse(uiFrame.IsScreenRegistered<PanelA>());
+			Assert.IsFalse(uiFrame.IsViewRegistered<PanelA>());
 			yield return null;
 		}
 
@@ -106,10 +106,10 @@ namespace Maui.Tests
 			uiFrame.Initialize();
 			PanelA panelAPrefab = AssetDatabase.LoadAssetAtPath<PanelA>(PanelAPath);
 
-			uiFrame.RegisterScreen(panelAPrefab);
+			uiFrame.RegisterView(panelAPrefab);
 			PanelA panelInstance = uiFrame.GetComponentInChildren<PanelA>(true);
 			GameObject panelObject = panelInstance.gameObject;
-			uiFrame.DisposeScreen(panelAPrefab);
+			uiFrame.DisposeView(panelAPrefab);
 
 			yield return null;
 			Assert.IsTrue(panelObject == null);
@@ -121,11 +121,11 @@ namespace Maui.Tests
 			uiFrame.Initialize();
 			PanelA panelAPrefab = AssetDatabase.LoadAssetAtPath<PanelA>(PanelAPath);
 
-			uiFrame.RegisterScreen(panelAPrefab);
-			uiFrame.RegisterScreen(panelAPrefab);
-			uiFrame.DisposeScreen(panelAPrefab);
+			uiFrame.RegisterView(panelAPrefab);
+			uiFrame.RegisterView(panelAPrefab);
+			uiFrame.DisposeView(panelAPrefab);
 
-			Assert.IsTrue(uiFrame.IsScreenRegistered<PanelA>());
+			Assert.IsTrue(uiFrame.IsViewRegistered<PanelA>());
 			yield return null;
 		}
 
@@ -135,12 +135,12 @@ namespace Maui.Tests
 			uiFrame.Initialize();
 			PanelA panelAPrefab = AssetDatabase.LoadAssetAtPath<PanelA>(PanelAPath);
 
-			uiFrame.RegisterScreen(panelAPrefab);
-			uiFrame.RegisterScreen(panelAPrefab);
-			uiFrame.DisposeScreen(panelAPrefab);
-			uiFrame.DisposeScreen(panelAPrefab);
+			uiFrame.RegisterView(panelAPrefab);
+			uiFrame.RegisterView(panelAPrefab);
+			uiFrame.DisposeView(panelAPrefab);
+			uiFrame.DisposeView(panelAPrefab);
 
-			Assert.IsFalse(uiFrame.IsScreenRegistered<PanelA>());
+			Assert.IsFalse(uiFrame.IsViewRegistered<PanelA>());
 			yield return null;
 		}
 
@@ -150,9 +150,9 @@ namespace Maui.Tests
 			uiFrame.Initialize();
 			WindowWithProperties windowPrefab = AssetDatabase.LoadAssetAtPath<WindowWithProperties>(WindowWithPropertiesPath);
 
-			uiFrame.RegisterScreen(windowPrefab);
+			uiFrame.RegisterView(windowPrefab);
 
-			Assert.IsTrue(uiFrame.IsScreenRegistered<WindowWithProperties>());
+			Assert.IsTrue(uiFrame.IsViewRegistered<WindowWithProperties>());
 			yield return null;
 		}
 
@@ -162,12 +162,12 @@ namespace Maui.Tests
 			bool isPanelShown = false;
 			uiFrame.Initialize();
 			PanelA panelAPrefab = AssetDatabase.LoadAssetAtPath<PanelA>(PanelAPath);
-			uiFrame.RegisterScreen(panelAPrefab);
+			uiFrame.RegisterView(panelAPrefab);
 			PanelA panelAInstance = uiFrame.GetComponentInChildren<PanelA>(true);
 
 			async void ShowPanel()
 			{
-				await uiFrame.ShowScreen<PanelA>();
+				await uiFrame.ShowView<PanelA>();
 				isPanelShown = true;
 			}
 
@@ -185,12 +185,12 @@ namespace Maui.Tests
 			bool isPanelShown = false;
 			uiFrame.Initialize();
 			PanelA panelAPrefab = AssetDatabase.LoadAssetAtPath<PanelA>(PanelAPath);
-			uiFrame.RegisterScreen(panelAPrefab);
+			uiFrame.RegisterView(panelAPrefab);
 			PanelA panelAInstance = uiFrame.GetComponentInChildren<PanelA>(true);
 
 			async void ShowPanel()
 			{
-				await uiFrame.ShowScreen<PanelA>();
+				await uiFrame.ShowView<PanelA>();
 				isPanelShown = true;
 			}
 
@@ -207,9 +207,9 @@ namespace Maui.Tests
 		{
 			uiFrame.Initialize();
 			WindowWithProperties windowPrefab = AssetDatabase.LoadAssetAtPath<WindowWithProperties>(WindowWithPropertiesPath);
-			uiFrame.RegisterScreen(windowPrefab);
+			uiFrame.RegisterView(windowPrefab);
 
-			uiFrame.ShowScreen<WindowWithProperties>();
+			uiFrame.ShowView<WindowWithProperties>();
 
 			Assert.IsTrue(uiFrame.CurrentWindow.GetType() == typeof(WindowWithProperties));
 			yield return null;

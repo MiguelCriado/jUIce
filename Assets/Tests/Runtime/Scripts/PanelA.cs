@@ -1,6 +1,6 @@
 ﻿namespace Maui.Tests
 {
-	public class PanelA : BasePanelController
+	public class PanelA : BasePanel
 	{
 
 	}

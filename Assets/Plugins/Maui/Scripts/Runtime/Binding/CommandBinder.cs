@@ -48,12 +48,12 @@ namespace Maui
 			binding.Property.CanExecute.Changed += OnCommandCanExecuteChanged;
 		}
 		
-		protected void OnEnable()
+		protected virtual void OnEnable()
 		{
 			binding.Bind();
 		}
 
-		protected void OnDisable()
+		protected virtual void OnDisable()
 		{
 			binding.Unbind();
 		}
