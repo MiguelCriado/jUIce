@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Maui
@@ -12,11 +13,11 @@ namespace Maui
 
 		public T Value
 		{
-			get { return value;}
+			get => value;
 
 			set
 			{
-				if (value.Equals(this.value) == false)
+				if (Compare(value, this.value) == false)
 				{
 					SetValue(value);
 					OnChanged(value);
@@ -39,6 +40,11 @@ namespace Maui
 		protected virtual void OnChanged(T newValue)
 		{
 			Changed?.Invoke(newValue);
+		}
+		
+		private bool Compare(T x, T y)
+		{
+			return EqualityComparer<T>.Default.Equals(x, y);
 		}
 
 		private void SetValue(T newValue)

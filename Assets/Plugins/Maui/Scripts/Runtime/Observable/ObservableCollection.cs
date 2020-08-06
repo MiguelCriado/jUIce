@@ -31,11 +31,6 @@ namespace Maui
 			}
 		}
 
-		public ObservableCollection(List<T> list) : base(list != null ? new List<T>(list) : null)
-		{
-
-		}
-
 		public void Move(int oldIndex, int newIndex)
 		{
 			MoveItem(oldIndex, newIndex);
