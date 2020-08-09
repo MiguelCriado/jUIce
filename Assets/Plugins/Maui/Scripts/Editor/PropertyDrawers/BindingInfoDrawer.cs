@@ -108,7 +108,7 @@ namespace Maui.Editor
 
 			foreach (Maui.BindingEntry entry in BindingUtils.GetBindings(baseComponent.transform, target.Type))
 			{
-				string id = $"{entry.ViewModelComponent.gameObject.name}/{entry.PropertyName}";
+				string id = $"{entry.ViewModelComponent.gameObject.name}.{entry.ViewModelComponent.Id}/{entry.PropertyName}";
 				bindingMap.Add(id, new BindingEntry(options.Count, entry.ViewModelComponent, entry.PropertyName));
 				options.Add(id);
 			}

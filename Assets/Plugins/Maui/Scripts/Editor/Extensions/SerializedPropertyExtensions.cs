@@ -95,7 +95,6 @@
  
 			 if (includeAllBases)
 			 {
- 
 				 foreach (Type type in GetBaseClassesAndInterfaces(obj.GetType()))
 				 {
 					 field = type.GetField(fieldName, bindings);
