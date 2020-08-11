@@ -10,6 +10,7 @@ namespace Maui
 
 		private readonly ObservableVariable<T> exposedProperty;
 		private IReadOnlyObservableVariable<T> boundProperty;
+		private ObservableVariableAdapter boundPropertyAdapter;
 
 		public VariableBinding(BindingInfo bindingInfo, Component context) : base(bindingInfo, context)
 		{
@@ -25,10 +26,20 @@ namespace Maui
 		{
 			boundProperty = property as IReadOnlyObservableVariable<T>;
 
+			if (boundProperty == null && BindingUtils.CanBeAdapted(property.GetType(), typeof(IReadOnlyObservableVariable<T>)))
+			{
+				boundPropertyAdapter = new ObservableVariableAdapter(property);
+			}
+
 			if (boundProperty != null)
 			{
 				boundProperty.Changed += BoundPropertyChangedHandler;
 				BoundPropertyChangedHandler(boundProperty.Value);
+			}
+			else if (boundPropertyAdapter != null)
+			{
+				boundPropertyAdapter.Changed += BoundPropertyAdapterChangedHandler;
+				BoundPropertyAdapterChangedHandler(boundPropertyAdapter.Value);
 			}
 			else
 			{
@@ -43,11 +54,22 @@ namespace Maui
 				boundProperty.Changed -= BoundPropertyChangedHandler;
 				boundProperty = null;
 			}
+
+			if (boundPropertyAdapter != null)
+			{
+				boundPropertyAdapter.Changed -= BoundPropertyAdapterChangedHandler;
+				boundPropertyAdapter = null;
+			}
 		}
 
 		private void BoundPropertyChangedHandler(T newValue)
 		{
 			exposedProperty.Value = newValue;
+		}
+		
+		private void BoundPropertyAdapterChangedHandler(object newValue)
+		{
+			exposedProperty.Value = (T) newValue;
 		}
 	}
 }

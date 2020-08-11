@@ -101,7 +101,7 @@ namespace Maui
 
 		protected virtual void OnInTransitionFinished()
 		{
-			InTransitionFinished?.Invoke((IView)this);
+			InTransitionFinished?.Invoke(this);
 		}
 
 		protected virtual void OnHiding()
@@ -111,7 +111,7 @@ namespace Maui
 
 		protected virtual void OnOutTransitionFinished()
 		{
-			OutTransitionFinished?.Invoke((IView)this);
+			OutTransitionFinished?.Invoke(this);
 		}
 
 		private async Task DoAnimation(BaseTransition targetTransition, bool isVisible)

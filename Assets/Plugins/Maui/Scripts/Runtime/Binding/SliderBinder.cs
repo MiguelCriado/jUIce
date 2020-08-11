@@ -49,6 +49,7 @@ namespace Maui
 			minValueBinding.Bind();
 			maxValueBinding.Bind();
 			valueBinding.Bind();
+			valueCommandBinding.Bind();
 		}
 
 		protected virtual void OnDisable()
@@ -56,6 +57,7 @@ namespace Maui
 			minValueBinding.Unbind();
 			maxValueBinding.Unbind();
 			valueBinding.Unbind();
+			valueCommandBinding.Unbind();
 		}
 
 		private void SliderValueChangedHandler(float newValue)

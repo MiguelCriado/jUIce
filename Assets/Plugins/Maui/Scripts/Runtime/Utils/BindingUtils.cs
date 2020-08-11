@@ -26,55 +26,60 @@ namespace Maui
 			private static readonly Type GenericCommandType = typeof(IObservableCommand<>);
 			private static readonly Type CommandType = typeof(IObservableCommand);
 			
-			public Type Type
+			public Type TargetType
 			{
-				get => type;
+				get => targetType;
 				set
 				{
-					isGenericType = value.IsGenericType;
+					genericTypeToCheck = null;
+					typeToCheck = null;
+					Type genericType = GetGenericTypeInHierarchy(value);
 					
-					if (isGenericType)
+					if (genericType != null)
 					{
-						Type genericType = value.GetGenericTypeDefinition();
+						Type genericTypeDefinition = genericType.GetGenericTypeDefinition();
 						
-						if (value.GenericTypeArguments.Length > 0 
-						    && (genericType.IsAssignableFrom(GenericVariableType) 
-						        || genericType.IsAssignableFrom(GenericCollectionType) 
-						        || genericType.IsAssignableFrom(GenericCommandType)))
+						if (genericType.GenericTypeArguments.Length > 0 
+						    && (ImplementsOrDerives(genericTypeDefinition, GenericVariableType) 
+						        || ImplementsOrDerives(genericTypeDefinition, GenericCollectionType)
+						        || ImplementsOrDerives(genericTypeDefinition, GenericCommandType)))
 						{
-							genericTypeToCheck = genericType;
-							typeToCheck =  value.GenericTypeArguments[0];
+							genericTypeToCheck = genericTypeDefinition;
+							typeToCheck =  genericType.GenericTypeArguments[0];
 						}
 					}
-					else if (value.IsAssignableFrom(CommandType))
+					else if (CommandType.IsAssignableFrom(value))
 					{
 						typeToCheck = CommandType;
 					}
 
-					type = value;
+					targetType = value;
 				}
 			}
 
-			private Type type;
-			private bool isGenericType;
+			private Type targetType;
 			private Type genericTypeToCheck;
 			private Type typeToCheck;
 
-			public bool Check(Type type)
+			public bool CanBeBound(Type type)
 			{
 				bool result = false;
 
 				if (typeToCheck != null)
 				{
-					if (isGenericType)
+					if (genericTypeToCheck != null)
 					{
-						if (type.IsGenericType && type.GenericTypeArguments.Length > 0)
+						Type genericType = GetGenericTypeInHierarchy(type);
+						
+						if (genericType != null && genericType.GenericTypeArguments.Length > 0)
 						{
-							Type genericType = type.GetGenericTypeDefinition();
-							Type genericParameter = type.GenericTypeArguments[0];
+							Type genericTypeDefinition = type.GetGenericTypeDefinition();
+							Type genericArgument = genericType.GenericTypeArguments[0];
 
-							result = genericTypeToCheck.IsAssignableFrom(genericType) 
-							         && typeToCheck.IsAssignableFrom(genericParameter);
+							result = ImplementsOrDerives(genericTypeDefinition, genericTypeToCheck)
+							         && (typeToCheck == genericArgument
+							             || (!typeToCheck.IsValueType && typeToCheck.IsAssignableFrom(genericArgument)) 
+							             || (typeToCheck.IsValueType && AdapterSupportsType(typeToCheck, genericArgument)));
 						}
 					}
 					else
@@ -85,49 +90,154 @@ namespace Maui
 
 				return result;
 			}
+
+			public bool CanBeAdapted(Type type)
+			{
+				bool result = false;
+				Type genericType = GetGenericTypeInHierarchy(type);
+
+				if (typeToCheck != null && targetType.IsGenericType && genericType != null && genericType.GenericTypeArguments.Length > 0)
+				{
+					Type genericArgument = type.GenericTypeArguments[0];
+					result = AdapterSupportsType(targetType, genericArgument);
+				}
+
+				return result;
+			}
+
+			private bool ImplementsOrDerives(Type type, Type baseType)
+			{
+				bool result = false;
+
+				if (type != null)
+				{
+					if (baseType.IsGenericType)
+					{
+						if (baseType.IsGenericTypeDefinition)
+						{
+							if (baseType.IsInterface)
+							{
+								int i = 0;
+								Type[] interfaces = type.GetInterfaces();
+
+								while (result == false && i < interfaces.Length)
+								{
+									Type @interface = interfaces[i];
+									result = @interface.IsGenericType && @interface.GetGenericTypeDefinition() == baseType;
+									i++;
+								}
+							}
+							
+							result |= type.IsGenericType && type.GetGenericTypeDefinition() == baseType;
+						}
+						else
+						{
+							result = baseType.IsAssignableFrom(type);
+						}
+					}
+					else
+					{
+						result = baseType.IsAssignableFrom(type);
+					}
+					
+					result |= ImplementsOrDerives(type.BaseType, baseType);
+				}
+
+				return result;
+			}
+
+			private Type GetGenericTypeInHierarchy(Type type)
+			{
+				Type result = null;
+
+				if (type != null)
+				{
+					if (type.IsGenericType)
+					{
+						result = type;
+					}
+					else
+					{
+						result = GetGenericTypeInHierarchy(type.BaseType);
+					}
+				}
+
+				return result;
+			}
+
+			private bool AdapterSupportsType(Type genericType, Type parameterType)
+			{
+				bool result = false;
+
+				if (ImplementsOrDerives(genericType, GenericVariableType))
+				{
+					result = ObservableVariableAdapter.SupportedTypes.Contains(parameterType);
+				}
+				else if (ImplementsOrDerives(genericType, GenericCollectionType))
+				{
+					// TODO
+				}
+				else if (ImplementsOrDerives(genericType, GenericCommandType))
+				{
+					// TODO
+				}
+
+				return result;
+			}
 		}
 
 		private static readonly BindingTypeChecker Checker = new BindingTypeChecker();
 		
 		public static IEnumerable<BindingEntry> GetBindings(Transform context, Type targetType)
 		{
-			Checker.Type = targetType;
-			ViewModelComponent viewModel = GetComponentInParents<ViewModelComponent>(context, true);
-
-			while (viewModel != null)
+			Checker.TargetType = targetType;
+			
+			foreach (var viewModel in GetComponentsInParents<ViewModelComponent>(context, true))
 			{
 				Type viewModelType = viewModel.ExpectedType;
 
 				if (viewModelType != null)
 				{
-					foreach (PropertyInfo propertyInfo in viewModelType.GetRuntimeProperties())
+					foreach (PropertyInfo propertyInfo in viewModelType.GetProperties())
 					{
-						if (Checker.Check(propertyInfo.PropertyType))
+						if (Checker.CanBeBound(propertyInfo.PropertyType))
 						{
 							yield return new BindingEntry(viewModel, propertyInfo.Name);
 						}
 					}
 				}
-
-				viewModel = GetComponentInParents<ViewModelComponent>(viewModel, false);
 			}
 		}
-		
-		private static T GetComponentInParents<T>(Component component, bool includeSelf) where T : Component 
-		{
-			T result = null;
 
+		public static bool CanBeBound(Type actualType, Type targetType)
+		{
+			Checker.TargetType = targetType;
+			return Checker.CanBeBound(actualType);
+		}
+
+		public static bool CanBeAdapted(Type actualType, Type targetType)
+		{
+			Checker.TargetType = targetType;
+			return Checker.CanBeAdapted(actualType);
+		}
+		
+		private static IEnumerable<T> GetComponentsInParents<T>(Component component, bool includeSelf) where T : Component 
+		{
 			if (includeSelf)
 			{
-				result = component.GetComponent<T>();
+				foreach (T current in component.GetComponents<T>())
+				{
+					yield return current;
+				}
 			}
 
-			if (result == null && component.transform.parent != null)
+			if (component.transform.parent != null)
 			{
-				result = GetComponentInParents<T>(component.transform.parent, true);
+				foreach (T current in GetComponentsInParents<T>(component.transform.parent, true))
+				{
+					yield return current;
+				}
 			}
-
-			return result;
 		}
 	}
 }
