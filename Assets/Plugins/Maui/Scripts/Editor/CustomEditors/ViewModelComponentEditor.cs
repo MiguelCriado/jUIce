@@ -82,12 +82,7 @@ namespace Maui.Editor
 		
 		protected void DrawId()
 		{
-			bool shouldDisableEditor = Application.isPlaying;
-			EditorGUI.BeginDisabledGroup(shouldDisableEditor);
-
 			EditorGUILayout.PropertyField(idProperty);
-
-			EditorGUI.EndDisabledGroup();
 		}
 		
 		private void RefreshType()

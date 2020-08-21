@@ -22,8 +22,8 @@ namespace Maui
 		public string Id => id;
 
 		[TypeConstraint(typeof(IViewModel))]
-		[SerializeField] [HideInInspector] protected SerializableType expectedType;
-		[SerializeField] [HideInInspector] private string id;
+		[SerializeField, HideInInspector] protected SerializableType expectedType;
+		[SerializeField, DisableAtRuntime] private string id;
 
 		private IViewModel viewModel;
 
@@ -32,7 +32,7 @@ namespace Maui
 			ResetId();
 		}
 
-		protected void OnValidate()
+		protected virtual void OnValidate()
 		{
 			if (string.IsNullOrEmpty(id) || IsIdAvailable(id) == false)
 			{
