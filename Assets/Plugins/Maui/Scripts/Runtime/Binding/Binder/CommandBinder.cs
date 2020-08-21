@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Maui
 {
@@ -36,25 +37,34 @@ namespace Maui
 	
 	public abstract class CommandBinder<T> : MonoBehaviour, IBinder<T>
 	{
-		[SerializeField] private BindingInfo bindingInfo = new BindingInfo(typeof(IObservableCommand<T>));
+		[SerializeField] private BindingInfo commandBinding = new BindingInfo(typeof(IObservableCommand<T>));
 
 		protected bool CanExecute => binding.Property.CanExecute.Value;
 
 		private CommandBinding<T> binding;
 
+		protected virtual void Reset()
+		{
+			commandBinding = new BindingInfo(typeof(IObservableCommand<T>));
+		}
+
 		protected virtual void Awake()
 		{
-			binding = new CommandBinding<T>(bindingInfo, this);
+			binding = new CommandBinding<T>(commandBinding, this);
 			binding.Property.CanExecute.Changed += OnCommandCanExecuteChanged;
 		}
 		
 		protected virtual void OnEnable()
 		{
 			binding.Bind();
+			
+			OnCommandCanExecuteChanged(binding.Property.CanExecute.Value);
 		}
 
 		protected virtual void OnDisable()
 		{
+			OnCommandCanExecuteChanged(false);
+
 			binding.Unbind();
 		}
 
