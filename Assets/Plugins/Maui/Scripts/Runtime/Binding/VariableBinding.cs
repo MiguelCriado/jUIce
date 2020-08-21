@@ -1,22 +1,23 @@
 ﻿using System;
 using System.Reflection;
+using Maui.Utils;
 using UnityEngine;
 
 namespace Maui
 {
 	public class VariableBinding<T> : Binding
 	{
+		public override bool IsBound => boundProperty != null;
 		public IReadOnlyObservableVariable<T> Property => exposedProperty;
 
 		private readonly ObservableVariable<T> exposedProperty;
 		private IReadOnlyObservableVariable<T> boundProperty;
-		private ObservableVariableAdapter boundPropertyAdapter;
 
 		public VariableBinding(BindingInfo bindingInfo, Component context) : base(bindingInfo, context)
 		{
 			exposedProperty = new ObservableVariable<T>();
 		}
-
+		
 		protected override Type GetBindingType()
 		{
 			return typeof(IReadOnlyObservableVariable<T>);
@@ -26,9 +27,9 @@ namespace Maui
 		{
 			boundProperty = property as IReadOnlyObservableVariable<T>;
 
-			if (boundProperty == null && BindingUtils.CanBeAdapted(property.GetType(), typeof(IReadOnlyObservableVariable<T>)))
+			if (boundProperty == null && BindingUtils.NeedsToBeBoxed(property.GetType(), typeof(IReadOnlyObservableVariable<T>)))
 			{
-				boundPropertyAdapter = new ObservableVariableAdapter(property);
+				boundProperty = BoxVariable(property);
 			}
 
 			if (boundProperty != null)
@@ -36,14 +37,9 @@ namespace Maui
 				boundProperty.Changed += BoundPropertyChangedHandler;
 				BoundPropertyChangedHandler(boundProperty.Value);
 			}
-			else if (boundPropertyAdapter != null)
-			{
-				boundPropertyAdapter.Changed += BoundPropertyAdapterChangedHandler;
-				BoundPropertyAdapterChangedHandler(boundPropertyAdapter.Value);
-			}
 			else
 			{
-				Debug.LogError($"Property type ({property.GetType()}) different from expected type ({typeof(IReadOnlyObservableVariable<T>)})");
+				Debug.LogError($"Property type ({property.GetType()}) cannot be bound as {typeof(IReadOnlyObservableVariable<T>)}");
 			}
 		}
 
@@ -54,22 +50,28 @@ namespace Maui
 				boundProperty.Changed -= BoundPropertyChangedHandler;
 				boundProperty = null;
 			}
-
-			if (boundPropertyAdapter != null)
-			{
-				boundPropertyAdapter.Changed -= BoundPropertyAdapterChangedHandler;
-				boundPropertyAdapter = null;
-			}
 		}
 
+		private static IReadOnlyObservableVariable<T> BoxVariable(object variableToBox)
+		{
+			IReadOnlyObservableVariable<T> result = null;
+			
+			Type variableGenericType = variableToBox.GetType().GetGenericTypeTowardsRoot();
+
+			if (variableGenericType != null)
+			{
+				Type actualType = typeof(T);
+				Type boxedType = variableGenericType.GenericTypeArguments[0];
+				Type activationType = typeof(VariableBoxer<,>).MakeGenericType(actualType, boxedType);
+				result = Activator.CreateInstance(activationType, variableToBox) as IReadOnlyObservableVariable<T>;
+			}
+
+			return result;
+		}
+		
 		private void BoundPropertyChangedHandler(T newValue)
 		{
 			exposedProperty.Value = newValue;
-		}
-		
-		private void BoundPropertyAdapterChangedHandler(object newValue)
-		{
-			exposedProperty.Value = (T) newValue;
 		}
 	}
 }

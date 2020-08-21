@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Maui.Utils;
 using UnityEngine;
 
 namespace Maui
@@ -33,16 +34,16 @@ namespace Maui
 				{
 					genericTypeToCheck = null;
 					typeToCheck = null;
-					Type genericType = GetGenericTypeInHierarchy(value);
+					Type genericType = value.GetGenericTypeTowardsRoot();
 					
 					if (genericType != null)
 					{
 						Type genericTypeDefinition = genericType.GetGenericTypeDefinition();
 						
 						if (genericType.GenericTypeArguments.Length > 0 
-						    && (ImplementsOrDerives(genericTypeDefinition, GenericVariableType) 
-						        || ImplementsOrDerives(genericTypeDefinition, GenericCollectionType)
-						        || ImplementsOrDerives(genericTypeDefinition, GenericCommandType)))
+						    && (genericTypeDefinition.ImplementsOrDerives(GenericVariableType) 
+						        || genericTypeDefinition.ImplementsOrDerives(GenericCollectionType)
+						        || genericTypeDefinition.ImplementsOrDerives(GenericCommandType)))
 						{
 							genericTypeToCheck = genericTypeDefinition;
 							typeToCheck =  genericType.GenericTypeArguments[0];
@@ -69,17 +70,15 @@ namespace Maui
 				{
 					if (genericTypeToCheck != null)
 					{
-						Type genericType = GetGenericTypeInHierarchy(type);
+						Type genericType = type.GetGenericTypeTowardsRoot();
 						
 						if (genericType != null && genericType.GenericTypeArguments.Length > 0)
 						{
 							Type genericTypeDefinition = type.GetGenericTypeDefinition();
 							Type genericArgument = genericType.GenericTypeArguments[0];
 
-							result = ImplementsOrDerives(genericTypeDefinition, genericTypeToCheck)
-							         && (typeToCheck == genericArgument
-							             || (!typeToCheck.IsValueType && typeToCheck.IsAssignableFrom(genericArgument)) 
-							             || (typeToCheck.IsValueType && AdapterSupportsType(typeToCheck, genericArgument)));
+							result = genericTypeDefinition.ImplementsOrDerives(genericTypeToCheck)
+							         && typeToCheck.IsAssignableFrom(genericArgument);
 						}
 					}
 					else
@@ -91,98 +90,15 @@ namespace Maui
 				return result;
 			}
 
-			public bool CanBeAdapted(Type type)
+			public bool NeedsToBeBoxed(Type type)
 			{
-				bool result = false;
-				Type genericType = GetGenericTypeInHierarchy(type);
+				Type genericType = type.GetGenericTypeTowardsRoot();
 
-				if (typeToCheck != null && targetType.IsGenericType && genericType != null && genericType.GenericTypeArguments.Length > 0)
-				{
-					Type genericArgument = type.GenericTypeArguments[0];
-					result = AdapterSupportsType(targetType, genericArgument);
-				}
-
-				return result;
-			}
-
-			private bool ImplementsOrDerives(Type type, Type baseType)
-			{
-				bool result = false;
-
-				if (type != null)
-				{
-					if (baseType.IsGenericType)
-					{
-						if (baseType.IsGenericTypeDefinition)
-						{
-							if (baseType.IsInterface)
-							{
-								int i = 0;
-								Type[] interfaces = type.GetInterfaces();
-
-								while (result == false && i < interfaces.Length)
-								{
-									Type @interface = interfaces[i];
-									result = @interface.IsGenericType && @interface.GetGenericTypeDefinition() == baseType;
-									i++;
-								}
-							}
-							
-							result |= type.IsGenericType && type.GetGenericTypeDefinition() == baseType;
-						}
-						else
-						{
-							result = baseType.IsAssignableFrom(type);
-						}
-					}
-					else
-					{
-						result = baseType.IsAssignableFrom(type);
-					}
-					
-					result |= ImplementsOrDerives(type.BaseType, baseType);
-				}
-
-				return result;
-			}
-
-			private Type GetGenericTypeInHierarchy(Type type)
-			{
-				Type result = null;
-
-				if (type != null)
-				{
-					if (type.IsGenericType)
-					{
-						result = type;
-					}
-					else
-					{
-						result = GetGenericTypeInHierarchy(type.BaseType);
-					}
-				}
-
-				return result;
-			}
-
-			private bool AdapterSupportsType(Type genericType, Type parameterType)
-			{
-				bool result = false;
-
-				if (ImplementsOrDerives(genericType, GenericVariableType))
-				{
-					result = ObservableVariableAdapter.SupportedTypes.Contains(parameterType);
-				}
-				else if (ImplementsOrDerives(genericType, GenericCollectionType))
-				{
-					// TODO
-				}
-				else if (ImplementsOrDerives(genericType, GenericCommandType))
-				{
-					// TODO
-				}
-
-				return result;
+				return typeToCheck != null
+				       && targetType.IsGenericType
+				       && genericType != null
+				       && genericType.GenericTypeArguments.Length > 0
+				       && genericType.GenericTypeArguments[0].IsValueType;
 			}
 		}
 
@@ -215,10 +131,10 @@ namespace Maui
 			return Checker.CanBeBound(actualType);
 		}
 
-		public static bool CanBeAdapted(Type actualType, Type targetType)
+		public static bool NeedsToBeBoxed(Type actualType, Type targetType)
 		{
 			Checker.TargetType = targetType;
-			return Checker.CanBeAdapted(actualType);
+			return Checker.NeedsToBeBoxed(actualType);
 		}
 		
 		private static IEnumerable<T> GetComponentsInParents<T>(Component component, bool includeSelf) where T : Component 
