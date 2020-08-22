@@ -1,27 +1,71 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace Maui.Tweening
 {
 	public static class Tween
 	{
+		private static readonly HashSet<Tweener> aliveTweeners = new HashSet<Tweener>();
+		private static readonly List<Tweener> tweenersToRemove = new List<Tweener>();
+		
+
+		static Tween()
+		{
+			LifecycleUtils.OnUpdate += Update;
+		}
+
 		public static Tweener<float> To(Tweener<float>.Getter getter, Tweener<float>.Setter setter, float finalValue, float duration)
 		{
-			return new FloatTweener(getter, setter, finalValue, duration);
+			Tweener<float> result =  new FloatTweener(getter, setter, finalValue, duration);
+			RegisterTweenener(result);
+			return result;
 		}
 
 		public static Tweener<Vector2> To(Tweener<Vector2>.Getter getter, Tweener<Vector2>.Setter setter, Vector2 finalValue, float duration)
 		{
-			return new Vector2Tweener(getter, setter, finalValue, duration);
+			Tweener<Vector2> result = new Vector2Tweener(getter, setter, finalValue, duration);
+			RegisterTweenener(result);
+			return result;
 		}
 		
 		public static Tweener<Vector3> To(Tweener<Vector3>.Getter getter, Tweener<Vector3>.Setter setter, Vector3 finalValue, float duration)
 		{
-			return new Vector3Tweener(getter, setter, finalValue, duration);
+			Tweener<Vector3> result = new Vector3Tweener(getter, setter, finalValue, duration);
+			RegisterTweenener(result);
+			return result;
 		}
 		
 		public static Tweener<Color> To(Tweener<Color>.Getter getter, Tweener<Color>.Setter setter, Color finalValue, float duration)
 		{
-			return new ColorTweener(getter, setter, finalValue, duration);
+			Tweener<Color> result = new ColorTweener(getter, setter, finalValue, duration);
+			RegisterTweenener(result);
+			return result;
+		}
+
+		private static void Update()
+		{
+			foreach (Tweener current in aliveTweeners)
+			{
+				current.Update();
+			}
+
+			foreach (Tweener current in tweenersToRemove)
+			{
+				aliveTweeners.Remove(current);
+			}
+			
+			tweenersToRemove.Clear();
+		}
+		
+		private static void RegisterTweenener(Tweener tweener)
+		{
+			aliveTweeners.Add(tweener);
+			tweener.Completed += () => TweenCompletedHandler(tweener);
+		}
+		
+		private static void TweenCompletedHandler(Tweener tweener)
+		{
+			tweenersToRemove.Add(tweener);
 		}
 	}
 }
