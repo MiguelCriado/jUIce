@@ -9,15 +9,21 @@ namespace Maui.Editor
 	{
 		private class BindingEntry
 		{
-			public int Index;
-			public ViewModelComponent Component;
-			public string PropertyName;
+			public readonly int Index;
+			public readonly ViewModelComponent Component;
+			public readonly string PropertyName;
+			public readonly bool NeedsToBeBoxed;
 
-			public BindingEntry(int index, ViewModelComponent component, string propertyName)
+			public BindingEntry(
+				int index,
+				ViewModelComponent component,
+				string propertyName,
+				bool needsToBeBoxed)
 			{
 				Index = index;
 				Component = component;
 				PropertyName = propertyName;
+				NeedsToBeBoxed = needsToBeBoxed;
 			}
 		}
 
@@ -32,6 +38,16 @@ namespace Maui.Editor
 		private string[] cachedOptions;
 		private int currentIndex;
 
+		public BindingInfoDrawer()
+		{
+			BindingInfoTracker.Register(this);
+		}
+
+		~BindingInfoDrawer()
+		{
+			BindingInfoTracker.Unregister(this);
+		}
+		
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
 			EditorGUI.BeginProperty(position, label, property);
@@ -62,6 +78,11 @@ namespace Maui.Editor
 			EditorGUI.EndProperty();
 		}
 
+		public void SetDirty()
+		{
+			isCached = false;
+		}
+
 		private static Rect DrawLabel(Rect position, GUIContent label)
 		{
 			position = EditorGUI.PrefixLabel(position, GUIUtility.GetControlID(FocusType.Passive), label);
@@ -72,6 +93,11 @@ namespace Maui.Editor
 		{
 			property.FindPropertyRelative(ViewModelContainerId).objectReferenceValue = viewModelComponent;
 			property.FindPropertyRelative(PropertyNameId).stringValue = propertyName;
+		}
+		
+		private static string GenerateBindingId(ViewModelComponent component, string propertyName)
+		{
+			return $"{component.gameObject.name}.{component.Id}/{propertyName}";
 		}
 
 		private void CacheElements(SerializedProperty property)
@@ -106,10 +132,11 @@ namespace Maui.Editor
 			bindingMap = new Dictionary<string, BindingEntry>();
 			List<string> options = new List<string>();
 
-			foreach (Maui.BindingEntry entry in BindingUtils.GetBindings(baseComponent.transform, target.Type))
+			foreach (Maui.BindingEntry current in BindingUtils.GetBindings(baseComponent.transform, target.Type))
 			{
-				string id = $"{entry.ViewModelComponent.gameObject.name}.{entry.ViewModelComponent.Id}/{entry.PropertyName}";
-				bindingMap.Add(id, new BindingEntry(options.Count, entry.ViewModelComponent, entry.PropertyName));
+				string id = GenerateBindingId(current.ViewModelComponent, current.PropertyName);
+				BindingEntry entry = new BindingEntry(options.Count, current.ViewModelComponent, current.PropertyName, current.NeedsToBeBoxed);
+				bindingMap.Add(id, entry);
 				options.Add(id);
 			}
 			
@@ -120,9 +147,9 @@ namespace Maui.Editor
 		{
 			if (target.ViewModelContainer != null && string.IsNullOrEmpty(target.PropertyName) == false)
 			{
-				string bindName = $"{target.ViewModelContainer.gameObject.name}/{target.PropertyName}";
+				string bindingId = GenerateBindingId(target.ViewModelContainer, target.PropertyName);
 				
-				if (bindingMap.TryGetValue(bindName, out BindingEntry entry))
+				if (bindingMap.TryGetValue(bindingId, out BindingEntry entry))
 				{
 					currentIndex = entry.Index;
 				}

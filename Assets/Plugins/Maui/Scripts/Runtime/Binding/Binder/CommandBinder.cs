@@ -1,16 +1,20 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Maui
 {
 	public abstract class CommandBinder : MonoBehaviour
 	{
-		[SerializeField] private BindingInfo bindingInfo = new BindingInfo(typeof(object));
+		[SerializeField] private BindingInfo bindingInfo = new BindingInfo(typeof(IObservableCommand));
 
 		protected bool CanExecute => binding.Property.CanExecute.Value;
 
 		private CommandBinding binding;
 
+		protected virtual void Reset()
+		{
+			bindingInfo = new BindingInfo(typeof(IObservableCommand));
+		}
+		
 		protected virtual void Awake()
 		{
 			binding = new CommandBinding(bindingInfo, this);

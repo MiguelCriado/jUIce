@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 namespace Maui
 {
-	[RequireComponent((typeof(Button)))]
+	[RequireComponent(typeof(Button))]
 	public class ButtonBinder : CommandBinder
 	{
 		private Button button;

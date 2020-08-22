@@ -19,6 +19,12 @@ namespace Maui.Editor
 		{
 			expectedTypeProperty = serializedObject.FindProperty("expectedType");
 			idProperty = serializedObject.FindProperty("id");
+			BindingInfoTracker.RefreshBindingInfoDrawers();
+		}
+
+		protected virtual void OnDisable()
+		{
+			BindingInfoTracker.RefreshBindingInfoDrawers();
 		}
 
 		public override void OnInspectorGUI()

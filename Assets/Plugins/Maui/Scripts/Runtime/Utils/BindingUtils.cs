@@ -10,11 +10,13 @@ namespace Maui
 	{
 		public ViewModelComponent ViewModelComponent { get; }
 		public string PropertyName { get; }
+		public bool NeedsToBeBoxed { get; }
 
-		public BindingEntry(ViewModelComponent viewModelComponent, string propertyName)
+		public BindingEntry(ViewModelComponent viewModelComponent, string propertyName, bool needsToBeBoxed)
 		{
 			ViewModelComponent = viewModelComponent;
 			PropertyName = propertyName;
+			NeedsToBeBoxed = needsToBeBoxed;
 		}
 	}
 	
@@ -118,7 +120,8 @@ namespace Maui
 					{
 						if (Checker.CanBeBound(propertyInfo.PropertyType))
 						{
-							yield return new BindingEntry(viewModel, propertyInfo.Name);
+							bool needsToBeBoxed = Checker.NeedsToBeBoxed(propertyInfo.PropertyType);
+							yield return new BindingEntry(viewModel, propertyInfo.Name, needsToBeBoxed);
 						}
 					}
 				}
