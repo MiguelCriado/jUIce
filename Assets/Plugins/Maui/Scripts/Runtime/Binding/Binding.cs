@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
@@ -7,6 +8,8 @@ namespace Maui
 {
 	public abstract class Binding : IBinding
 	{
+		public abstract bool IsBound { get; }
+
 		protected readonly BindingInfo bindingInfo;
 		protected readonly Component context;
 
@@ -68,7 +71,7 @@ namespace Maui
 		{
 			ViewModelComponent result = null;
 			
-			using (var iterator = BindingUtils.GetBindings(context, targetType).GetEnumerator())
+			using (IEnumerator<BindingEntry> iterator = BindingUtils.GetBindings(context, targetType).GetEnumerator())
 			{
 				if (iterator.MoveNext())
 				{
