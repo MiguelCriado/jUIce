@@ -4,22 +4,53 @@ using UnityEngine;
 
 namespace Maui
 {
+	public delegate void BindingListEventHandler<in T>(int index, T newValue);
+	
 	[Serializable]
-	public class BindingList
+	public class BindingList<T>
 	{
-		public Type Type => type.Type;
+		public event BindingListEventHandler<T> VariableChanged; 
 		
-		[SerializeField] private SerializableType type;
-		[SerializeField] private List<BindingInfo> bindings = new List<BindingInfo>();
+		private readonly List<VariableBinding<T>> bindingList;
 
-		public BindingList(Type targetType)
+		public BindingList(Component context, BindingInfoList infoList)
 		{
-			type = new SerializableType(targetType);
+			bindingList = new List<VariableBinding<T>>();
+			
+			for (int i = 0; i < infoList.BindingInfos.Count; i++)
+			{
+				BindingInfo current = infoList.BindingInfos[i];
+				var newVariable = new VariableBinding<T>(current, context);
+				int index = i;
+				newVariable.Property.Changed += newValue => VariableChangedHandler(index, newValue);
+				bindingList.Add(newVariable);
+			}
 		}
 
-		public void AddElement()
+		public void Bind()
 		{
-			bindings.Add(new BindingInfo(Type));
+			foreach (VariableBinding<T> current in bindingList)
+			{
+				current.Bind();
+			}
+		}
+
+		public void Unbind()
+		{
+			foreach (VariableBinding<T> current in bindingList)
+			{
+				current.Unbind();
+			}
+		}
+
+		protected virtual void OnVariableChanged(int index, T newValue)
+		{
+			VariableChanged?.Invoke(index, newValue);
+		}
+		
+		private void VariableChangedHandler(int index, T newValue)
+		{
+			OnVariableChanged(index, newValue);
 		}
 	}
 }
