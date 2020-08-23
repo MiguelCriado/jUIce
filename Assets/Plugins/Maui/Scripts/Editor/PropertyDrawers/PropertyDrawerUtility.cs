@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEditor;
@@ -18,8 +20,13 @@ namespace Maui.Editor
 			{
 				if (field.GetType().IsArray)
 				{
-					var index = Convert.ToInt32(new string(property.propertyPath.Where(c => char.IsDigit(c)).ToArray()));
+					var index = GetElementIndex<T>(property);
 					result = ((T[])field)[index];
+				}
+				else if (field is List<T> list)
+				{
+					var index = GetElementIndex<T>(property);
+					result = list[index];
 				}
 				else
 				{
@@ -30,32 +37,72 @@ namespace Maui.Editor
 			return result;
 		}
 
+		private static int GetElementIndex<T>(SerializedProperty property) where T : class
+		{
+			var index = Convert.ToInt32(new string(property.propertyPath.Where(c => char.IsDigit(c)).ToArray()));
+			return index;
+		}
+
 		private static object ResolveTargetObject(SerializedProperty property)
 		{
 			object targetObject = property.serializedObject.targetObject;
-			string[] tokens = property.propertyPath.Split('.');
+			var path = property.propertyPath.Replace(".Array.data[", "[");
+			string[] tokens = path.Split('.');
 
 			for (int i = 0; i < tokens.Length - 1; i++)
 			{
-				Type type = targetObject.GetType();
-				FieldInfo info = null;
-				BindingFlags bindingFlags =
-					BindingFlags.Public
-					| BindingFlags.NonPublic
-					| BindingFlags.Static
-					| BindingFlags.Instance
-					| BindingFlags.DeclaredOnly;
+				string current = tokens[i];
 
-				while (info == null && type != null)
+				if (current.Contains("["))
 				{
-					info = type.GetField(tokens[i], bindingFlags);
-					type = type.BaseType;
+					var elementName = current.Substring(0, current.IndexOf("["));
+					var index = Convert.ToInt32(
+						current.Substring(current.IndexOf("["))
+							.Replace("[","")
+							.Replace("]",""));
+					
+					targetObject = GetValue(targetObject, elementName, index);
 				}
-
-				targetObject = info.GetValue(targetObject);
+				else
+				{
+					targetObject = GetValue(targetObject, current);
+				}
 			}
 
 			return targetObject;
+		}
+
+		private static object GetValue(object source, string name, int index)
+		{
+			var enumerable = GetValue(source, name) as IEnumerable;
+			var enumerator = enumerable.GetEnumerator();
+
+			while (index-- >= 0)
+			{
+				enumerator.MoveNext();
+			}
+
+			return enumerator.Current;
+		}
+		
+		private static object GetValue(object source, string name)
+		{
+			Type type = source.GetType();
+			FieldInfo info = null;
+			BindingFlags bindingFlags =
+				BindingFlags.Public
+				| BindingFlags.NonPublic
+				| BindingFlags.Static
+				| BindingFlags.Instance
+				| BindingFlags.DeclaredOnly;
+
+			while (info == null && type != null)
+			{
+				info = type.GetField(name, bindingFlags);
+				type = type.BaseType;
+			}
+
+			return info.GetValue(source);
 		}
 	}
 }
