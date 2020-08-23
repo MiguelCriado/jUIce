@@ -77,7 +77,7 @@ namespace Maui.Editor
 
 		protected void DrawExpectedType()
 		{
-			var injector = viewModelComponent.GetComponents<IViewModelInjector>().First(x => x.Target == viewModelComponent);
+			var injector = viewModelComponent.GetComponents<IViewModelInjector>().FirstOrDefault(x => x.Target == viewModelComponent);
 			bool shouldDisableEditor = injector != null;
 			EditorGUI.BeginDisabledGroup(shouldDisableEditor);
 
