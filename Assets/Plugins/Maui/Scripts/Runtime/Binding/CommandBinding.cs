@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Maui.Utils;
 using UnityEngine;
 
@@ -9,7 +10,7 @@ namespace Maui
 		public override bool IsBound => boundProperty != null;
 		public IObservableCommand Property => exposedProperty;
 		
-		private readonly IObservableVariable<bool> canExecuteSource;
+		private readonly ObservableVariable<bool> canExecuteSource;
 		private readonly ObservableCommand exposedProperty;
 		private IObservableCommand boundProperty;
 
@@ -31,7 +32,15 @@ namespace Maui
 			if (boundProperty != null)
 			{
 				boundProperty.CanExecute.Changed += CanExecuteChangedHandler;
-				canExecuteSource.Value = boundProperty.CanExecute.Value;
+
+				if (boundProperty.CanExecute.Value == canExecuteSource.Value)
+				{
+					canExecuteSource.ForceChangedNotification();
+				}
+				else
+				{
+					canExecuteSource.Value = boundProperty.CanExecute.Value;
+				}
 			}
 			else
 			{
@@ -64,7 +73,7 @@ namespace Maui
 		public override bool IsBound => boundProperty != null;
 		public IObservableCommand<T> Property => exposedProperty;
 		
-		private readonly IObservableVariable<bool> canExecuteSource;
+		private readonly ObservableVariable<bool> canExecuteSource;
 		private readonly ObservableCommand<T> exposedProperty;
 		private IObservableCommand<T> boundProperty;
 
@@ -91,7 +100,15 @@ namespace Maui
 			if (boundProperty != null)
 			{
 				boundProperty.CanExecute.Changed += CanExecuteChangedHandler;
-				canExecuteSource.Value = boundProperty.CanExecute.Value;
+
+				if (boundProperty.CanExecute.Value == canExecuteSource.Value)
+				{
+					canExecuteSource.ForceChangedNotification();
+				}
+				else
+				{
+					canExecuteSource.Value = boundProperty.CanExecute.Value;
+				}
 			}
 			else
 			{

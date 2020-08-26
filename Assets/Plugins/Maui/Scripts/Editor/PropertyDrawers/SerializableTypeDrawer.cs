@@ -21,19 +21,29 @@ namespace Maui.Editor
 			}
 		}
 
-		private static readonly string TypeReferenceFieldName = "typeReference";
+		private class DrawerCache
+		{
+			public SerializableType Target;
+			public Dictionary<string, TypeEntry> TypeMap;
+			public string[] CachedOptions;
+			public int CurrentIndex;
+		}
 
-		private bool isCached;
-		private SerializableType target;
-		private Dictionary<string, TypeEntry> typeMap;
-		private string[] cachedOptions;
-		private int currentIndex;
+		private static readonly string TypeReferenceFieldName = "typeReference";
+		private static readonly Dictionary<string, DrawerCache> CacheMap = new Dictionary<string, DrawerCache>();
+
+		~SerializableTypeDrawer()
+		{
+			CacheMap.Clear();
+		}
+
+		private DrawerCache cache;
 
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
 			EditorGUI.BeginProperty(position, label, property);
 
-			CacheElements(property);
+			SetupCache(property);
 			RefreshCurrentIndex(property);
 
 			position = DrawLabel(position, label);
@@ -42,16 +52,16 @@ namespace Maui.Editor
 			var indent = EditorGUI.indentLevel;
 			EditorGUI.indentLevel = 0;
 
-			int index = EditorGUI.Popup(position, currentIndex, cachedOptions);
+			int index = EditorGUI.Popup(position, cache.CurrentIndex, cache.CachedOptions);
 
-			if (index != currentIndex)
+			if (index != cache.CurrentIndex)
 			{
 				Undo.RecordObject(property.serializedObject.targetObject, $"{fieldInfo.Name} type changed");
 				
-				string selectedType = cachedOptions[index];
-				SetType(property, typeMap[selectedType].Type);
+				string selectedType = cache.CachedOptions[index];
+				SetType(property, cache.TypeMap[selectedType].Type);
 
-				currentIndex = index;
+				cache.CurrentIndex = index;
 			}
 
 			// Set indent back to what it was
@@ -66,26 +76,29 @@ namespace Maui.Editor
 			return position;
 		}
 
-		private void CacheElements(SerializedProperty property)
+		private void SetupCache(SerializedProperty property)
 		{
-			if (isCached == false)
+			string id = $"{property.serializedObject.targetObject.GetInstanceID().ToString()}{property.propertyPath}";
+			
+			if (CacheMap.TryGetValue(id, out cache) == false)
 			{
-				CacheTarget(property);
-				CacheTypeCollections();
+				cache = new DrawerCache();
+				CacheTarget(property, cache);
+				CacheTypeCollections(cache);
 
-				isCached = true;
+				CacheMap[id] = cache;
 			}
 		}
 
-		private void CacheTarget(SerializedProperty property)
+		private void CacheTarget(SerializedProperty property, DrawerCache cache)
 		{
-			target = PropertyDrawerUtility.GetActualObjectForSerializedProperty<SerializableType>(fieldInfo, property);
+			cache.Target = PropertyDrawerUtility.GetActualObjectForSerializedProperty<SerializableType>(fieldInfo, property);
 		}
 
-		private void CacheTypeCollections()
+		private void CacheTypeCollections(DrawerCache cache)
 		{
 			TypeConstraintAttribute typeConstraint = fieldInfo.GetCustomAttribute<TypeConstraintAttribute>();
-			typeMap = new Dictionary<string, TypeEntry>();
+			cache.TypeMap = new Dictionary<string, TypeEntry>();
 			List<string> options = new List<string>();
 
 			foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
@@ -96,16 +109,16 @@ namespace Maui.Editor
 					{
 						string typeName = type.FullName;
 
-						if (typeMap.ContainsKey(typeName) == false)
+						if (cache.TypeMap.ContainsKey(typeName) == false)
 						{
-							typeMap.Add(typeName, new TypeEntry(options.Count, type));
+							cache.TypeMap.Add(typeName, new TypeEntry(options.Count, type));
 							options.Add(typeName);
 						}
 					}
 				}
 			}
 
-			cachedOptions = options.ToArray();
+			cache.CachedOptions = options.ToArray();
 		}
 
 		private static bool IsMatchingType(Type type, TypeConstraintAttribute constraint)
@@ -155,18 +168,18 @@ namespace Maui.Editor
 
 		private void RefreshCurrentIndex(SerializedProperty property)
 		{
-			if (target.Type != null)
+			if (cache.Target.Type != null)
 			{
-				string typeName = target.Type.FullName;
+				string typeName = cache.Target.Type.FullName;
 
-				if (typeMap.TryGetValue(typeName, out TypeEntry entry))
+				if (cache.TypeMap.TryGetValue(typeName, out TypeEntry entry))
 				{
-					currentIndex = entry.Index;
+					cache.CurrentIndex = entry.Index;
 				}
 			}
-			else if (typeMap.Count > 0)
+			else if (cache.TypeMap.Count > 0)
 			{
-				TypeEntry firstEntry = typeMap[cachedOptions[0]];
+				TypeEntry firstEntry = cache.TypeMap[cache.CachedOptions[0]];
 				SetType(property, firstEntry.Type);
 			}
 		}
@@ -174,7 +187,7 @@ namespace Maui.Editor
 		private void SetType(SerializedProperty property, Type type)
 		{
 			SerializedProperty typeName = property.FindPropertyRelative(TypeReferenceFieldName);
-			target.Type = type;
+			cache.Target.Type = type;
 			typeName.stringValue = type.AssemblyQualifiedName;
 		}
 	}

@@ -14,7 +14,7 @@ namespace Maui
 			: base(bindingInfo, context, conversionFunction)
 		{
 			convertedVariable = new ObservableVariable<TTo>();
-			ViewModel = new VariableValueConverterViewModel<TTo>(convertedVariable);
+			ViewModel = new OperatorBinderVariableViewModel<TTo>(convertedVariable);
 			variableBinding = new VariableBinding<TFrom>(bindingInfo, context);
 			variableBinding.Property.Changed += BoundVariableChangedHandler;
 		}

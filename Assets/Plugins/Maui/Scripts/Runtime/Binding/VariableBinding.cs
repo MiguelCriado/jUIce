@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Reflection;
 using Maui.Utils;
 using UnityEngine;
@@ -35,7 +37,15 @@ namespace Maui
 			if (boundProperty != null)
 			{
 				boundProperty.Changed += BoundPropertyChangedHandler;
-				BoundPropertyChangedHandler(boundProperty.Value);
+
+				if (EqualityComparer<T>.Default.Equals(boundProperty.Value, exposedProperty.Value))
+				{
+					exposedProperty.ForceChangedNotification();
+				}
+				else
+				{
+					BoundPropertyChangedHandler(boundProperty.Value);
+				}
 			}
 			else
 			{

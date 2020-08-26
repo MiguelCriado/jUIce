@@ -14,7 +14,7 @@ namespace Maui
 		{
 			commandBinding = new CommandBinding<TTo>(bindingInfo, context);
 			ObservableCommand<TFrom> convertedCommand = new ObservableCommand<TFrom>(commandBinding.Property.CanExecute);
-			ViewModel = new CommandValueConverterViewModel<TFrom>(convertedCommand);
+			ViewModel = new OperatorBinderCommandViewModel<TFrom>(convertedCommand);
 			convertedCommand.ExecuteRequested += ConvertedCommandExecuteRequestedHandler;
 		}
 

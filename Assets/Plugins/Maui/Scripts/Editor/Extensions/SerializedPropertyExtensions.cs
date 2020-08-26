@@ -31,7 +31,7 @@
 		 /// <returns>Returns the object type T if it is the type the property actually contains</returns>
 		 public static T GetValue<T>(this SerializedProperty property)
 		 {
-			 return GetNestedObject<T>(property.propertyPath, GetSerializedPropertyRootComponent(property));
+			 return GetNestedObject<T>(property.propertyPath, GetSerializedPropertyRootComponent(property), true);
 		 }
  
 		 /// <summary>

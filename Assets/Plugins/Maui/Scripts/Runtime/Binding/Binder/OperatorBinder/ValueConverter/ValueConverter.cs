@@ -26,7 +26,7 @@ namespace Maui
 			
 			bindingType = BindingType.Variable;
 			fromBinding = new BindingInfo(typeof(IReadOnlyObservableVariable<TFrom>));
-			expectedType = new SerializableType(typeof(VariableValueConverterViewModel<TTo>));
+			expectedType = new SerializableType(typeof(OperatorBinderVariableViewModel<TTo>));
 		}
 
 		protected override void OnValidate()
@@ -59,9 +59,9 @@ namespace Maui
 			switch (bindingType)
 			{
 				default:
-				case BindingType.Variable : return typeof(VariableValueConverterViewModel<TTo>);
-				case BindingType.Collection: return typeof(CollectionValueConverterViewModel<TTo>);
-				case BindingType.Command: return typeof(CommandValueConverterViewModel<TFrom>);
+				case BindingType.Variable : return typeof(OperatorBinderVariableViewModel<TTo>);
+				case BindingType.Collection: return typeof(OperatorBinderCollectionViewModel<TTo>);
+				case BindingType.Command: return typeof(OperatorBinderCommandViewModel<TFrom>);
 			}
 		}
 		
@@ -86,19 +86,19 @@ namespace Maui
 			if (bindingType == BindingType.Variable && fromBinding.Type != typeof(IReadOnlyObservableVariable<TFrom>))
 			{
 				fromBinding = new BindingInfo(typeof(IReadOnlyObservableVariable<TFrom>));
-				expectedType = new SerializableType(typeof(VariableValueConverterViewModel<TTo>));
+				expectedType = new SerializableType(typeof(OperatorBinderVariableViewModel<TTo>));
 			}
 
 			if (bindingType == BindingType.Collection && fromBinding.Type != typeof(IReadOnlyObservableCollection<TFrom>))
 			{
 				fromBinding = new BindingInfo(typeof(IReadOnlyObservableCollection<TFrom>));
-				expectedType = new SerializableType(typeof(CollectionValueConverterViewModel<TTo>));
+				expectedType = new SerializableType(typeof(OperatorBinderCollectionViewModel<TTo>));
 			}
 
 			if (bindingType == BindingType.Command && fromBinding.Type != typeof(IObservableCommand<TTo>))
 			{
 				fromBinding = new BindingInfo(typeof(IObservableCommand<TTo>));
-				expectedType = new SerializableType(typeof(CommandValueConverterViewModel<TFrom>));
+				expectedType = new SerializableType(typeof(OperatorBinderCommandViewModel<TFrom>));
 			}
 		}
 	}

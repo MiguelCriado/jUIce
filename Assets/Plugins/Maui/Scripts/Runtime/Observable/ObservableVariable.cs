@@ -37,6 +37,11 @@ namespace Maui
 			SetValue(initialValue);
 		}
 
+		public void ForceChangedNotification()
+		{
+			OnChanged(Value);
+		}
+
 		protected virtual void OnChanged(T newValue)
 		{
 			Changed?.Invoke(newValue);
