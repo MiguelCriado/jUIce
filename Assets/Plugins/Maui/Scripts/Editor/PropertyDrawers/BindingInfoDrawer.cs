@@ -27,17 +27,23 @@ namespace Maui.Editor
 			}
 		}
 
+		private class DrawerCache
+		{
+			public BindingInfo Target;
+			public Transform LastParent;
+			public Component BaseComponent;
+			public Dictionary<string, BindingEntry> BindingMap;
+			public string[] CachedOptions;
+			public int CurrentIndex;
+		}
+
 		private const string ViewModelContainerId = "viewModelContainer";
 		private const string PropertyNameId = "propertyName";
+		
+		private static readonly Dictionary<string, DrawerCache> CacheMap = new Dictionary<string,DrawerCache>();
 
-		private bool isCached;
-		private BindingInfo target;
-		private Transform lastParent;
-		private Component baseComponent;
-		private Dictionary<string, BindingEntry> bindingMap;
-		private string[] cachedOptions;
-		private int currentIndex;
-
+		private DrawerCache cache;
+		
 		public BindingInfoDrawer()
 		{
 			BindingInfoTracker.Register(this);
@@ -46,13 +52,14 @@ namespace Maui.Editor
 		~BindingInfoDrawer()
 		{
 			BindingInfoTracker.Unregister(this);
+			CacheMap.Clear();
 		}
 		
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
 			EditorGUI.BeginProperty(position, label, property);
 
-			CacheElements(property);
+			SetupCache(property);
 			RefreshCurrentIndex(property);
 
 			position = DrawLabel(position, label);
@@ -62,7 +69,7 @@ namespace Maui.Editor
 
 			EditorGUI.BeginDisabledGroup(Application.isPlaying);
 			
-			if (cachedOptions.Length > 0)
+			if (cache.CachedOptions.Length > 0)
 			{
 				DrawPicker(position, property);
 			}
@@ -80,7 +87,7 @@ namespace Maui.Editor
 
 		public void SetDirty()
 		{
-			isCached = false;
+			CacheMap.Clear();
 		}
 
 		private static Rect DrawLabel(Rect position, GUIContent label)
@@ -100,79 +107,84 @@ namespace Maui.Editor
 			return $"{component.gameObject.name}.{component.Id}/{propertyName}";
 		}
 
-		private void CacheElements(SerializedProperty property)
+		private void SetupCache(SerializedProperty property)
 		{
-			if (baseComponent == null || baseComponent.transform.parent != lastParent)
+			string id = $"{property.serializedObject.targetObject.GetInstanceID().ToString()}{property.propertyPath}";
+
+			CacheMap.TryGetValue(id, out cache);
+			
+			if (cache != null && (cache.BaseComponent == null || cache.BaseComponent.transform.parent != cache.LastParent))
 			{
-				isCached = false;
+				cache = null;
 			}
 
-			if (isCached == false)
+			if (cache == null)
 			{
-				CacheTarget(property);
-				CacheBaseComponent(property);
-				CacheBindingCollections();
-				isCached = true;
+				cache = new DrawerCache();
+				CacheTarget(property, cache);
+				CacheBaseComponent(property, cache);
+				CacheBindingCollections(cache);
+				CacheMap[id] = cache;
 			}
 		}
 
-		private void CacheTarget(SerializedProperty property)
+		private void CacheTarget(SerializedProperty property, DrawerCache cache)
 		{
-			target = PropertyDrawerUtility.GetActualObjectForSerializedProperty<BindingInfo>(fieldInfo, property);
+			cache.Target = PropertyDrawerUtility.GetActualObjectForSerializedProperty<BindingInfo>(fieldInfo, property);
 		}
 
-		private void CacheBaseComponent(SerializedProperty property)
+		private void CacheBaseComponent(SerializedProperty property, DrawerCache cache)
 		{
-			baseComponent = property.serializedObject.targetObject as Component;
-			lastParent = baseComponent.transform.parent;
+			cache.BaseComponent = property.serializedObject.targetObject as Component;
+			cache.LastParent = cache.BaseComponent.transform.parent;
 		}
 
-		private void CacheBindingCollections()
+		private void CacheBindingCollections(DrawerCache cache)
 		{
-			bindingMap = new Dictionary<string, BindingEntry>();
+			cache.BindingMap = new Dictionary<string, BindingEntry>();
 			List<string> options = new List<string>();
 
-			foreach (Maui.BindingEntry current in BindingUtils.GetBindings(baseComponent.transform, target.Type))
+			foreach (Maui.BindingEntry current in BindingUtils.GetBindings(cache.BaseComponent.transform, cache.Target.Type))
 			{
 				string id = GenerateBindingId(current.ViewModelComponent, current.PropertyName);
 				BindingEntry entry = new BindingEntry(options.Count, current.ViewModelComponent, current.PropertyName, current.NeedsToBeBoxed);
-				bindingMap.Add(id, entry);
+				cache.BindingMap.Add(id, entry);
 				options.Add(id);
 			}
 			
-			cachedOptions = options.ToArray();
+			cache.CachedOptions = options.ToArray();
 		}
 
 		private void RefreshCurrentIndex(SerializedProperty property)
 		{
-			if (target.ViewModelContainer != null && string.IsNullOrEmpty(target.PropertyName) == false)
+			if (cache.Target.ViewModelContainer != null && string.IsNullOrEmpty(cache.Target.PropertyName) == false)
 			{
-				string bindingId = GenerateBindingId(target.ViewModelContainer, target.PropertyName);
+				string bindingId = GenerateBindingId(cache.Target.ViewModelContainer, cache.Target.PropertyName);
 				
-				if (bindingMap.TryGetValue(bindingId, out BindingEntry entry))
+				if (cache.BindingMap.TryGetValue(bindingId, out BindingEntry entry))
 				{
-					currentIndex = entry.Index;
+					cache.CurrentIndex = entry.Index;
 				}
 			}
-			else if (bindingMap.Count > 0)
+			else if (cache.BindingMap.Count > 0)
 			{
-				BindingEntry firstOption = bindingMap[cachedOptions[0]];
+				BindingEntry firstOption = cache.BindingMap[cache.CachedOptions[0]];
 				SetBinding(property, firstOption.Component, firstOption.PropertyName);
-				currentIndex = 0;
+				cache.CurrentIndex = 0;
 			}
 		}
 
 		private void DrawPicker(Rect position, SerializedProperty property)
 		{
-			int index = EditorGUI.Popup(position, currentIndex, cachedOptions);
+			int index = EditorGUI.Popup(position, cache.CurrentIndex, cache.CachedOptions);
 
-			if (index != currentIndex)
+			if (index != cache.CurrentIndex)
 			{
-				string bindingId = cachedOptions[index];
-				BindingEntry entry = bindingMap[bindingId];
+				string bindingId = cache.CachedOptions[index];
+				BindingEntry entry = cache.BindingMap[bindingId];
 				SetBinding(property, entry.Component, entry.PropertyName);
 
-				currentIndex = index;
+				cache.CurrentIndex = index;
 			}
 		}
 

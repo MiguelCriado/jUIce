@@ -9,13 +9,17 @@ namespace Maui
 	[Serializable]
 	public class BindingList<T>
 	{
-		public event BindingListEventHandler<T> VariableChanged; 
-		
+		public event BindingListEventHandler<T> VariableChanged;
+
+		public IReadOnlyList<T> Values => values;
+
 		private readonly List<VariableBinding<T>> bindingList;
+		private List<T> values;
 
 		public BindingList(Component context, BindingInfoList infoList)
 		{
 			bindingList = new List<VariableBinding<T>>();
+			values = new List<T>();
 			
 			for (int i = 0; i < infoList.BindingInfos.Count; i++)
 			{
@@ -24,6 +28,7 @@ namespace Maui
 				int index = i;
 				newVariable.Property.Changed += newValue => VariableChangedHandler(index, newValue);
 				bindingList.Add(newVariable);
+				values.Add(newVariable.Property.Value);
 			}
 		}
 
@@ -50,6 +55,7 @@ namespace Maui
 		
 		private void VariableChangedHandler(int index, T newValue)
 		{
+			values[index] = newValue;
 			OnVariableChanged(index, newValue);
 		}
 	}

@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System.Collections.Generic;
+using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 
@@ -7,20 +8,30 @@ namespace Maui.Editor
 	[CustomPropertyDrawer(typeof(BindingInfoList))]
 	public class BindingInfoListDrawer : PropertyDrawer
 	{
+		private class DrawerCache
+		{
+			public BindingInfoList Target;
+			public ReorderableList ReorderableList;
+		}
+		
 		private static readonly float ElementMargin = EditorGUIUtility.standardVerticalSpacing;
+		
+		private static readonly Dictionary<string, DrawerCache> CacheMap = new Dictionary<string,DrawerCache>();
 
-		private bool isCached;
-		private BindingInfoList target;
-		private SerializedProperty listProperty;
-		private ReorderableList reorderableList;
-
+		private DrawerCache cache;
+		
+		~BindingInfoListDrawer()
+		{
+			CacheMap.Clear();
+		}
+		
 		public override void OnGUI( Rect position, SerializedProperty property, GUIContent label )
 		{
 			EditorGUI.BeginProperty(position, label, property);
 			
 			CacheData(property);
 			
-			reorderableList.DoList( position );
+			cache.ReorderableList.DoList( position );
 			
 			EditorGUI.EndProperty();
 		}
@@ -28,32 +39,42 @@ namespace Maui.Editor
 		public override float GetPropertyHeight( SerializedProperty serializedProperty, GUIContent label )
 		{
 			CacheData(serializedProperty);
-			return reorderableList.GetHeight();
+			return cache.ReorderableList.GetHeight();
 		}
 
 		private void CacheData(SerializedProperty serializedProperty)
 		{
-			if (isCached == false)
+			string id = $"{serializedProperty.serializedObject.targetObject.GetInstanceID().ToString()}{serializedProperty.propertyPath}";
+
+			SerializedProperty listProperty = serializedProperty.FindPropertyRelative("bindingInfoList");
+			
+			if (CacheMap.TryGetValue(id, out cache))
 			{
-				target = serializedProperty.GetValue<BindingInfoList>();
-				listProperty = serializedProperty.FindPropertyRelative("bindingInfoList");
-				reorderableList = GetList(listProperty);
-				isCached = true;
+				cache.ReorderableList.serializedProperty = listProperty;
+			}
+			else
+			{
+				cache = new DrawerCache();
+				cache.Target = serializedProperty.GetValue<BindingInfoList>();
+				cache.ReorderableList = CreateList(listProperty, cache.Target);
+				CacheMap[id] = cache;
 			}
 		}
 		
-		private ReorderableList GetList( SerializedProperty serializedProperty )
+		private ReorderableList CreateList( SerializedProperty serializedProperty, BindingInfoList target )
 		{
-			if ( reorderableList == null )
+			ReorderableList result = null;
+			
+			if ( cache.ReorderableList == null )
 			{
-				reorderableList = new ReorderableList( serializedProperty.serializedObject, serializedProperty );
-				reorderableList.drawHeaderCallback += DrawHeaderCallback;
-				reorderableList.elementHeightCallback += ElementHeightCallback;
-				reorderableList.drawElementCallback += DrawElementCallback;
-				reorderableList.onAddCallback += OnAddCallback;
+				result = new ReorderableList( serializedProperty.serializedObject, serializedProperty );
+				result.drawHeaderCallback += DrawHeaderCallback;
+				result.elementHeightCallback += index => ElementHeightCallback(result, index);
+				result.drawElementCallback += (rect, index, isActive, isFocused) => DrawElementCallback(result, rect, index);
+				result.onAddCallback += (list) => OnAddCallback(target);
 			}
 
-			return reorderableList;
+			return result;
 		}
 
 		private void DrawHeaderCallback(Rect rect)
@@ -61,22 +82,22 @@ namespace Maui.Editor
 			EditorGUI.LabelField(rect, "Binding Info List");
 		}
 
-		private float ElementHeightCallback(int index)
+		private float ElementHeightCallback(ReorderableList list, int index)
 		{ 
-			SerializedProperty element = reorderableList.serializedProperty.GetArrayElementAtIndex(index);
+			SerializedProperty element = list.serializedProperty.GetArrayElementAtIndex(index);
 			return EditorGUI.GetPropertyHeight(element) + ElementMargin;
 		}
 
-		private void DrawElementCallback(Rect rect, int index, bool isActive, bool isFocused)
+		private void DrawElementCallback(ReorderableList list, Rect rect, int index)
 		{
-			SerializedProperty element = reorderableList.serializedProperty.GetArrayElementAtIndex(index);
+			SerializedProperty element = list.serializedProperty.GetArrayElementAtIndex(index);
 			rect.y += ElementMargin * 0.5f;
 			rect.height -= ElementMargin * 0.5f;
 			
 			EditorGUI.PropertyField(rect, element, GUIContent.none);
 		}
 		
-		private void OnAddCallback(ReorderableList list)
+		private void OnAddCallback(BindingInfoList target)
 		{
 			target.AddElement();
 		}
