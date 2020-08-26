@@ -14,7 +14,7 @@ namespace Maui
 			: base(bindingInfo, context, conversionFunction)
 		{
 			convertedCollection = new ObservableCollection<TTo>();
-			ViewModel = new CollectionValueConverterViewModel<TTo>(convertedCollection);
+			ViewModel = new OperatorBinderCollectionViewModel<TTo>(convertedCollection);
 			collectionBinding = new CollectionBinding<TFrom>(bindingInfo, context);
 			collectionBinding.Property.Reset += BoundCollectionResetHandler;
 			collectionBinding.Property.ItemAdded += BoundCollectionItemAddedHandler;
