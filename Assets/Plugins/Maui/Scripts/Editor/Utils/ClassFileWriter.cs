@@ -18,6 +18,7 @@ namespace Maui.Editor
 		public class ClassDefinition
 		{
 			public List<string> Imports;
+			public string Namespace;
 			public List<string> Attributes;
 			public VisibilityModifier VisibilityModifier;
 			public string Name;
@@ -64,20 +65,18 @@ namespace Maui.Editor
 			{
 				int indentLevel = 0;
 
-				WriteImports(writer, indentLevel, definition.Imports);
-				indentLevel = WriteNamespaceHeader(writer, indentLevel);
+				WriteImports(writer, indentLevel, definition.Imports, definition.Namespace);
 				WriteClass(writer, indentLevel, definition);
-				indentLevel = WriteNamespaceClosingBracket(writer, indentLevel);
 				WriteLine(writer, indentLevel, "");
 			}
 		}
 
-		private static void WriteImports(StreamWriter writer, int indentLevel, List<string> imports)
+		private static void WriteImports(StreamWriter writer, int indentLevel, List<string> imports, string namespaceName)
 		{
 			if (imports != null)
 			{
 				List<string> validImports = new List<string>(imports);
-				validImports.Remove(EditorSettings.projectGenerationRootNamespace);
+				validImports.Remove(namespaceName);
 
 				if (validImports.Count > 0)
 				{
@@ -91,24 +90,11 @@ namespace Maui.Editor
 			}
 		}
 
-		private static int WriteNamespaceHeader(StreamWriter writer, int indentLevel)
-		{
-			bool isRootNamespaceSet = string.IsNullOrEmpty(EditorSettings.projectGenerationRootNamespace) == false;
-
-			if (isRootNamespaceSet)
-			{
-				WriteLine(writer, indentLevel, $"namespace {EditorSettings.projectGenerationRootNamespace}");
-				WriteLine(writer, indentLevel, "{");
-				indentLevel++;
-			}
-
-			return indentLevel;
-		}
-
 		private static void WriteClass(StreamWriter writer, int indentLevel, ClassDefinition definition)
 		{
 			if (definition != null)
 			{
+				indentLevel = WriteNamespaceHeader(writer, indentLevel, definition.Namespace);
 				WriteAttributes(writer, indentLevel, definition.Attributes);
 				WriteClassHeader(writer, indentLevel, definition);
 				WriteLine(writer, indentLevel, "{");
@@ -116,7 +102,22 @@ namespace Maui.Editor
 				WriteClassBody(writer, indentLevel, definition);
 				indentLevel--;
 				WriteLine(writer, indentLevel, "}");
+				WriteNamespaceClosingBracket(writer, indentLevel, definition.Namespace);
 			}
+		}
+		
+		private static int WriteNamespaceHeader(StreamWriter writer, int indentLevel, string namespaceName)
+		{
+			bool isNamespaceSet = string.IsNullOrEmpty(namespaceName) == false;
+
+			if (isNamespaceSet)
+			{
+				WriteLine(writer, indentLevel, $"namespace {namespaceName}");
+				WriteLine(writer, indentLevel, "{");
+				indentLevel++;
+			}
+
+			return indentLevel;
 		}
 
 		private static void WriteAttributes(StreamWriter writer, int indentLevel, List<string> attributes)
@@ -367,11 +368,11 @@ namespace Maui.Editor
 			}
 		}
 
-		private static int WriteNamespaceClosingBracket(StreamWriter writer, int indentLevel)
+		private static int WriteNamespaceClosingBracket(StreamWriter writer, int indentLevel, string namespaceName)
 		{
-			bool isRootNamespaceSet = string.IsNullOrEmpty(EditorSettings.projectGenerationRootNamespace) == false;
+			bool isNamespaceSet = string.IsNullOrEmpty(namespaceName) == false;
 
-			if (isRootNamespaceSet)
+			if (isNamespaceSet)
 			{
 				indentLevel--;
 				WriteLine(writer, indentLevel, "}");
