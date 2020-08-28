@@ -133,7 +133,7 @@ namespace Maui
 				genericType = runtimeType.GetGenericTypeDefinition();
 			}
 
-			if (genericType != null && genericType == typeof(ViewModel<>))
+			if (genericType != null && genericType == typeof(CollectionItemViewModel<>))
 			{
 				result = runtimeType;
 			}

@@ -10,7 +10,7 @@ namespace Maui
 		public Type InjectionType => expectedType.Type;
 		public ViewModelComponent Target => target;
 		
-		[TypeConstraint(typeof(ViewModel<>), true)]
+		[TypeConstraint(typeof(CollectionItemViewModel<>), true)]
 		[SerializeField] private SerializableType expectedType;
 		[SerializeField] private ViewModelComponent target;
 
