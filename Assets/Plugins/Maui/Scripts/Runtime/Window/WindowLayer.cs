@@ -74,6 +74,7 @@ namespace Maui
 
 				await view.Hide();
 
+				view.DisposeViewModel();
 				CurrentWindow = null;
 
 				if (windowQueue.Count > 0)
@@ -191,13 +192,11 @@ namespace Maui
 		{
 			if (CurrentWindow == windowEntry.View)
 			{
-				Debug.LogWarning(
-					string.Format(
-						"[WindowUILayer] The requested WindowId ({0}) is already open! This will add a duplicate to the " +
-						"history and might cause inconsistent behaviour. It is recommended that if you need to open the same" +
-						"view multiple times (eg: when implementing a warning message pop-up), it closes itself upon the player input" +
-						"that triggers the continuation of the flow."
-						, CurrentWindow.GetType().Name));
+				Debug.LogWarning($"[WindowUILayer] The requested WindowId ({CurrentWindow.GetType().Name}) is already open!" +
+				                 " This will add a duplicate to the history and might cause inconsistent behaviour." +
+				                 " It is recommended that if you need to open the same view multiple times" +
+				                 " (eg: when implementing a warning message pop-up), it closes itself upon the player input" +
+				                 " that triggers the continuation of the flow.");
 			}
 			else if (CurrentWindow != null && CurrentWindow.HideOnForegroundLost && !windowEntry.View.IsPopup)
 			{

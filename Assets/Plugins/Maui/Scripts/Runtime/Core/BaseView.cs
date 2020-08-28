@@ -15,6 +15,7 @@ namespace Maui
 		public event ViewEventHandler ViewDestroyed;
 
 		public bool IsVisible { get; private set; }
+		public IViewModel ViewModel => viewModel;
 
 		public BaseTransition InTransition
 		{
@@ -82,6 +83,15 @@ namespace Maui
 			IsVisible = false;
 			gameObject.SetActive(false);
 			OnOutTransitionFinished();
+		}
+		
+		public void DisposeViewModel()
+		{
+			if (viewModel != null && viewModel is IDisposable disposable)
+			{
+				disposable.Dispose();
+				viewModel = default;
+			}
 		}
 
 		protected virtual void SetViewModel(T viewModel)

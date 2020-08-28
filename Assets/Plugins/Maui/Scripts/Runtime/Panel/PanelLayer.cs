@@ -33,9 +33,10 @@ namespace Maui
 			return view.Show(viewModel);
 		}
 
-		public override Task HideView(IPanel view)
+		public override async Task HideView(IPanel view)
 		{
-			return view.Hide();
+			await view.Hide();
+			view.DisposeViewModel();
 		}
 
 		public bool IsPanelVisible<T>()
