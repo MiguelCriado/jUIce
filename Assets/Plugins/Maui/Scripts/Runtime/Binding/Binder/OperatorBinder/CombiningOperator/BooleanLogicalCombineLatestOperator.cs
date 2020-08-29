@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Maui
 {
-	public class BooleanLogicalCombineLatestOperator : CombiningOperator<bool, bool>
+	public class BooleanLogicalCombineLatestOperator : CombineLatestOperator<bool, bool>
 	{
 		public enum LogicalOperation
 		{

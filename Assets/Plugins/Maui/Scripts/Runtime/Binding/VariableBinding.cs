@@ -37,15 +37,7 @@ namespace Maui
 			if (boundProperty != null)
 			{
 				boundProperty.Changed += BoundPropertyChangedHandler;
-
-				if (EqualityComparer<T>.Default.Equals(boundProperty.Value, exposedProperty.Value))
-				{
-					exposedProperty.ForceChangedNotification();
-				}
-				else
-				{
-					BoundPropertyChangedHandler(boundProperty.Value);
-				}
+				ExecuteFirstNotification();
 			}
 			else
 			{
@@ -59,6 +51,27 @@ namespace Maui
 			{
 				boundProperty.Changed -= BoundPropertyChangedHandler;
 				boundProperty = null;
+			}
+		}
+
+		protected override void BindConstant(BindingInfo info)
+		{
+			if (info is ConstantBindingInfo<T> constantInfo)
+			{
+				boundProperty = new ObservableVariable<T>(constantInfo.Constant);
+				ExecuteFirstNotification();
+			}
+		}
+		
+		private void ExecuteFirstNotification()
+		{
+			if (EqualityComparer<T>.Default.Equals(boundProperty.Value, exposedProperty.Value))
+			{
+				exposedProperty.ForceChangedNotification();
+			}
+			else
+			{
+				BoundPropertyChangedHandler(boundProperty.Value);
 			}
 		}
 

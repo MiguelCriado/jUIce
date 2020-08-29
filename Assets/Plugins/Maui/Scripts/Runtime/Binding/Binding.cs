@@ -21,12 +21,45 @@ namespace Maui
 		
 		public void Bind()
 		{
+			if (bindingInfo is ConstantBindingInfo constant && constant.UseConstant)
+			{
+				BindConstant(bindingInfo);
+			}
+			else
+			{
+				BindProperty();
+			}
+		}
+		
+		public void Unbind()
+		{
+			UnbindProperty();
+
+			if (bindingInfo.ViewModelContainer != null)
+			{
+				bindingInfo.ViewModelContainer.ViewModelChanged -= ViewModelChangedHandler;
+			}
+		}
+
+		protected abstract Type GetBindingType();
+
+		protected abstract void BindProperty(object property);
+
+		protected abstract void UnbindProperty();
+
+		protected virtual void BindConstant(BindingInfo info)
+		{
+			
+		}
+
+		private void BindProperty()
+		{
 			if (bindingInfo.ViewModelContainer == null && string.IsNullOrEmpty(bindingInfo.PropertyName) == false)
 			{
 				Type bindingType = GetBindingType();
 				bindingInfo.ViewModelContainer = FindViewModelComponent(context.transform, bindingType);
 			}
-			
+
 			if (bindingInfo.ViewModelContainer != null)
 			{
 				if (bindingInfo.ViewModelContainer.ViewModel != null)
@@ -50,22 +83,6 @@ namespace Maui
 				bindingInfo.ViewModelContainer.ViewModelChanged += ViewModelChangedHandler;
 			}
 		}
-
-		public void Unbind()
-		{
-			UnbindProperty();
-
-			if (bindingInfo.ViewModelContainer != null)
-			{
-				bindingInfo.ViewModelContainer.ViewModelChanged -= ViewModelChangedHandler;
-			}
-		}
-
-		protected abstract Type GetBindingType();
-
-		protected abstract void BindProperty(object property);
-
-		protected abstract void UnbindProperty();
 		
 		private static ViewModelComponent FindViewModelComponent(Transform context, Type targetType)
 		{

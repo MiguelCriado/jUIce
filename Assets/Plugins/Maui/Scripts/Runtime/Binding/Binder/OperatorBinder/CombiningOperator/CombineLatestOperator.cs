@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Maui
 {
-	public abstract class CombiningOperator<TFrom, TTo> : ViewModelComponent, IViewModelInjector
+	public abstract class CombineLatestOperator<TFrom, TTo> : ViewModelComponent, IViewModelInjector
 	{
 		public Type InjectionType => typeof(OperatorBinderVariableViewModel<TTo>);
 

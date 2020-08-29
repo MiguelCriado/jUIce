@@ -57,30 +57,14 @@ namespace Maui.Editor
 		
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
-			EditorGUI.BeginProperty(position, label, property);
-
+			EditorGUI.BeginProperty(position, label, property); 
+			
 			SetupCache(property);
 			RefreshCurrentIndex(property);
-
+			
 			position = DrawLabel(position, label);
-			
-			var indent = EditorGUI.indentLevel;
-			EditorGUI.indentLevel = 0;
 
-			EditorGUI.BeginDisabledGroup(Application.isPlaying);
-			
-			if (cache.CachedOptions.Length > 0)
-			{
-				DrawPicker(position, property);
-			}
-			else
-			{
-				DrawPropertyNameField(position, property);
-			}
-			
-			EditorGUI.EndDisabledGroup();
-
-			EditorGUI.indentLevel = indent;
+			DrawContent(position, property);
 
 			EditorGUI.EndProperty();
 		}
@@ -90,6 +74,27 @@ namespace Maui.Editor
 			CacheMap.Clear();
 		}
 
+		protected virtual void DrawContent(Rect position, SerializedProperty property)
+		{
+			DrawBindingInfo(position, property);
+		}
+
+		protected void DrawBindingInfo(Rect position, SerializedProperty property)
+		{
+			EditorGUI.BeginDisabledGroup(Application.isPlaying);
+
+			if (cache.CachedOptions.Length > 0)
+			{
+				DrawPicker(position, property);
+			}
+			else
+			{
+				DrawPropertyNameField(position, property);
+			}
+
+			EditorGUI.EndDisabledGroup();
+		}
+		
 		private static Rect DrawLabel(Rect position, GUIContent label)
 		{
 			position = EditorGUI.PrefixLabel(position, GUIUtility.GetControlID(FocusType.Passive), label);
