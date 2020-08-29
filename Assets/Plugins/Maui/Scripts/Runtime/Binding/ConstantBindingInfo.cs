@@ -22,8 +22,8 @@ namespace Maui
 		public T Constant => constant;
 		
 		[SerializeField] private T constant;
-		
-		public ConstantBindingInfo() : base(typeof(IReadOnlyObservableVariable<T>))
+
+		protected ConstantBindingInfo() : base(typeof(IReadOnlyObservableVariable<T>))
 		{
 			
 		}
