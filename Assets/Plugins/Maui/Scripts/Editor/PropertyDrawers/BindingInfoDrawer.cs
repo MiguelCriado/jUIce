@@ -148,13 +148,17 @@ namespace Maui.Editor
 		{
 			cache.BindingMap = new Dictionary<string, BindingEntry>();
 			List<string> options = new List<string>();
+			options.Add("None");
 
 			foreach (Maui.BindingEntry current in BindingUtils.GetBindings(cache.BaseComponent.transform, cache.Target.Type))
 			{
-				string id = GenerateBindingId(current.ViewModelComponent, current.PropertyName);
-				BindingEntry entry = new BindingEntry(options.Count, current.ViewModelComponent, current.PropertyName, current.NeedsToBeBoxed);
-				cache.BindingMap.Add(id, entry);
-				options.Add(id);
+				if (current.ViewModelComponent != cache.BaseComponent)
+				{
+					string id = GenerateBindingId(current.ViewModelComponent, current.PropertyName);
+					BindingEntry entry = new BindingEntry(options.Count, current.ViewModelComponent, current.PropertyName, current.NeedsToBeBoxed);
+					cache.BindingMap.Add(id, entry);
+					options.Add(id);
+				}
 			}
 			
 			cache.CachedOptions = options.ToArray();
@@ -185,9 +189,16 @@ namespace Maui.Editor
 
 			if (index != cache.CurrentIndex)
 			{
-				string bindingId = cache.CachedOptions[index];
-				BindingEntry entry = cache.BindingMap[bindingId];
-				SetBinding(property, entry.Component, entry.PropertyName);
+				if (index > 0)
+				{
+					string bindingId = cache.CachedOptions[index];
+					BindingEntry entry = cache.BindingMap[bindingId];
+					SetBinding(property, entry.Component, entry.PropertyName);
+				}
+				else
+				{
+					SetBinding(property, null, "");
+				}
 
 				cache.CurrentIndex = index;
 			}

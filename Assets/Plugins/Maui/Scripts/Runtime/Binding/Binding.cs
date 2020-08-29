@@ -76,7 +76,7 @@ namespace Maui
 					}
 					else
 					{
-						Debug.LogError($"Property \"{bindingInfo.PropertyName}\" not found in {viewModel.GetType()} class.");
+						Debug.LogError($"Property \"{bindingInfo.PropertyName}\" not found in {viewModel.GetType()} class.", context);
 					}
 				}
 
