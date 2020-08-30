@@ -88,7 +88,13 @@ namespace Maui.Editor
 		
 		protected void DrawId()
 		{
+			EditorGUI.BeginChangeCheck();
 			EditorGUILayout.PropertyField(idProperty);
+			
+			if (EditorGUI.EndChangeCheck())
+			{
+				BindingInfoTracker.RefreshBindingInfoDrawers();
+			}
 		}
 		
 		private void RefreshType()
