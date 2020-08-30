@@ -28,6 +28,8 @@ namespace Maui
 			private static readonly Type GenericCollectionType = typeof(IReadOnlyObservableCollection<>);
 			private static readonly Type GenericCommandType = typeof(IObservableCommand<>);
 			private static readonly Type CommandType = typeof(IObservableCommand);
+			private static readonly Type GenericEventType = typeof(IObservableEvent<>);
+			private static readonly Type EventType = typeof(IObservableEvent);
 			
 			public Type TargetType
 			{
@@ -45,7 +47,8 @@ namespace Maui
 						if (genericType.GenericTypeArguments.Length > 0 
 						    && (genericTypeDefinition.ImplementsOrDerives(GenericVariableType) 
 						        || genericTypeDefinition.ImplementsOrDerives(GenericCollectionType)
-						        || genericTypeDefinition.ImplementsOrDerives(GenericCommandType)))
+						        || genericTypeDefinition.ImplementsOrDerives(GenericCommandType)
+						        || genericTypeDefinition.ImplementsOrDerives(GenericEventType)))
 						{
 							genericTypeToCheck = genericTypeDefinition;
 							typeToCheck =  genericType.GenericTypeArguments[0];
@@ -54,6 +57,10 @@ namespace Maui
 					else if (CommandType.IsAssignableFrom(value))
 					{
 						typeToCheck = CommandType;
+					}
+					else if (EventType.IsAssignableFrom(value))
+					{
+						typeToCheck = EventType;
 					}
 
 					targetType = value;

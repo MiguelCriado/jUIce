@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Maui.Utils;
 using UnityEngine;
 
@@ -32,19 +31,11 @@ namespace Maui
 			if (boundProperty != null)
 			{
 				boundProperty.CanExecute.Changed += CanExecuteChangedHandler;
-
-				if (boundProperty.CanExecute.Value == canExecuteSource.Value)
-				{
-					canExecuteSource.ForceChangedNotification();
-				}
-				else
-				{
-					canExecuteSource.Value = boundProperty.CanExecute.Value;
-				}
+				RaiseFirstNotification();
 			}
 			else
 			{
-				Debug.LogError($"Property type ({property.GetType()}) different from expected type \"{typeof(IObservableCommand)}");
+				Debug.LogError($"Property type ({property.GetType()}) different from expected type {typeof(IObservableCommand)}", context);
 			}
 		}
 
@@ -53,7 +44,20 @@ namespace Maui
 			if (boundProperty != null)
 			{
 				boundProperty.CanExecute.Changed -= CanExecuteChangedHandler;
+				boundProperty = null;
 				canExecuteSource.Value = false;
+			}
+		}
+		
+		private void RaiseFirstNotification()
+		{
+			if (boundProperty.CanExecute.Value == canExecuteSource.Value)
+			{
+				canExecuteSource.ForceChangedNotification();
+			}
+			else
+			{
+				canExecuteSource.Value = boundProperty.CanExecute.Value;
 			}
 		}
 
@@ -100,19 +104,11 @@ namespace Maui
 			if (boundProperty != null)
 			{
 				boundProperty.CanExecute.Changed += CanExecuteChangedHandler;
-
-				if (boundProperty.CanExecute.Value == canExecuteSource.Value)
-				{
-					canExecuteSource.ForceChangedNotification();
-				}
-				else
-				{
-					canExecuteSource.Value = boundProperty.CanExecute.Value;
-				}
+				RaiseFirstNotification();
 			}
 			else
 			{
-				Debug.LogError($"Property type ({property.GetType()}) cannot be bound as {typeof(IObservableCommand<T>)}");
+				Debug.LogError($"Property type ({property.GetType()}) cannot be bound as {typeof(IObservableCommand<T>)}", context);
 			}
 		}
 
@@ -121,6 +117,7 @@ namespace Maui
 			if (boundProperty != null)
 			{
 				boundProperty.CanExecute.Changed -= CanExecuteChangedHandler;
+				boundProperty = null;
 				canExecuteSource.Value = false;
 			}
 		}
@@ -140,6 +137,18 @@ namespace Maui
 			}
 
 			return result;
+		}
+		
+		private void RaiseFirstNotification()
+		{
+			if (boundProperty.CanExecute.Value == canExecuteSource.Value)
+			{
+				canExecuteSource.ForceChangedNotification();
+			}
+			else
+			{
+				canExecuteSource.Value = boundProperty.CanExecute.Value;
+			}
 		}
 		
 		private void RequestExecuteHandler(T value)

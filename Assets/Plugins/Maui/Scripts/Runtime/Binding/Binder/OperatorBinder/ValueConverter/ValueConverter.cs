@@ -7,7 +7,8 @@ namespace Maui
 	{
 		Variable,
 		Collection,
-		Command
+		Command,
+		Event
 	}
 	
 	public abstract class ValueConverter<TFrom, TTo> : ViewModelComponent, IViewModelInjector
@@ -62,6 +63,7 @@ namespace Maui
 				case BindingType.Variable : return typeof(OperatorBinderVariableViewModel<TTo>);
 				case BindingType.Collection: return typeof(OperatorBinderCollectionViewModel<TTo>);
 				case BindingType.Command: return typeof(OperatorBinderCommandViewModel<TFrom>);
+				case BindingType.Event: return typeof(OperatorBinderEventViewModel<TTo>);
 			}
 		}
 		
@@ -77,6 +79,9 @@ namespace Maui
 					break;
 				case BindingType.Command:
 					conversionHandler = new CommandConversionHandler<TFrom, TTo>(fromBinding, this, Convert);
+					break;
+				case BindingType.Event:
+					conversionHandler = new EventConversionHandler<TFrom, TTo>(fromBinding, this, Convert);
 					break;
 			}
 		}
@@ -99,6 +104,12 @@ namespace Maui
 			{
 				fromBinding = new BindingInfo(typeof(IObservableCommand<TTo>));
 				expectedType = new SerializableType(typeof(OperatorBinderCommandViewModel<TFrom>));
+			}
+			
+			if (bindingType == BindingType.Event && fromBinding.Type != typeof(IObservableEvent<TFrom>))
+			{
+				fromBinding = new BindingInfo(typeof(IObservableEvent<TFrom>));
+				expectedType = new SerializableType(typeof(OperatorBinderEventViewModel<TTo>));
 			}
 		}
 	}

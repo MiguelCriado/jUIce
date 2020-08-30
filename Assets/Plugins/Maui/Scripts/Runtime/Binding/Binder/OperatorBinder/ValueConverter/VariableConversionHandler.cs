@@ -8,7 +8,7 @@ namespace Maui
 		public override IViewModel ViewModel { get; }
 
 		private readonly VariableBinding<TFrom> variableBinding;
-		private ObservableVariable<TTo> convertedVariable;
+		private readonly ObservableVariable<TTo> convertedVariable;
 
 		public VariableConversionHandler(BindingInfo bindingInfo, Component context, Func<TFrom, TTo> conversionFunction)
 			: base(bindingInfo, context, conversionFunction)

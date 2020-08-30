@@ -37,11 +37,11 @@ namespace Maui
 			if (boundProperty != null)
 			{
 				boundProperty.Changed += BoundPropertyChangedHandler;
-				ExecuteFirstNotification();
+				RaiseFirstNotification();
 			}
 			else
 			{
-				Debug.LogError($"Property type ({property.GetType()}) cannot be bound as {typeof(IReadOnlyObservableVariable<T>)}");
+				Debug.LogError($"Property type ({property.GetType()}) cannot be bound as {typeof(IReadOnlyObservableVariable<T>)}", context);
 			}
 		}
 
@@ -59,19 +59,7 @@ namespace Maui
 			if (info is ConstantBindingInfo<T> constantInfo)
 			{
 				boundProperty = new ObservableVariable<T>(constantInfo.Constant);
-				ExecuteFirstNotification();
-			}
-		}
-		
-		private void ExecuteFirstNotification()
-		{
-			if (EqualityComparer<T>.Default.Equals(boundProperty.Value, exposedProperty.Value))
-			{
-				exposedProperty.ForceChangedNotification();
-			}
-			else
-			{
-				BoundPropertyChangedHandler(boundProperty.Value);
+				RaiseFirstNotification();
 			}
 		}
 
@@ -90,6 +78,18 @@ namespace Maui
 			}
 
 			return result;
+		}
+		
+		private void RaiseFirstNotification()
+		{
+			if (EqualityComparer<T>.Default.Equals(boundProperty.Value, exposedProperty.Value))
+			{
+				exposedProperty.ForceChangedNotification();
+			}
+			else
+			{
+				BoundPropertyChangedHandler(boundProperty.Value);
+			}
 		}
 		
 		private void BoundPropertyChangedHandler(T newValue)

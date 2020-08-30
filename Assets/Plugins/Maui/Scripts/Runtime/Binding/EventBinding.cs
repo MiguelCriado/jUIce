@@ -1,0 +1,121 @@
+﻿using System;
+using Maui.Utils;
+using UnityEngine;
+
+namespace Maui
+{
+	public class EventBinding : Binding
+	{
+		public override bool IsBound => boundProperty != null;
+
+		private readonly ObservableEvent exposedProperty;
+		private IObservableEvent boundProperty;
+		
+		public EventBinding(BindingInfo bindingInfo, Component context) : base(bindingInfo, context)
+		{
+			exposedProperty = new ObservableEvent();
+		}
+		
+		protected override Type GetBindingType()
+		{
+			return typeof(IObservableEvent);
+		}
+
+		protected override void BindProperty(object property)
+		{
+			boundProperty = property as IObservableEvent;
+
+			if (boundProperty != null)
+			{
+				boundProperty.Raised += BoundPropertyRaisedHandler;
+			}
+			else
+			{
+				Debug.LogError($"Property type ({property.GetType()}) different from expected type {typeof(IObservableEvent)}", context);
+			}
+		}
+
+		protected override void UnbindProperty()
+		{
+			if (boundProperty != null)
+			{
+				boundProperty.Raised -= BoundPropertyRaisedHandler;
+				boundProperty = null;
+			}
+		}
+		
+		private void BoundPropertyRaisedHandler()
+		{
+			exposedProperty.Raise();
+		}
+	}
+	
+	public class EventBinding<T> : Binding
+	{
+		public override bool IsBound => boundProperty != null;
+		public IObservableEvent<T> Property => exposedProperty;
+
+		private readonly ObservableEvent<T> exposedProperty;
+		private IObservableEvent<T> boundProperty;
+		
+		public EventBinding(BindingInfo bindingInfo, Component context) : base(bindingInfo, context)
+		{
+			exposedProperty = new ObservableEvent<T>();
+		}
+		
+		protected override Type GetBindingType()
+		{
+			return typeof(IObservableEvent<T>);
+		}
+
+		protected override void BindProperty(object property)
+		{
+			boundProperty = property as IObservableEvent<T>;
+
+			if (boundProperty == null)
+			{
+				boundProperty = BoxEvent(property);
+			}
+			
+			if (boundProperty != null)
+			{
+				boundProperty.Raised += BoundPropertyRaisedHandler;
+			}
+			else
+			{
+				Debug.LogError($"Property type ({property.GetType()}) different from expected type {typeof(IObservableEvent<T>)}", context);
+			}
+		}
+
+		protected override void UnbindProperty()
+		{
+			if (boundProperty != null)
+			{
+				boundProperty.Raised -= BoundPropertyRaisedHandler;
+				boundProperty = null;
+			}
+		}
+
+		private static IObservableEvent<T> BoxEvent(object eventToBox)
+		{
+			IObservableEvent<T> result = null;
+
+			Type eventGenericType = eventToBox.GetType().GetGenericTypeTowardsRoot();
+
+			if (eventGenericType != null)
+			{
+				Type actualType = typeof(T);
+				Type boxedType = eventGenericType.GenericTypeArguments[0];
+				Type activationType = typeof(EventBoxer<,>).MakeGenericType(actualType, boxedType);
+				result = Activator.CreateInstance(activationType, eventToBox) as IObservableEvent<T>;
+			}
+			
+			return result;
+		}
+
+		private void BoundPropertyRaisedHandler(T eventData)
+		{
+			exposedProperty.Raise(eventData);
+		}
+	}
+}

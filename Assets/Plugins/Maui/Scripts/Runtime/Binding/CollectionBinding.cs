@@ -49,7 +49,7 @@ namespace Maui
 			}
 			else
 			{
-				Debug.LogError($"Property type ({property.GetType()}) cannot be bound as {typeof(IReadOnlyObservableCollection<T>)}");
+				Debug.LogError($"Property type ({property.GetType()}) cannot be bound as {typeof(IReadOnlyObservableCollection<T>)}", context);
 			}
 		}
 
