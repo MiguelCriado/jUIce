@@ -177,8 +177,7 @@ namespace Maui.Editor
 			}
 			else if (cache.BindingMap.Count > 0)
 			{
-				BindingEntry firstOption = cache.BindingMap[cache.CachedOptions[0]];
-				SetBinding(property, firstOption.Component, firstOption.PropertyName);
+				SetBinding(property, null, cache.Target.PropertyName);
 				cache.CurrentIndex = 0;
 			}
 		}
