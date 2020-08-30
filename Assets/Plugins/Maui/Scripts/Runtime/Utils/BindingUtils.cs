@@ -11,12 +11,21 @@ namespace Maui
 		public ViewModelComponent ViewModelComponent { get; }
 		public string PropertyName { get; }
 		public bool NeedsToBeBoxed { get; }
+		public Type ObservableType { get; }
+		public Type GenericArgument { get; }
 
-		public BindingEntry(ViewModelComponent viewModelComponent, string propertyName, bool needsToBeBoxed)
+		public BindingEntry(
+			ViewModelComponent viewModelComponent,
+			string propertyName,
+			bool needsToBeBoxed,
+			Type observableType,
+			Type genericArgument)
 		{
 			ViewModelComponent = viewModelComponent;
 			PropertyName = propertyName;
 			NeedsToBeBoxed = needsToBeBoxed;
+			ObservableType = observableType;
+			GenericArgument = genericArgument;
 		}
 	}
 	
@@ -67,6 +76,9 @@ namespace Maui
 				}
 			}
 
+			public Type LastObservableType { get; private set; }
+			public Type LastGenericArgument { get; private set; }
+
 			private Type targetType;
 			private Type genericTypeToCheck;
 			private Type typeToCheck;
@@ -74,6 +86,8 @@ namespace Maui
 			public bool CanBeBound(Type type)
 			{
 				bool result = false;
+				LastObservableType = null;
+				LastGenericArgument = null;
 
 				if (typeToCheck != null)
 				{
@@ -86,12 +100,16 @@ namespace Maui
 							Type genericTypeDefinition = type.GetGenericTypeDefinition();
 							Type genericArgument = genericType.GenericTypeArguments[0];
 
+							LastObservableType = genericTypeDefinition;
+							LastGenericArgument = genericArgument;
+
 							result = genericTypeDefinition.ImplementsOrDerives(genericTypeToCheck)
 							         && typeToCheck.IsAssignableFrom(genericArgument);
 						}
 					}
 					else
 					{
+						LastObservableType = typeToCheck;
 						result = typeToCheck.IsAssignableFrom(type);
 					}
 				}
@@ -107,7 +125,8 @@ namespace Maui
 				       && targetType.IsGenericType
 				       && genericType != null
 				       && genericType.GenericTypeArguments.Length > 0
-				       && genericType.GenericTypeArguments[0].IsValueType;
+				       && genericType.GenericTypeArguments[0].IsValueType
+				       && genericType.GenericTypeArguments[0] != typeToCheck;
 			}
 		}
 
@@ -128,7 +147,12 @@ namespace Maui
 						if (Checker.CanBeBound(propertyInfo.PropertyType))
 						{
 							bool needsToBeBoxed = Checker.NeedsToBeBoxed(propertyInfo.PropertyType);
-							yield return new BindingEntry(viewModel, propertyInfo.Name, needsToBeBoxed);
+							yield return new BindingEntry(
+								viewModel,
+								propertyInfo.Name,
+								needsToBeBoxed,
+								Checker.LastObservableType,
+								Checker.LastGenericArgument);
 						}
 					}
 				}

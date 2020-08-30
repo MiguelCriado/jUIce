@@ -63,5 +63,77 @@ namespace Maui.Utils
 
 			return result;
 		}
+		
+		public static string GetPrettifiedName(this Type t)
+		{
+			string result;
+
+			if (t == typeof(bool))
+			{
+				result = "bool";
+			}
+			else if (t == typeof(byte))
+			{
+				result = "byte";
+			}
+			else if (t == typeof(sbyte))
+			{
+				result = "sbyte";
+			}
+			else if (t == typeof(char))
+			{
+				result = "char";
+			}
+			else if (t == typeof(decimal))
+			{
+				result = "decimal";
+			}
+			else if (t == typeof(float))
+			{
+				result = "float";
+			}
+			else if (t == typeof(double))
+			{
+				result = "double";
+			}
+			else if (t == typeof(int))
+			{
+				result = "int";
+			}
+			else if (t == typeof(uint))
+			{
+				result = "uint";
+			}
+			else if (t == typeof(long))
+			{
+				result = "long";
+			}
+			else if (t == typeof(ulong))
+			{
+				result = "ulong";
+			}
+			else if (t == typeof(short))
+			{
+				result = "short";
+			}
+			else if (t == typeof(ushort))
+			{
+				result = "ushort";
+			}
+			else if (t == typeof(string))
+			{
+				result = "string";
+			}
+			else if (t == typeof(object))
+			{
+				result = "object";
+			}
+			else
+			{
+				result = t.Name;
+			}
+
+			return result;
+		}
 	}
 }

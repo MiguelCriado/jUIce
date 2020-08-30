@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Maui.Utils;
 using UnityEditor;
 using UnityEngine;
 
@@ -12,17 +15,23 @@ namespace Maui.Editor
 			public readonly int Index;
 			public readonly ViewModelComponent Component;
 			public readonly string PropertyName;
+			public readonly Type ObservableType;
+			public readonly Type ArgumentType;
 			public readonly bool NeedsToBeBoxed;
 
 			public BindingEntry(
 				int index,
 				ViewModelComponent component,
 				string propertyName,
+				Type observableType,
+				Type argumentType,
 				bool needsToBeBoxed)
 			{
 				Index = index;
 				Component = component;
 				PropertyName = propertyName;
+				ObservableType = observableType;
+				ArgumentType = argumentType;
 				NeedsToBeBoxed = needsToBeBoxed;
 			}
 		}
@@ -33,6 +42,7 @@ namespace Maui.Editor
 			public Transform LastParent;
 			public Component BaseComponent;
 			public Dictionary<string, BindingEntry> BindingMap;
+			public string[] CachedOptionIds;
 			public string[] CachedOptions;
 			public int CurrentIndex;
 		}
@@ -83,7 +93,7 @@ namespace Maui.Editor
 		{
 			EditorGUI.BeginDisabledGroup(Application.isPlaying);
 
-			if (cache.CachedOptions.Length > 0)
+			if (cache.CachedOptionIds.Length > 0)
 			{
 				DrawPicker(position, property);
 			}
@@ -112,11 +122,18 @@ namespace Maui.Editor
 			return $"{component.gameObject.name}.{component.Id}/{propertyName}";
 		}
 
+		private static string GenerateOptionString(string bindingId, BindingEntry entry)
+		{
+			string argument = entry.ArgumentType != null ? $" ({entry.ArgumentType.GetPrettifiedName()})" : string.Empty;
+			string boxingIcon = entry.NeedsToBeBoxed ? " ⚠" : string.Empty;
+			return $"{bindingId}{argument}{boxingIcon}";
+		}
+
 		private void SetupCache(SerializedProperty property)
 		{
-			string id = $"{property.serializedObject.targetObject.GetInstanceID().ToString()}{property.propertyPath}";
+			string cacheId = $"{property.serializedObject.targetObject.GetInstanceID().ToString()}{property.propertyPath}";
 
-			CacheMap.TryGetValue(id, out cache);
+			CacheMap.TryGetValue(cacheId, out cache);
 			
 			if (cache != null && (cache.BaseComponent == null || cache.BaseComponent.transform.parent != cache.LastParent))
 			{
@@ -129,7 +146,7 @@ namespace Maui.Editor
 				CacheTarget(property, cache);
 				CacheBaseComponent(property, cache);
 				CacheBindingCollections(cache);
-				CacheMap[id] = cache;
+				CacheMap[cacheId] = cache;
 			}
 		}
 
@@ -147,7 +164,9 @@ namespace Maui.Editor
 		private void CacheBindingCollections(DrawerCache cache)
 		{
 			cache.BindingMap = new Dictionary<string, BindingEntry>();
+			List<string> optionIds = new List<string>();
 			List<string> options = new List<string>();
+			optionIds.Add("None");
 			options.Add("None");
 
 			foreach (Maui.BindingEntry current in BindingUtils.GetBindings(cache.BaseComponent.transform, cache.Target.Type))
@@ -155,12 +174,20 @@ namespace Maui.Editor
 				if (current.ViewModelComponent != cache.BaseComponent)
 				{
 					string id = GenerateBindingId(current.ViewModelComponent, current.PropertyName);
-					BindingEntry entry = new BindingEntry(options.Count, current.ViewModelComponent, current.PropertyName, current.NeedsToBeBoxed);
+					BindingEntry entry = new BindingEntry(
+						optionIds.Count,
+						current.ViewModelComponent,
+						current.PropertyName,
+						current.ObservableType,
+						current.GenericArgument,
+						current.NeedsToBeBoxed);
 					cache.BindingMap.Add(id, entry);
-					options.Add(id);
+					optionIds.Add(id);
+					options.Add(GenerateOptionString(id, entry));
 				}
 			}
 			
+			cache.CachedOptionIds = optionIds.ToArray();
 			cache.CachedOptions = options.ToArray();
 		}
 
@@ -168,7 +195,8 @@ namespace Maui.Editor
 		{
 			if (cache.Target.ViewModelContainer != null && string.IsNullOrEmpty(cache.Target.PropertyName) == false)
 			{
-				string bindingId = GenerateBindingId(cache.Target.ViewModelContainer, cache.Target.PropertyName);
+				BindingInfo target = cache.Target;
+				string bindingId = GenerateBindingId(target.ViewModelContainer, target.PropertyName);
 				
 				if (cache.BindingMap.TryGetValue(bindingId, out BindingEntry entry))
 				{
@@ -190,7 +218,7 @@ namespace Maui.Editor
 			{
 				if (index > 0)
 				{
-					string bindingId = cache.CachedOptions[index];
+					string bindingId = cache.CachedOptionIds[index];
 					BindingEntry entry = cache.BindingMap[bindingId];
 					SetBinding(property, entry.Component, entry.PropertyName);
 				}
