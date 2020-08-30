@@ -147,6 +147,7 @@ namespace Maui
 						if (Checker.CanBeBound(propertyInfo.PropertyType))
 						{
 							bool needsToBeBoxed = Checker.NeedsToBeBoxed(propertyInfo.PropertyType);
+							
 							yield return new BindingEntry(
 								viewModel,
 								propertyInfo.Name,

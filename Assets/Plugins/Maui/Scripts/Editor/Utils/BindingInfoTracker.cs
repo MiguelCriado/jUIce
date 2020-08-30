@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Maui.Utils;
 
 namespace Maui.Editor
 {
@@ -7,6 +8,11 @@ namespace Maui.Editor
 	{
 		private static readonly List<WeakReference<BindingInfoDrawer>> aliveDrawers = new List<WeakReference<BindingInfoDrawer>>();
 
+		static BindingInfoTracker()
+		{
+			BindingInfoTrackerProxy.RefreshBindingInfoRequested += RefreshBindingInfoDrawers;
+		}
+		
 		public static void Register(BindingInfoDrawer drawer)
 		{
 			aliveDrawers.Add(new WeakReference<BindingInfoDrawer>(drawer));
