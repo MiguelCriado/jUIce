@@ -130,6 +130,7 @@ namespace Maui
 			}
 		}
 
+		private static readonly BindingFlags PropertyBindingFlags = BindingFlags.Public | BindingFlags.Instance;
 		private static readonly BindingTypeChecker Checker = new BindingTypeChecker();
 		
 		public static IEnumerable<BindingEntry> GetBindings(Transform context, Type targetType)
@@ -142,20 +143,28 @@ namespace Maui
 
 				if (viewModelType != null)
 				{
-					foreach (PropertyInfo propertyInfo in viewModelType.GetProperties())
+					foreach (var bindingEntry in GetBindings(viewModelType, viewModel))
 					{
-						if (Checker.CanBeBound(propertyInfo.PropertyType))
-						{
-							bool needsToBeBoxed = Checker.NeedsToBeBoxed(propertyInfo.PropertyType);
-							
-							yield return new BindingEntry(
-								viewModel,
-								propertyInfo.Name,
-								needsToBeBoxed,
-								Checker.LastObservableType,
-								Checker.LastGenericArgument);
-						}
+						yield return bindingEntry;
 					}
+				}
+			}
+		}
+
+		public static IEnumerable<BindingEntry> GetBindings(Type viewModelType, ViewModelComponent viewModel)
+		{
+			foreach (PropertyInfo propertyInfo in viewModelType.GetProperties(PropertyBindingFlags))
+			{
+				if (Checker.CanBeBound(propertyInfo.PropertyType))
+				{
+					bool needsToBeBoxed = Checker.NeedsToBeBoxed(propertyInfo.PropertyType);
+
+					yield return new BindingEntry(
+						viewModel,
+						propertyInfo.Name,
+						needsToBeBoxed,
+						Checker.LastObservableType,
+						Checker.LastGenericArgument);
 				}
 			}
 		}

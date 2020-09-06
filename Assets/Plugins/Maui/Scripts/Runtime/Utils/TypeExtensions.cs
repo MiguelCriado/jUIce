@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Text;
 
 namespace Maui.Utils
 {
 	public static class TypeExtensions
 	{
+		private static readonly StringBuilder StringBuilder = new StringBuilder();
+	
 		public static bool ImplementsOrDerives(this Type type, Type baseType)
 		{
 			bool result = false;
@@ -127,6 +130,27 @@ namespace Maui.Utils
 			else if (t == typeof(object))
 			{
 				result = "object";
+			}
+			else if (t.IsGenericType)
+			{
+				StringBuilder.Length = 0;
+
+				string name = t.GetGenericTypeDefinition().Name;
+				StringBuilder.Append(name.Remove(name.Length - 2));
+				StringBuilder.Append("<");
+
+				for (int i = 0; i < t.GenericTypeArguments.Length; i++)
+				{
+					StringBuilder.Append(t.GenericTypeArguments[i].GetPrettifiedName());
+
+					if (i < t.GenericTypeArguments.Length - 1)
+					{
+						StringBuilder.Append(",");
+					}
+				}
+
+				StringBuilder.Append(">");
+				result = StringBuilder.ToString();
 			}
 			else
 			{

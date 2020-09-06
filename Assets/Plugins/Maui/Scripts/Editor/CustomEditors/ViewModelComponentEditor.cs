@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Maui.Utils;
 using UnityEditor;
 using UnityEngine;
 
@@ -10,10 +11,18 @@ namespace Maui.Editor
 	[CustomEditor(typeof(ViewModelComponent), true)]
 	public class ViewModelComponentEditor : UnityEditor.Editor
 	{
+		private static readonly Type GenericVariableType = typeof(IReadOnlyObservableVariable<>);
+		private static readonly Type GenericCollectionType = typeof(IReadOnlyObservableCollection<>);
+		private static readonly Type GenericCommandType = typeof(IObservableCommand<>);
+		private static readonly Type CommandType = typeof(IObservableCommand);
+		private static readonly Type GenericEventType = typeof(IObservableEvent<>);
+		private static readonly Type EventType = typeof(IObservableEvent);
+		
 		private ViewModelComponent viewModelComponent => target as ViewModelComponent;
 
 		private SerializedProperty expectedTypeProperty;
 		private SerializedProperty idProperty;
+		private bool showViewModelInfo;
 		
 		protected virtual void OnEnable()
 		{
@@ -32,6 +41,7 @@ namespace Maui.Editor
 			serializedObject.Update();
 			DrawBaseInspector();
 			DrawChildFields();
+			DrawViewModelInfo();
 			serializedObject.ApplyModifiedProperties();
 		}
 
@@ -78,12 +88,12 @@ namespace Maui.Editor
 		protected void DrawExpectedType()
 		{
 			var injector = viewModelComponent.GetComponents<IViewModelInjector>().FirstOrDefault(x => x.Target == viewModelComponent);
-			bool shouldDisableEditor = injector != null;
-			EditorGUI.BeginDisabledGroup(shouldDisableEditor);
+			bool shouldShowField = injector == null;
 
-			EditorGUILayout.PropertyField(expectedTypeProperty);
-
-			EditorGUI.EndDisabledGroup();
+			if (shouldShowField)
+			{
+				EditorGUILayout.PropertyField(expectedTypeProperty);
+			}
 		}
 		
 		protected void DrawId()
@@ -96,7 +106,73 @@ namespace Maui.Editor
 				BindingInfoTracker.RefreshBindingInfoDrawers();
 			}
 		}
-		
+
+		protected void DrawViewModelInfo()
+		{
+			if (viewModelComponent.ExpectedType != null)
+			{
+				var style = GUI.skin.GetStyle("helpbox");
+				GUILayout.BeginVertical(style);
+
+				EditorGUI.indentLevel++;
+
+				showViewModelInfo = EditorGUI.Foldout(
+					EditorGUILayout.GetControlRect(),
+					showViewModelInfo,
+					viewModelComponent.ExpectedType.GetPrettifiedName(),
+					true);
+				
+				if (showViewModelInfo)
+				{
+					EditorGUI.indentLevel++;
+					
+					foreach (BindingEntry entry in BindingUtils.GetBindings(viewModelComponent.ExpectedType, viewModelComponent))
+					{
+						string propertyType = GetPropertyTypeString(entry);
+						EditorGUILayout.LabelField(entry.PropertyName, propertyType);
+					}
+					
+					EditorGUI.indentLevel--;
+				}
+				
+				EditorGUI.indentLevel--;
+
+				GUILayout.EndVertical();
+			}
+		}
+
+		private static string GetPropertyTypeString(BindingEntry entry)
+		{
+			string propertyType = string.Empty;
+
+			if (entry.ObservableType.ImplementsOrDerives(GenericVariableType))
+			{
+				propertyType = $": Variable<{entry.GenericArgument.GetPrettifiedName()}>";
+			}
+			else if (entry.ObservableType.ImplementsOrDerives(GenericCollectionType))
+			{
+				propertyType = $": Collection<{entry.GenericArgument.GetPrettifiedName()}>";
+			}
+			else if (entry.ObservableType.ImplementsOrDerives(GenericCommandType))
+			{
+				propertyType = $": Command<{entry.GenericArgument.GetPrettifiedName()}>";
+			}
+			else if (entry.ObservableType.ImplementsOrDerives(GenericEventType))
+			{
+				propertyType = $": Event<{entry.GenericArgument.GetPrettifiedName()}>";
+			}
+			else if (entry.ObservableType.ImplementsOrDerives(CommandType))
+			{
+				propertyType = ": Command";
+			}
+			else if (entry.ObservableType.ImplementsOrDerives(EventType))
+			{
+				propertyType = ": Event";
+			}
+
+			return propertyType;
+		}
+
 		private void RefreshType()
 		{
 			var injectors = viewModelComponent.GetComponents<IViewModelInjector>();
