@@ -17,7 +17,7 @@ namespace Maui
 
 		protected override void Refresh(object value)
 		{
-			text.text = value.ToString();
+			text.text = value != null ? value.ToString() : string.Empty;
 		}
 	}
 }

@@ -6,17 +6,17 @@ namespace Maui
 {
 	public class PrefabCollectionBinder : CollectionBinder<object>
 	{
-		[SerializeField] private List<CollectionItem> prefabs;
+		[SerializeField] private List<CollectionItemViewModelComponent> prefabs;
 
 		private Transform container;
-		private List<CollectionItem> currentItems;
+		private List<CollectionItemViewModelComponent> currentItems;
 
 		protected override void Awake()
 		{
 			base.Awake();
 
 			container = transform;
-			currentItems = new List<CollectionItem>();
+			currentItems = new List<CollectionItemViewModelComponent>();
 		}
 
 		protected override void OnCollectionReset()
@@ -59,15 +59,15 @@ namespace Maui
 
 		private void RemoveItem(int index)
 		{
-			CollectionItem item = currentItems[index];
+			CollectionItemViewModelComponent item = currentItems[index];
 			Destroy(item.gameObject);
 			currentItems.RemoveAt(index);
 		}
 
 		private void InsertItem(int index, object value)
 		{
-			CollectionItem bestPrefab = FindBestPrefab(value);
-			CollectionItem newItem = Instantiate(bestPrefab, container, false);
+			CollectionItemViewModelComponent bestPrefab = FindBestPrefab(value);
+			CollectionItemViewModelComponent newItem = Instantiate(bestPrefab, container, false);
 			currentItems.Insert(index, newItem);
 			newItem.transform.SetSiblingIndex(index);
 			SetItemValue(index, value);
@@ -80,19 +80,19 @@ namespace Maui
 
 		private void MoveItem(int oldIndex, int newIndex)
 		{
-			CollectionItem item = currentItems[oldIndex];
+			CollectionItemViewModelComponent item = currentItems[oldIndex];
 			currentItems.RemoveAt(oldIndex);
 			currentItems.Insert(newIndex, item);
 			item.transform.SetSiblingIndex(newIndex);
 		}
 
-		private CollectionItem FindBestPrefab(object value)
+		private CollectionItemViewModelComponent FindBestPrefab(object value)
 		{
-			CollectionItem result = null;
+			CollectionItemViewModelComponent result = null;
 			Type valueType = value.GetType();
 			int bestDepth = -1;
 
-			foreach (CollectionItem prefab in prefabs)
+			foreach (CollectionItemViewModelComponent prefab in prefabs)
 			{
 				Type injectionType = prefab.InjectionType;
 				Type viewModelType;
@@ -133,7 +133,7 @@ namespace Maui
 				genericType = runtimeType.GetGenericTypeDefinition();
 			}
 
-			if (genericType != null && genericType == typeof(CollectionItemViewModel<>))
+			if (genericType != null && genericType == typeof(BindableViewModel<>))
 			{
 				result = runtimeType;
 			}

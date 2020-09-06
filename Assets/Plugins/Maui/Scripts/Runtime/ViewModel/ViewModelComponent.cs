@@ -7,7 +7,7 @@ namespace Maui
 	{
 		public event EventHandler<IViewModel> ViewModelChanged;
 
-		public Type ExpectedType => expectedType.Type;
+		public virtual Type ExpectedType => expectedType.Type;
 
 		public IViewModel ViewModel
 		{
