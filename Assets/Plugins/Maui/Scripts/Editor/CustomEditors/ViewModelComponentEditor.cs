@@ -124,15 +124,14 @@ namespace Maui.Editor
 				
 				if (showViewModelInfo)
 				{
-					EditorGUI.indentLevel++;
+					GUILayout.Box("", new[]{GUILayout.ExpandWidth(true), GUILayout.Height(1)});
+
 					
-					foreach (BindingEntry entry in BindingUtils.GetBindings(viewModelComponent.ExpectedType, viewModelComponent))
+					foreach (BindingEntry entry in BindingUtils.GetAllBindings(viewModelComponent.ExpectedType, viewModelComponent))
 					{
 						string propertyType = GetPropertyTypeString(entry);
 						EditorGUILayout.LabelField(entry.PropertyName, propertyType);
 					}
-					
-					EditorGUI.indentLevel--;
 				}
 				
 				EditorGUI.indentLevel--;

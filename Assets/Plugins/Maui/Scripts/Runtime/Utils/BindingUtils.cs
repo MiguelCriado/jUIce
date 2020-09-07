@@ -143,24 +143,36 @@ namespace Maui
 
 				if (viewModelType != null)
 				{
-					foreach (var bindingEntry in GetBindings(viewModelType, viewModel))
+					foreach (PropertyInfo propertyInfo in viewModelType.GetProperties(PropertyBindingFlags))
 					{
-						yield return bindingEntry;
+						if (Checker.CanBeBound(propertyInfo.PropertyType))
+						{
+							bool needsToBeBoxed = Checker.NeedsToBeBoxed(propertyInfo.PropertyType);
+
+							yield return new BindingEntry(
+								viewModel,
+								propertyInfo.Name,
+								needsToBeBoxed,
+								Checker.LastObservableType,
+								Checker.LastGenericArgument);
+						}
 					}
 				}
 			}
 		}
 
-		public static IEnumerable<BindingEntry> GetBindings(Type viewModelType, ViewModelComponent viewModel)
+		public static IEnumerable<BindingEntry> GetAllBindings(Type viewModelType, ViewModelComponent viewModelComponent = null)
 		{
 			foreach (PropertyInfo propertyInfo in viewModelType.GetProperties(PropertyBindingFlags))
 			{
+				Checker.TargetType = propertyInfo.PropertyType;
+				
 				if (Checker.CanBeBound(propertyInfo.PropertyType))
 				{
 					bool needsToBeBoxed = Checker.NeedsToBeBoxed(propertyInfo.PropertyType);
 
 					yield return new BindingEntry(
-						viewModel,
+						viewModelComponent,
 						propertyInfo.Name,
 						needsToBeBoxed,
 						Checker.LastObservableType,
