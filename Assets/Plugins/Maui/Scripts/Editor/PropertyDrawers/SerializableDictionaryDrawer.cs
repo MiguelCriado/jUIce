@@ -87,7 +87,7 @@ namespace Maui.Editor
 			Vector2 labelPosition = rect.position;
 			Vector2 labelSize = new Vector2(rect.width, rect.height / 2);
 			Rect labelRect = new Rect(labelPosition, labelSize);
-			EditorGUI.LabelField(labelRect, "Dictionary");
+			EditorGUI.LabelField(labelRect, cache.DictionaryProperty.displayName);
 			
 			Vector2 headersPosition = new Vector2(rect.x - HeaderPadding, labelRect.yMax);
 			Vector2 headersSize = new Vector2(rect.width + HeaderPadding * 2, rect.height / 2);
