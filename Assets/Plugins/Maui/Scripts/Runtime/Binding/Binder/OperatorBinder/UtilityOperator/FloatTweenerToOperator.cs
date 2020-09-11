@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Maui
 {
-	public class FloatTweenerValueConverter : ValueConverter<float, float>
+	public class FloatTweenerToOperator : ToOperator<float, float>
 	{
 		[SerializeField] private Ease ease;
 		[SerializeField] private float duration;

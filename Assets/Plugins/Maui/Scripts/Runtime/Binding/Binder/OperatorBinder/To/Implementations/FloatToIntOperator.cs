@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Maui
 {
 	[Serializable]
-	public class FloatToIntValueConverter : ValueConverter<float, int>
+	public class FloatToIntOperator : ToOperator<float, int>
 	{
 		public enum CrunchMode
 		{

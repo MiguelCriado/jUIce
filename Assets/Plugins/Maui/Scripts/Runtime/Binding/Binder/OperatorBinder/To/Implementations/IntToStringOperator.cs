@@ -1,6 +1,6 @@
 ﻿namespace Maui.Sandbox
 {
-	public class IntToStringValueConverter : ValueConverter<int, string>
+	public class IntToStringOperator : ToOperator<int, string>
 	{
 		protected override string Convert(int value)
 		{

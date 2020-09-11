@@ -1,6 +1,6 @@
 ﻿namespace Maui
 {
-	public class StringToFloatValueConverter : ValueConverter<string, float>
+	public class StringToFloatOperator : ToOperator<string, float>
 	{
 		protected override float Convert(string value)
 		{

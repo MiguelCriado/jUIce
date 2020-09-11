@@ -1,6 +1,6 @@
 ﻿namespace Maui.Sandbox
 {
-	public class FloatToStringValueConverter : ValueConverter<float, string>
+	public class FloatToStringOperator : ToOperator<float, string>
 	{
 		protected override string Convert(float value)
 		{

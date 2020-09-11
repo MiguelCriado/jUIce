@@ -12,7 +12,7 @@ namespace Maui
 		Event
 	}
 	
-	public abstract class ValueConverter<TFrom, TTo> : ViewModelComponent, IViewModelInjector
+	public abstract class ToOperator<TFrom, TTo> : ViewModelComponent, IViewModelInjector
 	{
 		public Type InjectionType => GetInjectionType();
 		public ViewModelComponent Target => this;

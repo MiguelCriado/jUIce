@@ -1,6 +1,6 @@
 ﻿namespace Maui
 {
-	public class ToStringValueConverter : ValueConverter<object, string>
+	public class ToStringOperator : ToOperator<object, string>
 	{
 		protected override string Convert(object value)
 		{
