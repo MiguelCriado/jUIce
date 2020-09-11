@@ -3,24 +3,24 @@ using UnityEngine;
 
 namespace Maui
 {
-	public class CommandConversionHandler<TFrom, TTo> : ConversionHandler<TFrom, TTo>
+	public class CommandBindingProcessor<TFrom, TTo> : BindingProcessor<TFrom, TTo>
 	{
 		public override IViewModel ViewModel { get; }
 
 		private readonly CommandBinding<TTo> commandBinding;
 
-		public CommandConversionHandler(BindingInfo bindingInfo, Component context, Func<TFrom, TTo> conversionFunction)
-			: base(bindingInfo, context, conversionFunction)
+		public CommandBindingProcessor(BindingInfo bindingInfo, Component context, Func<TFrom, TTo> processFunction)
+			: base(bindingInfo, context, processFunction)
 		{
 			commandBinding = new CommandBinding<TTo>(bindingInfo, context);
 			ObservableCommand<TFrom> convertedCommand = new ObservableCommand<TFrom>(commandBinding.Property.CanExecute);
 			ViewModel = new OperatorBinderCommandViewModel<TFrom>(convertedCommand);
-			convertedCommand.ExecuteRequested += ConvertedCommandExecuteRequestedHandler;
+			convertedCommand.ExecuteRequested += ProcessedCommandExecuteRequestedHandler;
 		}
 
-		private void ConvertedCommandExecuteRequestedHandler(TFrom parameter)
+		private void ProcessedCommandExecuteRequestedHandler(TFrom parameter)
 		{
-			commandBinding.Property.Execute(conversionFunction(parameter));
+			commandBinding.Property.Execute(processFunction(parameter));
 		}
 
 		public override void Bind()

@@ -3,18 +3,18 @@ using UnityEngine;
 
 namespace Maui
 {
-	public class VariableConversionHandler<TFrom, TTo> : ConversionHandler<TFrom, TTo>
+	public class VariableBindingProcessor<TFrom, TTo> : BindingProcessor<TFrom, TTo>
 	{
 		public override IViewModel ViewModel { get; }
 
 		private readonly VariableBinding<TFrom> variableBinding;
-		private readonly ObservableVariable<TTo> convertedVariable;
+		private readonly ObservableVariable<TTo> processedVariable;
 
-		public VariableConversionHandler(BindingInfo bindingInfo, Component context, Func<TFrom, TTo> conversionFunction)
-			: base(bindingInfo, context, conversionFunction)
+		public VariableBindingProcessor(BindingInfo bindingInfo, Component context, Func<TFrom, TTo> processFunction)
+			: base(bindingInfo, context, processFunction)
 		{
-			convertedVariable = new ObservableVariable<TTo>();
-			ViewModel = new OperatorBinderVariableViewModel<TTo>(convertedVariable);
+			processedVariable = new ObservableVariable<TTo>();
+			ViewModel = new OperatorBinderVariableViewModel<TTo>(processedVariable);
 			variableBinding = new VariableBinding<TFrom>(bindingInfo, context);
 			variableBinding.Property.Changed += BoundVariableChangedHandler;
 		}
@@ -31,7 +31,7 @@ namespace Maui
 		
 		private void BoundVariableChangedHandler(TFrom newValue)
 		{
-			convertedVariable.Value = conversionFunction(newValue);
+			processedVariable.Value = processFunction(newValue);
 		}
 	}
 }

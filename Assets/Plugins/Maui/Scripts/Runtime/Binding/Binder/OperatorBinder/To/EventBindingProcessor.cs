@@ -3,18 +3,18 @@ using UnityEngine;
 
 namespace Maui
 {
-	public class EventConversionHandler<TFrom, TTo> : ConversionHandler<TFrom, TTo>
+	public class EventBindingProcessor<TFrom, TTo> : BindingProcessor<TFrom, TTo>
 	{
 		public override IViewModel ViewModel { get; }
 
 		private readonly EventBinding<TFrom> eventBinding;
-		private readonly ObservableEvent<TTo> convertedEvent;
+		private readonly ObservableEvent<TTo> processedEvent;
 		
-		public EventConversionHandler(BindingInfo bindingInfo, Component context, Func<TFrom, TTo> conversionFunction)
-			: base(bindingInfo, context, conversionFunction)
+		public EventBindingProcessor(BindingInfo bindingInfo, Component context, Func<TFrom, TTo> processFunction)
+			: base(bindingInfo, context, processFunction)
 		{
-			convertedEvent = new ObservableEvent<TTo>();
-			ViewModel = new OperatorBinderEventViewModel<TTo>(convertedEvent);
+			processedEvent = new ObservableEvent<TTo>();
+			ViewModel = new OperatorBinderEventViewModel<TTo>(processedEvent);
 			eventBinding = new EventBinding<TFrom>(bindingInfo, context);
 			eventBinding.Property.Raised += BoundEventRaisedHandler; 
 		}
@@ -31,7 +31,7 @@ namespace Maui
 		
 		private void BoundEventRaisedHandler(TFrom eventData)
 		{
-			convertedEvent.Raise(conversionFunction(eventData));
+			processedEvent.Raise(processFunction(eventData));
 		}
 	}
 }

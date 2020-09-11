@@ -20,7 +20,7 @@ namespace Maui
 		[SerializeField, DisableAtRuntime] private BindingType bindingType;
 		[SerializeField] private BindingInfo fromBinding = new BindingInfo(typeof(IReadOnlyObservableVariable<TFrom>));
 
-		private ConversionHandler<TFrom, TTo> conversionHandler;
+		private BindingProcessor<TFrom, TTo> bindingProcessor;
 
 		protected override void Reset()
 		{
@@ -41,20 +41,43 @@ namespace Maui
 		protected virtual void Awake()
 		{
 			Initialize();
-			ViewModel = conversionHandler.ViewModel;
+			ViewModel = bindingProcessor.ViewModel;
 		}
 
 		protected virtual void OnEnable()
 		{
-			conversionHandler.Bind();
+			bindingProcessor.Bind();
 		}
 
 		protected virtual void OnDisable()
 		{
-			conversionHandler.Unbind();
+			bindingProcessor.Unbind();
 		}
 
 		protected abstract TTo Convert(TFrom value);
+		
+		protected virtual BindingProcessor<TFrom, TTo> GetBindingProcessor(BindingType bindingType, BindingInfo fromBinding)
+		{
+			BindingProcessor<TFrom, TTo> result = null;
+			
+			switch (bindingType)
+			{
+				case BindingType.Variable:
+					result = new VariableBindingProcessor<TFrom, TTo>(fromBinding, this, Convert);
+					break;
+				case BindingType.Collection:
+					result = new CollectionBindingProcessor<TFrom, TTo>(fromBinding, this, Convert);
+					break;
+				case BindingType.Command:
+					result = new CommandBindingProcessor<TFrom, TTo>(fromBinding, this, Convert);
+					break;
+				case BindingType.Event:
+					result = new EventBindingProcessor<TFrom, TTo>(fromBinding, this, Convert);
+					break;
+			}
+
+			return result;
+		}
 		
 		private Type GetInjectionType()
 		{
@@ -70,23 +93,9 @@ namespace Maui
 		
 		private void Initialize()
 		{
-			switch (bindingType)
-			{
-				case BindingType.Variable: 
-					conversionHandler = new VariableConversionHandler<TFrom, TTo>(fromBinding, this, Convert);
-					break;
-				case BindingType.Collection:
-					conversionHandler = new CollectionConversionHandler<TFrom, TTo>(fromBinding, this, Convert);
-					break;
-				case BindingType.Command:
-					conversionHandler = new CommandConversionHandler<TFrom, TTo>(fromBinding, this, Convert);
-					break;
-				case BindingType.Event:
-					conversionHandler = new EventConversionHandler<TFrom, TTo>(fromBinding, this, Convert);
-					break;
-			}
+			bindingProcessor = GetBindingProcessor(bindingType, fromBinding);
 		}
-		
+
 		private void SanitizeTypes()
 		{
 			bool didTypeChange = false;
