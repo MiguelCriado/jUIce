@@ -125,7 +125,6 @@ namespace Maui.Editor
 				if (showViewModelInfo)
 				{
 					GUILayout.Box("", new[]{GUILayout.ExpandWidth(true), GUILayout.Height(1)});
-
 					
 					foreach (BindingEntry entry in BindingUtils.GetAllBindings(viewModelComponent.ExpectedType, viewModelComponent))
 					{

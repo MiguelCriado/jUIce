@@ -25,28 +25,27 @@ namespace Maui.Editor
 			CacheMap.Clear();
 		}
 		
-		public override void OnGUI( Rect position, SerializedProperty property, GUIContent label )
+		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
 			EditorGUI.BeginProperty(position, label, property);
 			
 			CacheData(property);
 			
-			cache.ReorderableList.DoList( position );
+			cache.ReorderableList.DoList(position);
 			
 			EditorGUI.EndProperty();
 		}
 
-		public override float GetPropertyHeight( SerializedProperty serializedProperty, GUIContent label )
+		public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
 		{
-			CacheData(serializedProperty);
+			CacheData(property);
 			return cache.ReorderableList.GetHeight();
 		}
 
-		private void CacheData(SerializedProperty serializedProperty)
+		private void CacheData(SerializedProperty property)
 		{
-			string id = $"{serializedProperty.serializedObject.targetObject.GetInstanceID().ToString()}{serializedProperty.propertyPath}";
-
-			SerializedProperty listProperty = serializedProperty.FindPropertyRelative("bindingInfoList");
+			string id = property.GetUniqueId();
+			SerializedProperty listProperty = property.FindPropertyRelative("bindingInfoList");
 			
 			if (CacheMap.TryGetValue(id, out cache))
 			{
@@ -55,25 +54,19 @@ namespace Maui.Editor
 			else
 			{
 				cache = new DrawerCache();
-				cache.Target = serializedProperty.GetValue<BindingInfoList>();
+				cache.Target = property.GetValue<BindingInfoList>();
 				cache.ReorderableList = CreateList(listProperty, cache.Target);
 				CacheMap[id] = cache;
 			}
 		}
 		
-		private ReorderableList CreateList( SerializedProperty serializedProperty, BindingInfoList target )
+		private ReorderableList CreateList(SerializedProperty property, BindingInfoList target)
 		{
-			ReorderableList result = null;
-			
-			if ( cache.ReorderableList == null )
-			{
-				result = new ReorderableList( serializedProperty.serializedObject, serializedProperty );
-				result.drawHeaderCallback += DrawHeaderCallback;
-				result.elementHeightCallback += index => ElementHeightCallback(result, index);
-				result.drawElementCallback += (rect, index, isActive, isFocused) => DrawElementCallback(result, rect, index);
-				result.onAddCallback += (list) => OnAddCallback(target);
-			}
-
+			var result = new ReorderableList(property.serializedObject, property);
+			result.drawHeaderCallback += DrawHeaderCallback;
+			result.elementHeightCallback += index => ElementHeightCallback(result, index);
+			result.drawElementCallback += (rect, index, isActive, isFocused) => DrawElementCallback(result, rect, index);
+			result.onAddCallback += list => OnAddCallback(target);
 			return result;
 		}
 

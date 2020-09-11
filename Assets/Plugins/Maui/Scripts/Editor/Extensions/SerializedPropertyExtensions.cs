@@ -1,14 +1,4 @@
-﻿ // --------------------------------------------------------------------------------------------------------------------
- // <author>
- //   HiddenMonk
- //   http://answers.unity3d.com/users/496850/hiddenmonk.html
- //   
- //   Johannes Deml
- //   send@johannesdeml.com
- // </author>
- // --------------------------------------------------------------------------------------------------------------------
-
- using System;
+﻿ using System;
  using System.Collections.Generic;
  using System.Linq;
  using System.Reflection;
@@ -21,25 +11,161 @@
 	 /// Extension class for SerializedProperties
 	 /// See also: http://answers.unity3d.com/questions/627090/convert-serializedproperty-to-custom-class.html
 	 /// </summary>
-	 public static class SerializedPropertyExtensions 
+	 public static class SerializedPropertyExtensions
 	 {
+		 private static readonly Dictionary<SerializedPropertyType, PropertyInfo> PropertyAccessorsMap;
+		 
+		 static SerializedPropertyExtensions()
+		 {
+			 Dictionary<SerializedPropertyType, string> serializedPropertyValueAccessorsNameDict = new Dictionary<SerializedPropertyType, string>() {
+				{ SerializedPropertyType.Integer, "intValue" },
+				{ SerializedPropertyType.Boolean, "boolValue" },
+				{ SerializedPropertyType.Float, "floatValue" },
+				{ SerializedPropertyType.String, "stringValue" },
+				{ SerializedPropertyType.Color, "colorValue" },
+				{ SerializedPropertyType.ObjectReference, "objectReferenceValue" },
+				{ SerializedPropertyType.LayerMask, "intValue" },
+				{ SerializedPropertyType.Enum, "intValue" },
+				{ SerializedPropertyType.Vector2, "vector2Value" },
+				{ SerializedPropertyType.Vector3, "vector3Value" },
+				{ SerializedPropertyType.Vector4, "vector4Value" },
+				{ SerializedPropertyType.Rect, "rectValue" },
+				{ SerializedPropertyType.ArraySize, "intValue" },
+				{ SerializedPropertyType.Character, "intValue" },
+				{ SerializedPropertyType.AnimationCurve, "animationCurveValue" },
+				{ SerializedPropertyType.Bounds, "boundsValue" },
+				{ SerializedPropertyType.Quaternion, "quaternionValue" },
+			 };
+			 
+			 Type serializedPropertyType = typeof(SerializedProperty);
+
+			 PropertyAccessorsMap = new Dictionary<SerializedPropertyType, PropertyInfo>();
+			 BindingFlags flags = BindingFlags.Instance | BindingFlags.Public;
+
+			 foreach(var kvp in serializedPropertyValueAccessorsNameDict)
+			 {
+				PropertyInfo propertyInfo = serializedPropertyType.GetProperty(kvp.Value, flags);
+				PropertyAccessorsMap.Add(kvp.Key, propertyInfo);
+			 }
+		 }
+
+		 public static object GetPropertyValue(this SerializedProperty property)
+		 {
+			object result;
+			
+			if (PropertyAccessorsMap.TryGetValue(property.propertyType, out PropertyInfo propertyInfo))
+			{
+				result = propertyInfo.GetValue(property);
+			}
+			else if (property.isArray)
+			{
+				result = property.GetPropertyValueArray();
+			}
+			else
+			{
+				result = property.GetPropertyValueGeneric();
+			}
+
+			return result;
+		 }
+
+		 public static object[] GetPropertyValueArray(this SerializedProperty property)
+		 {
+			 object[] result = new object[property.arraySize];
+			 
+			 for(int i = 0; i < property.arraySize; i++)
+			 {
+				 SerializedProperty item = property.GetArrayElementAtIndex(i);
+				 result[i] = GetPropertyValue(item);
+			 }
+			 
+			 return result;
+		 }
+
+		 public static object GetPropertyValueGeneric(this SerializedProperty property)
+		 {
+			 Dictionary<string, object> result = new Dictionary<string, object>();
+			 var iterator = property.Copy();
+			 
+			 if (iterator.Next(true))
+			 {
+				 var end = property.GetEndProperty();
+				 
+				 do
+				 {
+					 string name = iterator.name;
+					 object value = GetPropertyValue(iterator);
+					 result.Add(name, value);
+				 } 
+				 while(iterator.Next(false) && iterator.propertyPath != end.propertyPath);
+			 }
+			 
+			 return result;
+		 }
+
+		 public static void SetPropertyValue(this SerializedProperty property, object value)
+		 {
+			 if (PropertyAccessorsMap.TryGetValue(property.propertyType, out PropertyInfo propertyInfo))
+			 {
+				 propertyInfo.SetValue(property, value);
+			 }
+			 else if (property.isArray)
+			 {
+				 property.SetPropertyValueArray(value);
+			 }
+			 else
+			 {
+				 property.SetPropertyValueGeneric(value);
+			 }
+		 }
+
+		 public static void SetPropertyValueArray(this SerializedProperty property, object value)
+		 {
+			 object[] array = (object[])value;
+			 property.arraySize = array.Length;
+			 
+			 for(int i = 0; i < property.arraySize; i++)
+			 {
+				 SerializedProperty item = property.GetArrayElementAtIndex(i);
+				 item.SetPropertyValue(array[i]);
+			 }
+		 }
+
+		 public static void SetPropertyValueGeneric(this SerializedProperty property, object value)
+		 {
+			 Dictionary<string, object> dict = (Dictionary<string, object>)value;
+			 var iterator = property.Copy();
+			 
+			 if (iterator.Next(true))
+			 {
+				 var end = property.GetEndProperty();
+				 
+				 do
+				 {
+					 string name = iterator.name;
+					 SetPropertyValue(iterator, dict[name]);
+				 }
+				 while(iterator.Next(false) && iterator.propertyPath != end.propertyPath);
+			 }
+		 }
+
 		 /// <summary>
-		 /// Get the object the serialized property holds by using reflection
+		 /// Get the object the serialized serializedProperty holds by using reflection
 		 /// </summary>
-		 /// <typeparam name="T">The object type that the property contains</typeparam>
+		 /// <typeparam name="T">The object type that the serializedProperty contains</typeparam>
 		 /// <param name="property"></param>
-		 /// <returns>Returns the object type T if it is the type the property actually contains</returns>
+		 /// <returns>Returns the object type T if it is the type the serializedProperty actually contains</returns>
 		 public static T GetValue<T>(this SerializedProperty property)
 		 {
 			 return GetNestedObject<T>(property.propertyPath, GetSerializedPropertyRootComponent(property), true);
 		 }
  
 		 /// <summary>
-		 /// Set the value of a field of the property with the type T
+		 /// Set the value of a field of the serializedProperty with the type T
 		 /// </summary>
 		 /// <typeparam name="T">The type of the field that is set</typeparam>
-		 /// <param name="property">The serialized property that should be set</param>
-		 /// <param name="value">The new value for the specified property</param>
+		 /// <param name="property">The serialized serializedProperty that should be set</param>
+		 /// <param name="value">The new value for the specified serializedProperty</param>
 		 /// <returns>Returns if the operation was successful or failed</returns>
 		 public static bool SetValue<T>(this SerializedProperty property, T value)
 		 {
@@ -50,18 +176,18 @@
 			 
 			 for (int i = 0; i < fieldStructure.Length - 1; i++)
 			 {
-				 obj = GetFieldOrPropertyValue<object>(fieldStructure[i], obj);
+				 obj = GetFieldOrPropertyValue<object>(fieldStructure[i], obj, true);
 			 }
 			 string fieldName = fieldStructure.Last();
  
-			 return SetFieldOrPropertyValue(fieldName, obj, value);
+			 return SetFieldOrPropertyValue(fieldName, obj, value, true);
 		 }
  
 		 /// <summary>
-		 /// Get the component of a serialized property
+		 /// Get the component of a serialized serializedProperty
 		 /// </summary>
-		 /// <param name="property">The property that is part of the component</param>
-		 /// <returns>The root component of the property</returns>
+		 /// <param name="property">The serializedProperty that is part of the component</param>
+		 /// <returns>The root component of the serializedProperty</returns>
 		 public static Component GetSerializedPropertyRootComponent(SerializedProperty property)
 		 {
 			 return (Component)property.serializedObject.targetObject;
@@ -72,7 +198,7 @@
 		 /// </summary>
 		 /// <typeparam name="T">The type of the nested object</typeparam>
 		 /// <param name="path">Path to the object through other properties e.g. PlayerInformation.Health</param>
-		 /// <param name="obj">The root object from which this path leads to the property</param>
+		 /// <param name="obj">The root object from which this path leads to the serializedProperty</param>
 		 /// <param name="includeAllBases">Include base classes and interfaces as well</param>
 		 /// <returns>Returns the nested object casted to the type T</returns>
 		 public static T GetNestedObject<T>(string path, object obj, bool includeAllBases = false)
@@ -166,6 +292,11 @@
 			 }
  
 			 return allTypes;
+		 }
+
+		 public static string GetUniqueId(this SerializedProperty property)
+		 {
+			 return $"{property.serializedObject.targetObject.GetInstanceID().ToString()}{property.propertyPath}";
 		 }
 	 }
  }

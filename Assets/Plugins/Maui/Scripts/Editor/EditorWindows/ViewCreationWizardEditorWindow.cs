@@ -14,9 +14,8 @@ namespace Maui.Editor
 
 		private static readonly float WindowWidth = 600f;
 
-		private static readonly float WindowHeight = 6 * EditorGUIUtility.singleLineHeight +
-		                                             6 * EditorGUIUtility.standardVerticalSpacing +
-		                                             EditorGUIUtility.singleLineHeight / 2f;
+		private static readonly float WindowHeight = 7 * EditorGUIUtility.singleLineHeight
+		                                             + 6 * EditorGUIUtility.standardVerticalSpacing;
 
 		[SerializeField] private string @namespace;
 		[SerializeField] [TypeConstraint(typeof(IView))] private SerializableType supertype;
@@ -59,7 +58,7 @@ namespace Maui.Editor
 
 		public static void ShowWindow(Type supertype)
 		{
-			var window = (ViewCreationWizardEditorWindow)GetWindow(typeof(ViewCreationWizardEditorWindow));
+			var window = CreateInstance<ViewCreationWizardEditorWindow>();
 			
 			string saveDirectory = ProjectViewUtility.GetSelectedPathOrFallback();
 			
