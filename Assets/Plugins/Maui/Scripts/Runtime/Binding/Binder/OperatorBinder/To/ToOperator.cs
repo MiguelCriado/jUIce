@@ -20,7 +20,7 @@ namespace Maui
 		[SerializeField, DisableAtRuntime] private BindingType bindingType;
 		[SerializeField] private BindingInfo fromBinding = new BindingInfo(typeof(IReadOnlyObservableVariable<TFrom>));
 
-		private BindingProcessor<TFrom, TTo> bindingProcessor;
+		private IBindingProcessor bindingProcessor;
 
 		protected override void Reset()
 		{
@@ -56,23 +56,23 @@ namespace Maui
 
 		protected abstract TTo Convert(TFrom value);
 		
-		protected virtual BindingProcessor<TFrom, TTo> GetBindingProcessor(BindingType bindingType, BindingInfo fromBinding)
+		protected virtual IBindingProcessor GetBindingProcessor(BindingType bindingType, BindingInfo fromBinding)
 		{
-			BindingProcessor<TFrom, TTo> result = null;
+			IBindingProcessor result = null;
 			
 			switch (bindingType)
 			{
 				case BindingType.Variable:
-					result = new VariableBindingProcessor<TFrom, TTo>(fromBinding, this, Convert);
+					result = new ToVariableBindingProcessor<TFrom, TTo>(fromBinding, this, Convert);
 					break;
 				case BindingType.Collection:
-					result = new CollectionBindingProcessor<TFrom, TTo>(fromBinding, this, Convert);
+					result = new ToCollectionBindingProcessor<TFrom, TTo>(fromBinding, this, Convert);
 					break;
 				case BindingType.Command:
-					result = new CommandBindingProcessor<TFrom, TTo>(fromBinding, this, Convert);
+					result = new ToCommandBindingProcessor<TFrom, TTo>(fromBinding, this, Convert);
 					break;
 				case BindingType.Event:
-					result = new EventBindingProcessor<TFrom, TTo>(fromBinding, this, Convert);
+					result = new ToEventBindingProcessor<TFrom, TTo>(fromBinding, this, Convert);
 					break;
 			}
 
