@@ -31,7 +31,7 @@ namespace Maui
 
 		private void ContentBoundPropertyChangedHandler(object newValue)
 		{
-			inputField.text = newValue.ToString();
+			inputField.text = newValue != null ? newValue.ToString() : string.Empty;
 		}
 
 		protected override void OnEnable()
