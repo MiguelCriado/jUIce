@@ -4,16 +4,6 @@ using UnityEngine;
 
 namespace Maui
 {
-	public enum MathComparisonType
-	{
-		Equals,
-		NotEquals,
-		Greater,
-		GreaterOrEquals,
-		Less,
-		LessOrEquals
-	}
-	
 	public class FloatComparerCombineLatestOperator : ViewModelComponent, IViewModelInjector
 	{
 		public Type InjectionType => typeof(OperatorBinderVariableViewModel<bool>);
