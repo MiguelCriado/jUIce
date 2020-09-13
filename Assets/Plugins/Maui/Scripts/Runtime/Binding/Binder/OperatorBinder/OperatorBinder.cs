@@ -1,7 +1,13 @@
-﻿namespace Maui
+﻿using System;
+
+namespace Maui
 {
-	public class OperatorBinder
+	public abstract class OperatorBinder : ViewModelComponent, IViewModelInjector
 	{
+		public Type InjectionType => GetInjectionType();
+		public ViewModelComponent Target => this;
 		
+		protected abstract Type GetInjectionType();
+
 	}
 }

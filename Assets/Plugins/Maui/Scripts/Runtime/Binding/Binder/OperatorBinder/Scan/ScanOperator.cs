@@ -1,6 +1,6 @@
 ﻿namespace Maui.Scan
 {
-	public abstract class ScanOperator<T> : ToOperator<T, T>
+	public abstract class ScanOperator<T> : ProcessorOperatorBinder<T, T>
 	{
 		protected abstract T Scan(T value, T accumulatedValue);
 
@@ -27,11 +27,6 @@
 			}
 
 			return result;
-		}
-		
-		protected sealed override T Convert(T value)
-		{
-			return value;
 		}
 	}
 }
