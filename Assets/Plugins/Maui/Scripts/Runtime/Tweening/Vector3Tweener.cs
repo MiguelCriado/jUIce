@@ -6,9 +6,9 @@ namespace Maui.Tweening
 	{
 		protected override Interpolator<Vector3> Interpolator => interpolator;
 		
-		private Vector3Interpolator interpolator = new Vector3Interpolator();
+		private readonly Vector3Interpolator interpolator = new Vector3Interpolator();
 
-		public Vector3Tweener(Getter getter, Setter setter, Vector3 finalValue, float duration)
+		internal Vector3Tweener(Getter getter, Setter setter, Vector3 finalValue, float duration)
 			: base(getter, setter, finalValue, duration)
 		{
 			

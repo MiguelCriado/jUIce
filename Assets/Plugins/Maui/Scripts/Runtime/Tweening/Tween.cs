@@ -5,9 +5,8 @@ namespace Maui.Tweening
 {
 	public static class Tween
 	{
-		private static readonly HashSet<Tweener> aliveTweeners = new HashSet<Tweener>();
-		private static readonly List<Tweener> tweenersToRemove = new List<Tweener>();
-		
+		private static readonly HashSet<Tweener> AliveTweeners = new HashSet<Tweener>();
+		private static readonly List<Tweener> TweenersToRemove = new List<Tweener>();
 
 		static Tween()
 		{
@@ -44,28 +43,28 @@ namespace Maui.Tweening
 
 		private static void Update()
 		{
-			foreach (Tweener current in aliveTweeners)
+			foreach (Tweener current in AliveTweeners)
 			{
 				current.Update();
 			}
 
-			foreach (Tweener current in tweenersToRemove)
+			foreach (Tweener current in TweenersToRemove)
 			{
-				aliveTweeners.Remove(current);
+				AliveTweeners.Remove(current);
 			}
 			
-			tweenersToRemove.Clear();
+			TweenersToRemove.Clear();
 		}
 		
 		private static void RegisterTweenener(Tweener tweener)
 		{
-			aliveTweeners.Add(tweener);
+			AliveTweeners.Add(tweener);
 			tweener.Completed += () => TweenCompletedHandler(tweener);
 		}
 		
 		private static void TweenCompletedHandler(Tweener tweener)
 		{
-			tweenersToRemove.Add(tweener);
+			TweenersToRemove.Add(tweener);
 		}
 	}
 }

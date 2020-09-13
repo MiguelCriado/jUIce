@@ -6,9 +6,9 @@ namespace Maui.Tweening
 	{
 		protected override Interpolator<Color> Interpolator => interpolator;
 
-		private ColorInterpolator interpolator = new ColorInterpolator();
+		private readonly ColorInterpolator interpolator = new ColorInterpolator();
 
-		public ColorTweener(Getter getter, Setter setter, Color finalValue, float duration)
+		internal ColorTweener(Getter getter, Setter setter, Color finalValue, float duration)
 			: base(getter, setter, finalValue, duration)
 		{
 			
