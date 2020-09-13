@@ -14,6 +14,9 @@ namespace Maui
 	
 	public abstract class ProcessorOperatorBinder<TFrom, TTo> : OperatorBinder
 	{
+		protected virtual BindingType[] AllowedTypes => null; // All types allowed
+		
+		[AllowedBindingTypes(nameof(AllowedTypes))]
 		[SerializeField, DisableAtRuntime] private BindingType bindingType;
 		[SerializeField] private BindingInfo fromBinding = new BindingInfo(typeof(IReadOnlyObservableVariable<TFrom>));
 
