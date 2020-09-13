@@ -35,7 +35,7 @@ namespace Maui
 
 		private void Update()
 		{
-			while (actionQueue.Count > 0 && actionQueue.Peek().DueTime >= Time.realtimeSinceStartup)
+			while (actionQueue.Count > 0 && Time.realtimeSinceStartup >= actionQueue.Peek().DueTime)
 			{
 				actionQueue.Dequeue().Execute();
 			}
