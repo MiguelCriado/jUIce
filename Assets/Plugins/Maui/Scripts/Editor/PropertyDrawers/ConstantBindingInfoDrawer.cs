@@ -27,7 +27,7 @@ namespace Maui.Editor
 
 		private Rect DrawConstantToggle(Rect position, SerializedProperty property)
 		{
-			float toggleWidth = position.height;
+			float toggleWidth = EditorGUIUtility.singleLineHeight + 3;
 			Rect toggleRect = new Rect(position.min, new Vector2(toggleWidth, position.height));
 
 			SerializedProperty useConstantProp = property.FindPropertyRelative(UseConstantName);
