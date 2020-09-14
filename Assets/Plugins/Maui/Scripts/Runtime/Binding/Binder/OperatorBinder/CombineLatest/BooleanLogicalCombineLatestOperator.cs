@@ -13,7 +13,7 @@ namespace Maui
 
 		[SerializeField] private LogicalOperation operation;
 
-		protected override bool Combine(int triggerIndex, IReadOnlyList<bool> list)
+		protected override bool Process(int triggerIndex, IReadOnlyList<bool> list)
 		{
 			bool result = list[0];
 			int i = 1;
