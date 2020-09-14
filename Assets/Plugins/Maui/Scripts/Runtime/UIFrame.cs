@@ -8,20 +8,6 @@ namespace Maui
 {
 	public class UIFrame : MonoBehaviour
 	{
-		private class ViewEntry
-		{
-			public IView ViewPrefab;
-			public IView ViewInstance;
-			public int ReferenceCount;
-
-			public ViewEntry(IView viewPrefab, IView viewInstance)
-			{
-				ViewPrefab = viewPrefab;
-				ViewInstance = viewInstance;
-				ReferenceCount = 0;
-			}
-		}
-
 		public Canvas MainCanvas
 		{
 			get
@@ -46,7 +32,7 @@ namespace Maui
 		private WindowLayer windowLayer;
 		private GraphicRaycaster graphicRaycaster;
 
-		private Dictionary<Type, ViewEntry> registeredViews = new Dictionary<Type, ViewEntry>();
+		private Dictionary<Type, IView> registeredViews = new Dictionary<Type, IView>();
 
 		private void Reset()
 		{
@@ -96,20 +82,20 @@ namespace Maui
 			graphicRaycaster = MainCanvas.GetComponent<GraphicRaycaster>();
 		}
 
-		public void RegisterView<T>(T viewPrefab) where T : IView
+		public void RegisterView<T>(T view) where T : IView
 		{
-			if (IsPrefabValid(viewPrefab))
+			if (IsViewValid(view))
 			{
-				Type viewType = viewPrefab.GetType();
+				Type viewType = view.GetType();
 
 				if (typeof(IPanel).IsAssignableFrom(viewType))
 				{
-					IPanel viewAsPanel = viewPrefab as IPanel;
+					IPanel viewAsPanel = view as IPanel;
 					ProcessViewRegister(viewAsPanel, panelLayer);
 				}
 				else if (typeof(IWindow).IsAssignableFrom(viewType))
 				{
-					IWindow viewAsWindow = viewPrefab as IWindow;
+					IWindow viewAsWindow = view as IWindow;
 					ProcessViewRegister(viewAsWindow, windowLayer);
 				}
 				else
@@ -119,27 +105,25 @@ namespace Maui
 			}
 		}
 
-		public void DisposeView<T>(T viewPrefab) where T : IView
+		public void UnregisterView(Type viewType)
 		{
-			Type viewType = viewPrefab.GetType();
-
-			if (registeredViews.TryGetValue(viewType, out ViewEntry viewEntry)
-				&& viewEntry.ViewPrefab == (IView) viewPrefab)
+			if (registeredViews.TryGetValue(viewType, out IView view))
 			{
-				viewEntry.ReferenceCount--;
+				Component viewAsComponent = view as Component;
 
-				if (viewEntry.ReferenceCount <= 0)
+				if (viewAsComponent != null)
 				{
-					Component instanceAsComponent = viewEntry.ViewInstance as Component;
-
-					if (instanceAsComponent != null)
-					{
-						Destroy(instanceAsComponent.gameObject);
-					}
-
-					registeredViews.Remove(viewType);
+					viewAsComponent.gameObject.SetActive(false);
+					viewAsComponent.transform.SetParent(null);
 				}
+
+				registeredViews.Remove(viewType);
 			}
+		}
+		
+		public void UnregisterView<T>() where T : IView
+		{
+			UnregisterView(typeof(T));
 		}
 
 		public async Task ShowView<T>() where T : IView
@@ -198,12 +182,10 @@ namespace Maui
 
 		public bool IsViewRegistered<T>() where T : IView
 		{
-			Type viewType = typeof(T);
-
-			return registeredViews.ContainsKey(viewType);
+			return registeredViews.ContainsKey(typeof(T));
 		}
 
-		private bool IsPrefabValid(IView view)
+		private bool IsViewValid(IView view)
 		{
 			Component viewAsComponent = view as Component;
 
@@ -213,44 +195,23 @@ namespace Maui
 				return false;
 			}
 
-			if (IsPrefab(viewAsComponent.gameObject) == false)
+			if (registeredViews.ContainsKey(view.GetType()))
 			{
-				Debug.LogError($"{viewAsComponent.gameObject.name} must be a Prefab.");
-				return false;
-			}
-
-			if (registeredViews.TryGetValue(view.GetType(), out ViewEntry entry) && entry.ViewPrefab != view)
-			{
-				Debug.LogError($"{view.GetType().Name} already registered with a different Prefab.");
+				Debug.LogError($"{view.GetType().Name} already registered.");
 				return false;
 			}
 
 			return true;
 		}
 
-		private bool IsPrefab(GameObject gameObject)
+		private void ProcessViewRegister<T>(T view, BaseLayer<T> layer) where T : IView
 		{
-			return gameObject.scene.rootCount == 0;
-		}
-
-		private void ProcessViewRegister<T>(T viewPrefab, BaseLayer<T> layer) where T : IView
-		{
-			Type viewType = viewPrefab.GetType();
-			ViewEntry viewEntry;
-
-			if (registeredViews.TryGetValue(viewType, out viewEntry) == false)
-			{
-				Component prefabAsComponent = viewPrefab as Component;
-				Component viewInstance = Instantiate(prefabAsComponent, mainCanvas.transform);
-				viewInstance.gameObject.SetActive(false);
-				IView view = (IView) viewInstance;
-				viewEntry = new ViewEntry(viewPrefab, view);
-				layer.RegisterView((T)viewEntry.ViewInstance);
-				layer.ReparentView(view, viewInstance.transform);
-				registeredViews.Add(viewType, viewEntry);
-			}
-
-			viewEntry.ReferenceCount++;
+			Type viewType = view.GetType();
+			Component viewAsComponent = view as Component;
+			viewAsComponent.gameObject.SetActive(false);
+			layer.RegisterView(view);
+			layer.ReparentView(view, viewAsComponent.transform);
+			registeredViews.Add(viewType, view);
 		}
 
 		private void OnRequestViewBlock()
