@@ -4,8 +4,7 @@ using UnityEngine;
 
 namespace Maui
 {
-#pragma warning disable 4014
-	public class WindowLayer : BaseLayer<IWindow>
+	public class WindowLayer : Layer<IWindow>
 	{
 		public delegate void WindowLayerEventHandler();
 
@@ -199,7 +198,7 @@ namespace Maui
 			}
 			else if (CurrentWindow != null && CurrentWindow.HideOnForegroundLost && !windowEntry.View.IsPopup)
 			{
-				CurrentWindow.Hide();
+				CurrentWindow.Hide().RunAndForget();
 			}
 
 			windowHistory.Push(windowEntry);
@@ -262,5 +261,4 @@ namespace Maui
 			}
 		}
 	}
-#pragma warning restore 4014
 }

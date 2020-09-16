@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Maui
 {
-	public abstract class BaseLayer<T> : MonoBehaviour where T : IView
+	public abstract class Layer<T> : MonoBehaviour where T : IView
 	{
 		protected readonly Dictionary<Type, T> registeredViews = new Dictionary<Type, T>();
 

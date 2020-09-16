@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Maui
 {
-	public class PanelLayer : BaseLayer<IPanel>
+	public class PanelLayer : Layer<IPanel>
 	{
 		internal PanelPriorityLayerList PriorityLayers { get => priorityLayers; set => priorityLayers = value; }
 

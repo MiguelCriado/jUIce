@@ -204,7 +204,7 @@ namespace Maui
 			return true;
 		}
 
-		private void ProcessViewRegister<T>(T view, BaseLayer<T> layer) where T : IView
+		private void ProcessViewRegister<T>(T view, Layer<T> layer) where T : IView
 		{
 			Type viewType = view.GetType();
 			Component viewAsComponent = view as Component;

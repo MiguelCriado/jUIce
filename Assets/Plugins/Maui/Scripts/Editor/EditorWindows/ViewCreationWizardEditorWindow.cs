@@ -48,12 +48,12 @@ namespace Maui.Editor
 
 		public static void ShowForWindow()
 		{
-			ShowWindow(typeof(BaseWindow));
+			ShowWindow(typeof(Window));
 		}
 
 		public static void ShowForPanel()
 		{
-			ShowWindow(typeof(BasePanel));
+			ShowWindow(typeof(Panel));
 		}
 
 		public static void ShowWindow(Type supertype)

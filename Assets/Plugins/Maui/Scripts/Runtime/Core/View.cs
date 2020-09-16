@@ -6,7 +6,7 @@ namespace Maui
 {
 #pragma warning disable 0067
 	[RequireComponent(typeof(ViewModelComponent))]
-	public abstract class BaseView<T> : MonoBehaviour, IView, IViewModelInjector
+	public abstract class View<T> : MonoBehaviour, IView, IViewModelInjector
 		where T : IViewModel
 	{
 		public event ViewEventHandler InTransitionFinished;

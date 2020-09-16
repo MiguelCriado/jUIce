@@ -3,12 +3,12 @@ using UnityEngine;
 
 namespace Maui
 {
-	public abstract class BasePanel : BasePanel<IViewModel>
+	public abstract class Panel : Panel<IViewModel>
 	{
 
 	}
 
-	public abstract class BasePanel<T> : BaseView<T>, IPanel
+	public abstract class Panel<T> : View<T>, IPanel
 		where T : IViewModel
 	{
 		public PanelPriority Priority => priority;
