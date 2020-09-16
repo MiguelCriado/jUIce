@@ -92,7 +92,7 @@ namespace Maui.Editor
 		{
 			EditorGUI.BeginDisabledGroup(Application.isPlaying);
 
-			if (cache.CachedOptionIds.Length > 0)
+			if (cache.CachedOptionIds.Length > 1)
 			{
 				DrawPicker(position, property);
 			}
