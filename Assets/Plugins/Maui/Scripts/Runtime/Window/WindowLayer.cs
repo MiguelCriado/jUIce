@@ -15,9 +15,9 @@ namespace Maui
 
 		[SerializeField] private WindowParaLayer priorityParaLayer = null;
 
-		private Queue<WindowHistoryEntry> windowQueue = new Queue<WindowHistoryEntry>();
-		private Stack<WindowHistoryEntry> windowHistory = new Stack<WindowHistoryEntry>();
-		private HashSet<IView> viewsTransitioning = new HashSet<IView>();
+		private readonly Queue<WindowHistoryEntry> windowQueue = new Queue<WindowHistoryEntry>();
+		private readonly Stack<WindowHistoryEntry> windowHistory = new Stack<WindowHistoryEntry>();
+		private readonly HashSet<IView> viewsTransitioning = new HashSet<IView>();
 		private bool IsViewTransitionInProgress => viewsTransitioning.Count > 0;
 
 		protected virtual void OnEnable()
@@ -154,9 +154,8 @@ namespace Maui
 		private void OnOutAnimationFinished(IView controller)
 		{
 			RemoveTransition(controller);
-			IWindow window = controller as IWindow;
 
-			if (window.IsPopup)
+			if (controller is IWindow window && window.IsPopup)
 			{
 				priorityParaLayer.RefreshDarken();
 			}
@@ -164,14 +163,14 @@ namespace Maui
 
 		private void OnCloseRequestedByWindow(IView controller)
 		{
-			HideView(controller as IWindow);
+			HideView(controller as IWindow).RunAndForget();
 		}
 
 		private void PopupsShadowClicked()
 		{
 			if (CurrentWindow != null && CurrentWindow.IsPopup && CurrentWindow.CloseOnShadowClick)
 			{
-				HideView(CurrentWindow);
+				HideView(CurrentWindow).RunAndForget();
 			}
 		}
 
@@ -196,10 +195,6 @@ namespace Maui
 				                 " (eg: when implementing a warning message pop-up), it closes itself upon the player input" +
 				                 " that triggers the continuation of the flow.");
 			}
-			else if (CurrentWindow != null && CurrentWindow.HideOnForegroundLost && !windowEntry.View.IsPopup)
-			{
-				CurrentWindow.Hide().RunAndForget();
-			}
 
 			windowHistory.Push(windowEntry);
 			AddTransition(windowEntry.View);
@@ -210,6 +205,14 @@ namespace Maui
 			}
 
 			await windowEntry.Show();
+			
+			if (CurrentWindow != windowEntry.View
+			    && CurrentWindow != null
+			    && CurrentWindow.HideOnForegroundLost
+			    && !windowEntry.View.IsPopup)
+			{
+				CurrentWindow.Hide().RunAndForget();
+			}
 
 			CurrentWindow = windowEntry.View;
 		}
