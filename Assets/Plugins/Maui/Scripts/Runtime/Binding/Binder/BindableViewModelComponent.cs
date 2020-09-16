@@ -54,11 +54,6 @@ namespace Maui
 		{
 			if (ExpectedType != null)
 			{
-				if (ViewModel != null && ViewModel is ViewModel disposable)
-				{
-					disposable.Dispose();
-				}
-			
 				object viewModel = Activator.CreateInstance(ExpectedType, data);
 				ViewModel = (IViewModel)viewModel;
 			}

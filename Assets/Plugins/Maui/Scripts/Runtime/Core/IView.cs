@@ -16,7 +16,5 @@ namespace Maui
 		Task Show(IViewModel viewModel);
 
 		Task Hide(bool animate = true);
-
-		void DisposeViewModel();
 	}
 }

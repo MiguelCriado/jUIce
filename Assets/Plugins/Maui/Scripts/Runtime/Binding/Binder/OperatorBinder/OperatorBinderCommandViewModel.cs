@@ -1,6 +1,6 @@
 ﻿namespace Maui
 {
-	public class OperatorBinderCommandViewModel<T> : IViewModel
+	public class OperatorBinderCommandViewModel<T> : ViewModel
 	{
 		public IObservableCommand<T> Value { get; }
 

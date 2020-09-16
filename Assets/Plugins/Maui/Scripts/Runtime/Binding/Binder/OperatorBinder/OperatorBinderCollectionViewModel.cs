@@ -8,5 +8,15 @@
 		{
 			Value = value;
 		}
+
+		public void Enable()
+		{
+			
+		}
+
+		public void Disable()
+		{
+			
+		}
 	}
 }

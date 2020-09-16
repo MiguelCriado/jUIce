@@ -74,7 +74,6 @@ namespace Maui
 
 				await view.Hide();
 
-				view.DisposeViewModel();
 				CurrentWindow = null;
 
 				if (windowQueue.Count > 0)

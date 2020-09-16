@@ -14,7 +14,9 @@ namespace Maui
 			get => viewModel;
 			set
 			{
+				viewModel?.Disable();
 				viewModel = value;
+				viewModel?.Enable();
 				OnViewModelChanged();
 			}
 		}

@@ -1,43 +1,36 @@
-﻿using System;
-
-namespace Maui
+﻿namespace Maui
 {
-	public abstract class ViewModel : IViewModel, IDisposable
+	public abstract class ViewModel : IViewModel
 	{
-		private Action updateMethod;
+		public bool IsEnabled => isEnabled;
 		
-		~ViewModel()
+		private bool isEnabled;
+
+		public void Enable()
 		{
-			Dispose(false);
-		}
-		
-		public void Dispose()
-		{
-			Dispose(true);
-			GC.SuppressFinalize(this);
+			isEnabled = true;
+			LifecycleUtils.OnUpdate += Update;
 		}
 
-		protected void RegisterUpdateMethod(Action methodCallback)
+		public void Disable()
 		{
-			UnsubscribeUpdateMethod(updateMethod);
-			updateMethod = methodCallback;
-			LifecycleUtils.OnUpdate += updateMethod;
-		}
-		
-		private void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				UnsubscribeUpdateMethod(updateMethod);
-			}
+			LifecycleUtils.OnUpdate -= Update;
+			isEnabled = false;
 		}
 
-		private void UnsubscribeUpdateMethod(Action methodCallback)
+		protected virtual void OnEnable()
 		{
-			if (methodCallback != null)
-			{
-				LifecycleUtils.OnUpdate -= methodCallback;
-			}
+			
+		}
+
+		protected virtual void OnDisable()
+		{
+			
+		}
+
+		protected virtual void Update()
+		{
+			
 		}
 	}
 }
