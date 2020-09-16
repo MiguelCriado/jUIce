@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Maui
 {
-	public abstract class BaseTransition : MonoBehaviour
+	public abstract class Transition : MonoBehaviour
 	{
 		public abstract void PrepareForAnimation(Transform target);
 

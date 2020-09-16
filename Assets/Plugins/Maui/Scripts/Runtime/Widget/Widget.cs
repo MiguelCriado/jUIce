@@ -8,21 +8,21 @@ namespace Maui
 	{
 		public bool IsVisible { get; private set; }
 
-		public BaseTransition InTransition
+		public Transition InTransition
 		{
 			get => inTransition;
 			set => inTransition = value;
 		}
 
-		public BaseTransition OutTransition
+		public Transition OutTransition
 		{
 			get => outTransition;
 			set => outTransition = value;
 		}
 
 		[Header("Widget Animations")]
-		[SerializeField] private BaseTransition inTransition;
-		[SerializeField] private BaseTransition outTransition;
+		[SerializeField] private Transition inTransition;
+		[SerializeField] private Transition outTransition;
 
 		public async Task Show()
 		{
@@ -39,7 +39,7 @@ namespace Maui
 			gameObject.SetActive(false);
 		}
 
-		private async Task DoAnimation(BaseTransition targetTransition, bool isVisible)
+		private async Task DoAnimation(Transition targetTransition, bool isVisible)
 		{
 			if (targetTransition == null)
 			{

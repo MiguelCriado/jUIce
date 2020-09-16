@@ -17,13 +17,13 @@ namespace Maui
 		public bool IsVisible { get; private set; }
 		public IViewModel ViewModel => viewModel;
 
-		public BaseTransition InTransition
+		public Transition InTransition
 		{
 			get => inTransition;
 			set => inTransition = value;
 		}
 
-		public BaseTransition OutTransition
+		public Transition OutTransition
 		{
 			get => outTransition;
 			set => outTransition = value;
@@ -35,8 +35,8 @@ namespace Maui
 		[Header("Target ViewModel Component")]
 		[SerializeField] private ViewModelComponent targetComponent;
 		[Header("View Animations")]
-		[SerializeField] private BaseTransition inTransition;
-		[SerializeField] private BaseTransition outTransition;
+		[SerializeField] private Transition inTransition;
+		[SerializeField] private Transition outTransition;
 
 		protected T viewModel;
 
@@ -116,7 +116,7 @@ namespace Maui
 			OutTransitionFinished?.Invoke(this);
 		}
 
-		private async Task DoAnimation(BaseTransition targetTransition, bool isVisible)
+		private async Task DoAnimation(Transition targetTransition, bool isVisible)
 		{
 			if (targetTransition == null)
 			{
