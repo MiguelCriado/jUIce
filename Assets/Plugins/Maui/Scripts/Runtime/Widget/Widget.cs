@@ -1,12 +1,11 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Maui
 {
-	public class Widget : MonoBehaviour
+	public class Widget : MonoBehaviour, ITransitionable
 	{
-		public bool IsVisible { get; private set; }
+		public bool IsVisible => transitionHandler.IsVisible;
 
 		public Transition InTransition
 		{
@@ -24,45 +23,16 @@ namespace Maui
 		[SerializeField] private Transition inTransition;
 		[SerializeField] private Transition outTransition;
 
-		public async Task Show()
-		{
-			await DoAnimation(InTransition,true);
+		private readonly TransitionHandler transitionHandler = new TransitionHandler();
 
-			IsVisible = true;
+		public Task Show()
+		{
+			return transitionHandler.Show(gameObject, InTransition);
 		}
 
-		public async Task Hide()
+		public Task Hide()
 		{
-			await DoAnimation(OutTransition, false);
-
-			IsVisible = false;
-			gameObject.SetActive(false);
-		}
-
-		private async Task DoAnimation(Transition targetTransition, bool isVisible)
-		{
-			if (targetTransition == null)
-			{
-				gameObject.SetActive(isVisible);
-			}
-			else
-			{
-				if (isVisible && gameObject.activeSelf == false)
-				{
-					gameObject.SetActive(true);
-				}
-
-				targetTransition.PrepareForAnimation(transform);
-
-				try
-				{
-					await targetTransition.Animate(transform);
-				}
-				catch (Exception e)
-				{
-					Debug.LogError(e);
-				}
-			}
+			return transitionHandler.Hide(gameObject, OutTransition);
 		}
 	}
 }

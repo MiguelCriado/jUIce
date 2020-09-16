@@ -4,7 +4,6 @@ using UnityEngine;
 
 namespace Maui
 {
-#pragma warning disable 0067
 	[RequireComponent(typeof(ViewModelComponent))]
 	public abstract class View<T> : MonoBehaviour, IView, IViewModelInjector
 		where T : IViewModel
@@ -14,8 +13,8 @@ namespace Maui
 		public event ViewEventHandler CloseRequested;
 		public event ViewEventHandler ViewDestroyed;
 
-		public bool IsVisible { get; private set; }
-		public IViewModel ViewModel => viewModel;
+		public bool IsVisible => transitionHandler.IsVisible;
+		public IViewModel ViewModel => targetComponent != null ? targetComponent.ViewModel : null;
 
 		public Transition InTransition
 		{
@@ -37,8 +36,8 @@ namespace Maui
 		[Header("View Animations")]
 		[SerializeField] private Transition inTransition;
 		[SerializeField] private Transition outTransition;
-
-		protected T viewModel;
+		
+		private readonly TransitionHandler transitionHandler = new TransitionHandler();
 
 		protected void Reset()
 		{
@@ -67,9 +66,8 @@ namespace Maui
 			}
 			else
 			{
-				await DoAnimation(inTransition, true);
-
-				IsVisible = true;
+				await transitionHandler.Show(gameObject, InTransition);
+				
 				OnInTransitionFinished();
 			}
 		}
@@ -78,18 +76,14 @@ namespace Maui
 		{
 			OnHiding();
 
-			await DoAnimation(animate ? outTransition : null, false);
+			await transitionHandler.Hide(gameObject, animate ? outTransition : null);
 
-			IsVisible = false;
-			gameObject.SetActive(false);
 			SetViewModel(default);
 			OnOutTransitionFinished();
 		}
 
 		protected virtual void SetViewModel(T viewModel)
 		{
-			this.viewModel = viewModel;
-
 			if (targetComponent != null)
 			{
 				targetComponent.ViewModel = viewModel;
@@ -115,32 +109,5 @@ namespace Maui
 		{
 			OutTransitionFinished?.Invoke(this);
 		}
-
-		private async Task DoAnimation(Transition targetTransition, bool isVisible)
-		{
-			if (targetTransition == null)
-			{
-				gameObject.SetActive(isVisible);
-			}
-			else
-			{
-				if (isVisible && gameObject.activeSelf == false)
-				{
-					gameObject.SetActive(true);
-				}
-
-				targetTransition.PrepareForAnimation(transform);
-
-				try
-				{
-					await targetTransition.Animate(transform);
-				}
-				catch (Exception e)
-				{
-					Debug.LogError(e);
-				}
-			}
-		}
 	}
-#pragma warning disable 0067
 }
