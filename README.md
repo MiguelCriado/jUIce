@@ -22,7 +22,6 @@ Maui's view hierarchy is organized below a root element called the UIFrame. It c
 
 ## View
 There are two kinds of views in Maui: Windows and Panels. The main reason for this distinction is their overall behavior and conceptual meaning; windows are the focal element of information for the user and there can only be one of them focused at any given moment, whereas any number of panels can be open at the same time and alongside the current window so they work as containers for complementary info.
-*TODO*
 
 ### Window
 *TODO*
@@ -37,7 +36,75 @@ The view and the viewmodel communicate with each other through observable object
 *TODO*
 
 ## ViewModel
-*TODO*
+The `ViewModel` is some sort of _translator_ between your business model and the view. It holds all the data that the view requires in a simple and easy to consume format. 
+
+For that matter, it exposes Observable objects and keeps them up to date according to changes in the business model. Included in those observable objects, there could be `ObservableCommand`s, which are the way the View is able to communicate user driven events to the ViewModel so it can process them and update the model accordingly.
+
+The ViewModel is **not** a `MonoBehaviour`, meaning that it can be passed away between classes in the Maui system and it doesn't necessarily live on a concrete `GameObject`. 
+
+Creating a new ViewModel is straightforward. You can extend the `ViewModel` class, which already handles a couple of mechanism for you and allows your code to be easily attached to the game's update loop or react to some events during the ViewModel's lifecycle. 
+
+```csharp
+using Maui;
+
+public class MyViewModel : ViewModel
+{
+    public IReadonlyObservableVariable<float> MyVariable => myVariable;
+    public IObservableCommand MyCommand => myCommand;
+    public IObservableEvent MyEvent => myEvent;
+
+    private ObservableVariable<float> myVariable;
+    private ObservableCommand myCommand;
+    private ObservableEvent myEvent;
+
+    private MyModel model;
+
+    // You can freely use constructors
+    public MyViewModel(MyModel model)
+    {
+        myVariable = new ObservableVariable<float>(myModel.myVariable);
+
+        myCommand = new ObservableCommand();
+        myCommand.ExecuteRequested += OnMyCommandExecuteRequested;
+
+        myEvent = new ObservableEvent();
+
+        this.model = model;
+    }
+
+    // Called when the ViewModel starts being used
+    protected override void OnEnable()
+    {
+        model.NotifiedSomething += OnMyModelNotifiedSomething;
+    }
+
+    // Called when the ViewModel is put on hold and not used anymore
+    protected override void OnDisable()
+    {
+        model.NotifiedSomething -= OnMyModelNotifiedSomething;
+    }
+
+    // Update works as MonoBehaviour's Update method
+    protected override void Update()
+    {
+        myVariable.Value = model.myVariable;
+    }
+
+    private void OnMyCommandExecuteRequested()
+    {
+        model.DoSomething();
+    }
+
+    private void OnMyModelNotifiedSomething()
+    {
+        myEvent.Raise();
+    }
+}
+```
+
+You are free to create your ViewModel from scratch instead of extending `ViewModel`. The only restriction is that you need to implement the `IViewModel` interface for it to be used by the framework.
+
+It's worth mentioning that the ViewModel is the entry point for everything that's gonna happen in the View so it is a good idea to keep it as simple and as clean as possible. Of course, you should always keep in mind that the ViewModel is not responsible for anything related to the way the View is displaying its data. It should only provide data, not styles or behaviours. 
 
 ## Bindings
 *TODO*
