@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Maui
 {
-	[RequireComponent(typeof(ViewModelComponent))]
+	[RequireComponent(typeof(ViewModelComponent), typeof(RectTransform))]
 	public abstract class View<T> : MonoBehaviour, IView, IViewModelInjector
 		where T : IViewModel
 	{
@@ -39,9 +39,16 @@ namespace Maui
 		
 		private readonly TransitionHandler transitionHandler = new TransitionHandler();
 
-		protected void Reset()
+		private RectTransform rectTransform;
+
+		protected virtual void Reset()
 		{
 			targetComponent = GetComponentInChildren<ViewModelComponent>();
+		}
+
+		protected virtual void Awake()
+		{
+			rectTransform = GetComponent<RectTransform>();
 		}
 
 		public async Task Show(IViewModel viewModel)
@@ -66,7 +73,7 @@ namespace Maui
 			}
 			else
 			{
-				await transitionHandler.Show(gameObject, InTransition);
+				await transitionHandler.Show(rectTransform, InTransition);
 				
 				OnInTransitionFinished();
 			}
@@ -76,7 +83,7 @@ namespace Maui
 		{
 			OnHiding();
 
-			await transitionHandler.Hide(gameObject, animate ? outTransition : null);
+			await transitionHandler.Hide(rectTransform, animate ? outTransition : null);
 
 			SetViewModel(default);
 			OnOutTransitionFinished();

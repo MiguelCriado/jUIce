@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace Maui
 {
+	[RequireComponent(typeof(RectTransform))]
 	public class Widget : MonoBehaviour, ITransitionable
 	{
 		public bool IsVisible => transitionHandler.IsVisible;
@@ -24,15 +25,21 @@ namespace Maui
 		[SerializeField] private Transition outTransition;
 
 		private readonly TransitionHandler transitionHandler = new TransitionHandler();
+		private RectTransform rectTransform;
+
+		protected virtual void Awake()
+		{
+			rectTransform = GetComponent<RectTransform>();
+		}
 
 		public Task Show()
 		{
-			return transitionHandler.Show(gameObject, InTransition);
+			return transitionHandler.Show(rectTransform, InTransition);
 		}
 
 		public Task Hide()
 		{
-			return transitionHandler.Hide(gameObject, OutTransition);
+			return transitionHandler.Hide(rectTransform, OutTransition);
 		}
 	}
 }

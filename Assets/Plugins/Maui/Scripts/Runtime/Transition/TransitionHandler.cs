@@ -8,39 +8,39 @@ namespace Maui
 	{
 		public bool IsVisible { get; private set; }
 
-		public async Task Show(GameObject target, Transition transition)
+		public async Task Show(RectTransform target, Transition transition)
 		{
 			await DoAnimation(target, transition,true);
 
 			IsVisible = true;
 		}
 
-		public async Task Hide(GameObject target, Transition transition)
+		public async Task Hide(RectTransform target, Transition transition)
 		{
 			await DoAnimation(target, transition, false);
 
 			IsVisible = false;
-			target.SetActive(false);
+			target.gameObject.SetActive(false);
 		}
 
-		private async Task DoAnimation(GameObject target, Transition transition, bool isVisible)
+		private async Task DoAnimation(RectTransform target, Transition transition, bool isVisible)
 		{
 			if (transition == null)
 			{
-				target.SetActive(isVisible);
+				target.gameObject.SetActive(isVisible);
 			}
 			else
 			{
-				if (isVisible && target.activeSelf == false)
+				if (isVisible && target.gameObject.activeSelf == false)
 				{
-					target.SetActive(true);
+					target.gameObject.SetActive(true);
 				}
 
-				transition.PrepareForAnimation(target.transform);
+				transition.PrepareForAnimation(target);
 
 				try
 				{
-					await transition.Animate(target.transform);
+					await transition.Animate(target);
 				}
 				catch (Exception e)
 				{
