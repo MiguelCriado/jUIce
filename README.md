@@ -32,8 +32,29 @@ There are two kinds of views in Maui: Windows and Panels. The main reason for th
 ## Observables
 The observable family is the bread and butter of Maui. They act as the glue that keeps everything interconnected.
 
-The view and the viewmodel communicate with each other through observable objects. These classes have mechanisms to automatically notify observers about changes in their internal state. 
-*TODO*
+The View and the ViewModel communicate with each other through observable objects. These classes have mechanisms to automatically notify observers about changes in their internal state.
+
+There are four members in the observable family, each of them intended for a particular need in the system. 
+
+### ObservableVariable
+This is the battle horse of the whole system; one of the simpler and most useful of all the members of the family. It just wraps a variable and notifies when its value changes. It's worth noting that it won't raise a change event when its `.Value` is set with the same value that is already stored.
+
+### ObservableCollection
+It represents a collection or a list of elements of the same type. You'll find all operations that you'd expect for a regular `List<T>`, and it'll notify a particular event for each of them.
+
+The `ObservableCollection` grants you a lot of control when dealing with collections of data and provides an extensive pool of relevant information about the events that take place for those entities listening for changes in its contents.
+
+### ObservableCommand
+The `ObservableCommand` is the channel through which the view can communicate with the ViewModel when the user performs an action with the intention to change the underlying model.
+
+In addition to an `.Execute()` method to request an action by the ViewModel, it also exposes an `ObservableVariable<bool>` that tells the requester whether said action can be performed or not in this particular moment. This is really useful to give the user feedback about the available actions they have at their disposal, by greying out buttons when `.CanExecute.Value` is `false`, for example.
+
+There are two versions of `ObservableCommand`, one of them with a generic parameter `T`, so you can add some information about the requested action.
+
+### ObservableEvent
+The last member of the family and the most obvious of them all. An `ObservableEvent` is just... and event; something that takes place in a particular moment and which value (if any) is not supposed to be stored to be consulted in the future. 
+
+Like the `ObservableCommand`, the event has a generic version that can be used to supply additional information about the observed happening.
 
 ## ViewModel
 The `ViewModel` is some sort of _translator_ between your business model and the view. It holds all the data that the view requires in a simple and easy to consume format. 
@@ -42,7 +63,7 @@ For that matter, it exposes Observable objects and keeps them up to date accordi
 
 The ViewModel is **not** a `MonoBehaviour`, meaning that it can be passed away between classes in the Maui system and it doesn't necessarily live on a concrete `GameObject`. 
 
-Creating a new ViewModel is straightforward. You can extend the `ViewModel` class, which already handles a couple of mechanism for you and allows your code to be easily attached to the game's update loop or react to some events during the ViewModel's lifecycle. 
+Creating a new ViewModel is pretty straightforward. You can extend the `ViewModel` class, which already handles a couple of mechanism for you and allows your code to be easily attached to the game's update loop or react to some events during the ViewModel's lifecycle. 
 
 ```csharp
 using Maui;
