@@ -10,17 +10,24 @@ namespace Maui
 
 		public async Task Show(RectTransform target, Transition transition)
 		{
-			await DoAnimation(target, transition,true);
+			if (IsVisible == false)
+			{
+				IsVisible = true;
 
-			IsVisible = true;
+				await DoAnimation(target, transition,true);
+			}
 		}
 
 		public async Task Hide(RectTransform target, Transition transition)
 		{
-			await DoAnimation(target, transition, false);
-
-			IsVisible = false;
-			target.gameObject.SetActive(false);
+			if (IsVisible)
+			{
+				IsVisible = false;
+				
+				await DoAnimation(target, transition, false);
+				
+				target.gameObject.SetActive(false);
+			}
 		}
 
 		private async Task DoAnimation(RectTransform target, Transition transition, bool isVisible)
