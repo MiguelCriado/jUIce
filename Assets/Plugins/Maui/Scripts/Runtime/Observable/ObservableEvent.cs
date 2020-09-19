@@ -6,10 +6,10 @@
 
 		public void Raise()
 		{
-			OnTriggered();
+			OnRaised();
 		}
 
-		protected virtual void OnTriggered()
+		protected virtual void OnRaised()
 		{
 			Raised?.Invoke();
 		}
@@ -21,10 +21,10 @@
 
 		public void Raise(T value)
 		{
-			OnTriggered(value);
+			OnRaised(value);
 		}
 
-		protected virtual void OnTriggered(T value)
+		protected virtual void OnRaised(T value)
 		{
 			Raised?.Invoke(value);
 		}
