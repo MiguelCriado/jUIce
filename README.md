@@ -1,5 +1,5 @@
 # Maui
-Maui is a framework built on top of Unity's uGui solution. It provides a series of systems and guidelines to boost your UI development within Unity.
+Maui is a framework built on top of [Unity's uGui](https://docs.unity3d.com/Packages/com.unity.ugui@1.0/manual/index.html) solution. It provides a series of systems and guidelines to boost your runtime UI development within Unity.
 
 This project is based on the amazing [deVoid UI Framework](https://github.com/yankooliveira/uiframework) by Yanko Oliveira. 
 
@@ -128,7 +128,21 @@ You are free to create your ViewModel from scratch instead of extending `ViewMod
 It's worth mentioning that the ViewModel is the entry point for everything that's gonna happen in the View so it is a good idea to keep it as simple and as clean as possible. Of course, you should always keep in mind that the ViewModel is not responsible for anything related to the way the View is displaying its data. It should only provide data, not styles or behaviours. 
 
 ## Bindings
-*TODO*
+Bindings are the last link the framework chain. They are responsible of providing updated information about changes in the ViewModel to the Unity Components that use them.
+
+There are matching binders for every member of the observable family and some other elements to ease development and displaying the information in the Editor.
+
+### Binders
+Binders are the actual components (`MonoBehaviour`s) that operate over a Unity `Component` so the View can reflect the internal state of the ViewModel.
+
+Maui includes many binders for uGui's components as well as some other collections that let your UI objects react to changes on the ViewModel.
+
+### OperatorBinders
+These are a special kind of binders. Binders that can process one or more values from the ViewModel and expose a derived value based on its input. 
+
+This mechanism grants Maui an important expressive power, allowing the designers to mix and match properties to create their own to fit the requirements of the View. Remember that the View can (and will) constantly change as the project grows and evolves, and having a clear and strict separation between the ViewModel (the data to be displayed) and the View (how is that data displayed) is a guarantee for a more agile development process.
+
+OperatorBinders are heavily inspired by [ReactiveX](http://reactivex.io/documentation/operators.html) operators, so you can expect to find many of the most valuable operations from that library. 
 
 ## Best Practices
 *TODO*
