@@ -8,6 +8,5 @@ namespace Maui
 		public ViewModelComponent Target => this;
 		
 		protected abstract Type GetInjectionType();
-
 	}
 }
