@@ -23,19 +23,19 @@ namespace Maui
 			Canvas mainCanvas = CreateCanvas(camera);
 			mainCanvas.transform.SetParent(uiFrame.transform);
 
+			PanelLayer panelLayer = CreatePanelLayer();
+			panelLayer.transform.SetParent(mainCanvas.transform, false);
+			
 			WindowLayer windowLayer = CreateWindowLayer();
 			windowLayer.transform.SetParent(mainCanvas.transform, false);
 
-			PanelLayer panelLayer = CreatePanelLayer();
-			panelLayer.transform.SetParent(mainCanvas.transform, false);
+			GameObject priorityPanelLayer = CreateUIObject("Priority Panel Layer");
+			priorityPanelLayer.transform.SetParent(mainCanvas.transform, false);
 
 			WindowParaLayer priorityWindowLayer = CreatePriorityWindowLayer();
 			priorityWindowLayer.transform.SetParent(mainCanvas.transform, false);
 			windowLayer.SetPriorityWindow(priorityWindowLayer);
-
-			GameObject prioritaryPanelLayer = CreateUIObject("Prioritary Panel Layer");
-			prioritaryPanelLayer.transform.SetParent(mainCanvas.transform, false);
-
+			
 			GameObject tutorialPanelLayer = CreateUIObject("Tutorial Panel Layer");
 			tutorialPanelLayer.transform.SetParent(mainCanvas.transform, false);
 
@@ -44,7 +44,7 @@ namespace Maui
 
 			panelLayer.PriorityLayers = new PanelPriorityLayerList(new List<PanelPriorityLayerListEntry>()
 			{
-				new PanelPriorityLayerListEntry(PanelPriority.Prioritary, prioritaryPanelLayer.transform),
+				new PanelPriorityLayerListEntry(PanelPriority.Prioritary, priorityPanelLayer.transform),
 				new PanelPriorityLayerListEntry(PanelPriority.Tutorial, tutorialPanelLayer.transform),
 				new PanelPriorityLayerListEntry(PanelPriority.Blocker, blockerPanelLayer.transform)
 			});

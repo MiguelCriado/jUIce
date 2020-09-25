@@ -69,7 +69,6 @@ namespace Maui.Tweening
 		private T finalValue;
 		private float duration;
 		private float initialTime;
-		private float elapsedTime;
 
 		internal Tweener(Getter getter, Setter setter, T finalValue, float duration)
 		{
