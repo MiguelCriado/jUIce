@@ -1,12 +1,14 @@
 # Maui
 Maui is a framework built on top of [Unity's uGui](https://docs.unity3d.com/Packages/com.unity.ugui@1.0/manual/index.html) solution. It provides a series of systems and guidelines to boost your runtime UI development within Unity.
 
+It aims to split the UI workflow into two distinct phases: technical and stylistic. This means that programmers and designers can cooperate together to achieve the final version of the UI. What this also means is that Maui requires some technical insight to be used; you'll need to code your ViewModels.
+
 This project is based on the amazing [deVoid UI Framework](https://github.com/yankooliveira/uiframework) by Yanko Oliveira. 
 
 ## Framework's Philosophy
 The framework encourages a [Model-View-ViewModel](https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93viewmodel) approach, splitting the main concerns of any UI piece into a couple of classes that interoperate together.
 
-![Model-View-ViewModel](https://user-images.githubusercontent.com/3226755/79693197-8ef7c180-8269-11ea-8e05-f01ad7d0d39a.png)
+![MVVM diagram](https://user-images.githubusercontent.com/3226755/94297948-9f713e00-ff65-11ea-9dce-f44bbef708a6.png)
 
 * The **model** is any raw data that your game should display to the user. It could be player status, enemies status, systems information, configuration, etc.
 
@@ -18,16 +20,73 @@ Maui contains some base classes and systems that implement this pattern to let y
 
 ## UIFrame
 Maui's view hierarchy is organized below a root element called the UIFrame. It contains a series of layers to sort your views based in certain rules and acts as the service to handle the views' visibility. Before opening any view, it needs to be registered in the UIFrame.
-*TODO*
+
+```csharp
+using Maui;
+
+public class ViewController
+{
+    [SerializeField] private UIFrame uiFrame;
+    [SerializeField] private MyView myView;
+
+    private void Start()
+    {
+        // A view needs to be registered before being shown
+        uiFrame.Register<MyView>(myView);
+    }
+
+    private void Update()
+    {
+        if (Input.KeyDown(KeyCode.Escape))
+        {
+            if (myView.IsVisible)
+            {
+                uiFrame.Hide<MyView>();
+            }
+            else
+            {
+                uiFrame.Show<MyView>(new MyViewModel());
+            }
+        }
+    }
+}
+```
+
+Your typical UIFrame will contain a set of layers that will define the order in which your views will be sorted. 
+
+The default layer stack that Maui can automatically build for you would be something like this:
+1. **Panel Layer** (Panels with no priority, usually HUD elements)
+2. **Window Layer** (Regular windows)
+3. **Priority Panel Layer** (Panels set to `Prioritary`)
+4. **Priority Window Layer** (Popups)
+5. **Tutorial Panel Layer** (To overlay your UI with tutorial elements)
+6. **Blocker Layer** (Highest priority windows, like loading screens or connectivity issues displayers)
+
+Keep in mind that this is the default hierarchy. It should be enough for most of the games but you are free to arrange it in some other order or even create your custom layers to fit your game needs.
 
 ## View
 There are two kinds of views in Maui: Windows and Panels. The main reason for this distinction is their overall behavior and conceptual meaning; windows are the focal element of information for the user and there can only be one of them focused at any given moment, whereas any number of panels can be open at the same time and alongside the current window so they work as containers for complementary info.
 
 ### Window
-*TODO*
+A window is the focal element of UI information at any given time (if any). They usually take up all the space available in the screen and, therefore, only one of them can be focused in a particular moment.
+
+According to their behavior, there are two kinds of window: regular and popup. 
+
+A **regular window** is stored in the history stack and will be automatically shown again with the same ViewModel when the next window is closed. 
+
+A **popup**, on the other hand, is a volatile kind of window that is supposed to be shown over the current displayed views (both windows and panels), which is discarded after being closed. 
+
+Both of them can be enqueued so they are shown in order when the previous one is closed. 
 
 ### Panel
-*TODO*
+A panel is a block of UI information which is not bound to any particular window. There can be as many panels shown at the same time as your game needs and, because of that, they usually contain complementary information that can outlive windows after they are hidden.
+
+## Transitions
+A UI without subtle animations is like a muffin without topping. You'll want your views to be animated when they transition into a visible or invisible state. That's achieved with `Transition`s.
+
+Transitions are `Component`s that can be attached to any `View` in order to define how will it behave when a `Show` or `Hide` operation is requested on it. `InTransition` and `OutTransition` are independent fields in the `View`'s editor, so you can set different behaviors based on the direction of the transition. If no transition is set for a particular operation, the View's GameObject will be just activated/deactivated when requested.  
+
+There is a set of common transitions already included in Maui's codebase, but you can create your own if there's none that satisfy your UI/UX requirements.  
 
 ## Observables
 The observable family is the bread and butter of Maui. They act as the glue that keeps everything interconnected.
@@ -140,7 +199,7 @@ Maui includes many binders for uGui's components as well as some other collectio
 ### OperatorBinders
 These are a special kind of binders. Binders that can process one or more values from the ViewModel and expose a derived value based on its input. 
 
-This mechanism grants Maui an important expressive power, allowing the designers to mix and match properties to create their own to fit the requirements of the View. Remember that the View can (and will) constantly change as the project grows and evolves, and having a clear and strict separation between the ViewModel (the data to be displayed) and the View (how is that data displayed) is a guarantee for a more agile development process.
+This mechanism grants Maui an important expressive power, allowing the designers and UI artists to mix and match properties to create their own to fit the requirements of the View. Remember that the View can (and will) constantly change as the project grows and evolves, and having a clear and strict separation between the ViewModel (the data to be displayed) and the View (how is that data displayed) is a guarantee for a more agile development process.
 
 OperatorBinders are heavily inspired by [ReactiveX](http://reactivex.io/documentation/operators.html) operators, so you can expect to find many of the most valuable operations from that library. 
 
