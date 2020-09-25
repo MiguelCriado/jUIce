@@ -13,6 +13,7 @@ namespace Maui
 
 		public override void PrepareForAnimation(RectTransform target)
 		{
+			Tween.Kill(target);
 			target.anchoredPosition = anchoredOrigin;
 		}
 
@@ -20,13 +21,9 @@ namespace Maui
 		{
 			bool isTweenDone = false;
 
-			Tween.To(
-					() => target.anchoredPosition,
-					x => target.anchoredPosition = x,
-					anchoredDestiny,
-					duration)
+			target.TweenAnchoredPosition(anchoredDestiny, duration)
 				.SetEase(ease)
-				.Completed += () => isTweenDone = true;
+				.Completed += t => isTweenDone = true;
 
 			while (isTweenDone == false)
 			{

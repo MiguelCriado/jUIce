@@ -1,4 +1,5 @@
-﻿using Maui.Tweening;
+﻿using System;
+using Maui.Tweening;
 using UnityEngine;
 
 namespace Maui
@@ -9,6 +10,8 @@ namespace Maui
 		
 		private readonly BuildTweener tweenBuilder;
 		
+		private Tweener lastTweener;
+		
 		public TweenVariableBindingProcessor(BindingInfo bindingInfo, Component context, BuildTweener tweenBuilder)
 			: base(bindingInfo, context)
 		{
@@ -17,7 +20,8 @@ namespace Maui
 
 		protected override void BoundVariableChangedHandler(T newValue)
 		{
-			tweenBuilder(() => processedVariable.Value, x => processedVariable.Value = x, newValue);
+			lastTweener?.Kill();
+			lastTweener = tweenBuilder(() => processedVariable.Value, x => processedVariable.Value = x, newValue);
 		}
 
 		protected override T ProcessValue(T value)

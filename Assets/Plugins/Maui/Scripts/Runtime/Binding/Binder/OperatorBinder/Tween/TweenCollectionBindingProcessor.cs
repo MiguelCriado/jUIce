@@ -8,6 +8,8 @@ namespace Maui
 		public delegate Tweener BuildTweener(Tweener<T>.Getter getter, Tweener<T>.Setter setter, T finalValue);
 		
 		private readonly BuildTweener tweenBuilder;
+
+		private Tweener lastTweener;
 		
 		public TweenCollectionBindingProcessor(BindingInfo bindingInfo, Component context, BuildTweener tweenBuilder)
 			: base(bindingInfo, context)
@@ -22,7 +24,8 @@ namespace Maui
 
 		protected override void BoundCollectionItemReplacedHandler(int index, T oldValue, T newValue)
 		{
-			tweenBuilder(() => processedCollection[index], x => processedCollection[index] = x, newValue);
+			lastTweener?.Kill();
+			lastTweener = tweenBuilder(() => processedCollection[index], x => processedCollection[index] = x, newValue);
 		}
 	}
 }

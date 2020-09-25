@@ -16,17 +16,19 @@ namespace Maui
 		[SerializeField] private FadeType fadeType = FadeType.In;
 		[SerializeField] private float duration = 0.3f;
 		[SerializeField] private Ease ease = Ease.InOutSine;
-		
-		
+
 		public override void PrepareForAnimation(RectTransform target)
 		{
+			CanvasGroup canvasGroup = target.GetOrAddComponent<CanvasGroup>();
+			Tween.Kill(canvasGroup);
+			
 			if (fadeType == FadeType.In)
 			{
-				target.GetOrAddComponent<CanvasGroup>().alpha = 0;
+				canvasGroup.alpha = 0;
 			}
 			else
 			{
-				target.GetOrAddComponent<CanvasGroup>().alpha = 1;
+				canvasGroup.alpha = 1;
 			}
 		}
 
@@ -36,13 +38,9 @@ namespace Maui
 			CanvasGroup canvasGroup = target.GetOrAddComponent<CanvasGroup>();
 			bool isTweenDone = false;
 
-			Tween.To(() => 
-					canvasGroup.alpha,
-					x => canvasGroup.alpha = x,
-					valueTarget,
-					duration)
+			canvasGroup.Fade(valueTarget, duration)
 				.SetEase(ease)
-				.Completed += () => isTweenDone = true;
+				.Completed += t => isTweenDone = true;
 
 			while (isTweenDone == false)
 			{

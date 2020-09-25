@@ -13,6 +13,7 @@ namespace Maui
 
 		public override void PrepareForAnimation(RectTransform target)
 		{
+			Tween.Kill(target);
 			target.localScale = origin;
 		}
 
@@ -20,13 +21,9 @@ namespace Maui
 		{
 			bool isTweenDone = false;
 
-			Tween.To(
-					() => target.localScale,
-					x => target.localScale = x,
-					destiny,
-					duration)
+			target.TweenLocalScale(destiny, duration)
 				.SetEase(ease)
-				.Completed += () => isTweenDone = true;
+				.Completed += t => isTweenDone = true;
 
 			while (isTweenDone == false)
 			{
