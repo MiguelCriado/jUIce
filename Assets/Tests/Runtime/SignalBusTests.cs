@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using FluentAssertions;
 using NUnit.Framework;
 using UnityEngine.TestTools;
 
@@ -11,23 +12,19 @@ namespace Maui.Tests
 
 		}
 
-		[UnityTest]
-		public IEnumerable Default_AccessingDefaultInstance_DefaultInstanceIsCreated()
+		[Test]
+		public void Default_AccessingDefaultInstance_DefaultInstanceIsCreated()
 		{
-			Assert.IsNotNull(SignalBus.Default);
-
-			yield return null;
+			SignalBus.Default.Should().NotBeNull();
 		}
 
-		[UnityTest]
-		public IEnumerable Default_AccessingDefaultInstanceMultipleTimes_InstanceIsTheSame()
+		[Test]
+		public void Default_AccessingDefaultInstanceMultipleTimes_InstanceIsTheSame()
 		{
 			SignalBus busA = SignalBus.Default;
 			SignalBus busB = SignalBus.Default;
 
-			Assert.IsTrue(busA.Equals(busB));
-
-			yield return null;
+			busA.Should().BeSameAs(busB);
 		}
 
 		[UnityTest]

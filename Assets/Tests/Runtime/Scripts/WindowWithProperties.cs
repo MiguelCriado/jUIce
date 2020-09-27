@@ -1,6 +1,6 @@
 ﻿namespace Maui.Tests
 {
-	public class WindowWithProperties : BaseWindow<IViewModel>
+	public class WindowWithProperties : Window<IViewModel>
 	{
 
 	}

@@ -23,8 +23,9 @@ Maui's view hierarchy is organized below a root element called the UIFrame. It c
 
 ```csharp
 using Maui;
+using UnityEngine;
 
-public class ViewController
+public class ViewController : MonoBehaviour
 {
     [SerializeField] private UIFrame uiFrame;
     [SerializeField] private MyView myView;

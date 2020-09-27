@@ -80,8 +80,9 @@ namespace Maui.Tests
 		{
 			uiFrame.Initialize();
 			PanelA panelAPrefab = AssetDatabase.LoadAssetAtPath<PanelA>(PanelAPath);
+			PanelA panelInstance = Object.Instantiate(panelAPrefab);
 
-			uiFrame.RegisterView(panelAPrefab);
+			uiFrame.RegisterView(panelInstance);
 
 			Assert.IsTrue(uiFrame.IsViewRegistered<PanelA>());
 			yield return null;
@@ -92,53 +93,10 @@ namespace Maui.Tests
 		{
 			uiFrame.Initialize();
 			PanelA panelAPrefab = AssetDatabase.LoadAssetAtPath<PanelA>(PanelAPath);
+			PanelA panelInstance = Object.Instantiate(panelAPrefab);
 
-			uiFrame.RegisterView(panelAPrefab);
-			uiFrame.DisposeView(panelAPrefab);
-
-			Assert.IsFalse(uiFrame.IsViewRegistered<PanelA>());
-			yield return null;
-		}
-
-		[UnityTest]
-		public IEnumerator _08_PanelIsDestroyedOnDispose()
-		{
-			uiFrame.Initialize();
-			PanelA panelAPrefab = AssetDatabase.LoadAssetAtPath<PanelA>(PanelAPath);
-
-			uiFrame.RegisterView(panelAPrefab);
-			PanelA panelInstance = uiFrame.GetComponentInChildren<PanelA>(true);
-			GameObject panelObject = panelInstance.gameObject;
-			uiFrame.DisposeView(panelAPrefab);
-
-			yield return null;
-			Assert.IsTrue(panelObject == null);
-		}
-
-		[UnityTest]
-		public IEnumerator _09_PanelRegistrationKeptWhenMultipleReferencesAfterDispose()
-		{
-			uiFrame.Initialize();
-			PanelA panelAPrefab = AssetDatabase.LoadAssetAtPath<PanelA>(PanelAPath);
-
-			uiFrame.RegisterView(panelAPrefab);
-			uiFrame.RegisterView(panelAPrefab);
-			uiFrame.DisposeView(panelAPrefab);
-
-			Assert.IsTrue(uiFrame.IsViewRegistered<PanelA>());
-			yield return null;
-		}
-
-		[UnityTest]
-		public IEnumerator _10_PanelRegistrationLostWhenMultipleReferencesAfterMultipleDisposes()
-		{
-			uiFrame.Initialize();
-			PanelA panelAPrefab = AssetDatabase.LoadAssetAtPath<PanelA>(PanelAPath);
-
-			uiFrame.RegisterView(panelAPrefab);
-			uiFrame.RegisterView(panelAPrefab);
-			uiFrame.DisposeView(panelAPrefab);
-			uiFrame.DisposeView(panelAPrefab);
+			uiFrame.RegisterView(panelInstance);
+			uiFrame.UnregisterView(panelInstance.GetType());
 
 			Assert.IsFalse(uiFrame.IsViewRegistered<PanelA>());
 			yield return null;
@@ -149,8 +107,9 @@ namespace Maui.Tests
 		{
 			uiFrame.Initialize();
 			WindowWithProperties windowPrefab = AssetDatabase.LoadAssetAtPath<WindowWithProperties>(WindowWithPropertiesPath);
-
-			uiFrame.RegisterView(windowPrefab);
+			WindowWithProperties windowInstance = Object.Instantiate(windowPrefab);
+			
+			uiFrame.RegisterView(windowInstance);
 
 			Assert.IsTrue(uiFrame.IsViewRegistered<WindowWithProperties>());
 			yield return null;
@@ -162,8 +121,8 @@ namespace Maui.Tests
 			bool isPanelShown = false;
 			uiFrame.Initialize();
 			PanelA panelAPrefab = AssetDatabase.LoadAssetAtPath<PanelA>(PanelAPath);
-			uiFrame.RegisterView(panelAPrefab);
-			PanelA panelAInstance = uiFrame.GetComponentInChildren<PanelA>(true);
+			PanelA panelAInstance = Object.Instantiate(panelAPrefab);
+			uiFrame.RegisterView(panelAInstance);
 
 			async void ShowPanel()
 			{
@@ -185,9 +144,9 @@ namespace Maui.Tests
 			bool isPanelShown = false;
 			uiFrame.Initialize();
 			PanelA panelAPrefab = AssetDatabase.LoadAssetAtPath<PanelA>(PanelAPath);
-			uiFrame.RegisterView(panelAPrefab);
-			PanelA panelAInstance = uiFrame.GetComponentInChildren<PanelA>(true);
-
+			PanelA panelAInstance = Object.Instantiate(panelAPrefab);
+			uiFrame.RegisterView(panelAInstance);
+			
 			async void ShowPanel()
 			{
 				await uiFrame.ShowView<PanelA>();
@@ -207,7 +166,8 @@ namespace Maui.Tests
 		{
 			uiFrame.Initialize();
 			WindowWithProperties windowPrefab = AssetDatabase.LoadAssetAtPath<WindowWithProperties>(WindowWithPropertiesPath);
-			uiFrame.RegisterView(windowPrefab);
+			WindowWithProperties windowInstance = Object.Instantiate(windowPrefab);
+			uiFrame.RegisterView(windowInstance);
 
 			uiFrame.ShowView<WindowWithProperties>();
 
