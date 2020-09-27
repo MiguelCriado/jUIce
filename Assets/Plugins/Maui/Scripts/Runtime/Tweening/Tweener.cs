@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace Maui.Tweening
 {
@@ -14,8 +15,12 @@ namespace Maui.Tweening
 			set
 			{
 				object lastId = id;
-				id = value;
-				OnIdChanged(lastId, id);
+				id = value ?? this;
+				
+				if (EqualityComparer<object>.Default.Equals(lastId, id) == false)
+				{
+					OnIdChanged(lastId, id);
+				}
 			}
 		}
 		
@@ -23,6 +28,11 @@ namespace Maui.Tweening
 
 		private object id;
 
+		protected Tweener()
+		{
+			id = this;
+		}
+		
 		public Tweener SetId(object id)
 		{
 			Id = id;

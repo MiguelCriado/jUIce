@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Maui.Tweening;
+using Maui.Utils;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -15,7 +15,7 @@ namespace Maui
 		[SerializeField] private GameObject backgroundShadow = null;
 		[SerializeField] private float shadowFadeTime;
 
-		private List<GameObject> containedViews = new List<GameObject>();
+		private readonly List<GameObject> containedViews = new List<GameObject>();
 		private CanvasGroup shadowCanvasGroup;
 		private Button shadowButton;
 		private bool isHiding;
@@ -66,17 +66,23 @@ namespace Maui
 
 		public void ShowBackgroundShadow()
 		{
+			Tween.Kill(shadowCanvasGroup);
+			isHiding = false;
 			backgroundShadow.SetActive(true);
 			backgroundShadow.transform.SetAsLastSibling();
-			StopAllCoroutines();
-			isHiding = false;
-			StartCoroutine(DoTweenShadow(1f, shadowFadeTime));
+			shadowCanvasGroup.Fade(1, shadowFadeTime);
 		}
 
 		public void HideBackgroundShadow()
 		{
-			StopAllCoroutines();
-			StartCoroutine(InternalHideShadow());
+			Tween.Kill(shadowCanvasGroup);
+			isHiding = true;
+			shadowCanvasGroup.Fade(0, shadowFadeTime)
+				.Completed += t =>
+			{
+				backgroundShadow.gameObject.SetActive(false);
+				isHiding = false;
+			};
 		}
 
 		private bool IsShadowVisible()
@@ -102,52 +108,11 @@ namespace Maui
 			return result;
 		}
 
-		private IEnumerator InternalHideShadow()
-		{
-			isHiding = true;
-
-			yield return StartCoroutine(DoTweenShadow(0, shadowFadeTime));
-
-			backgroundShadow.gameObject.SetActive(false);
-			isHiding = false;
-		}
-
-		private IEnumerator DoTweenShadow(float target, float duration)
-		{
-			float originalAlpha = shadowCanvasGroup.alpha;
-			float startTime = Time.time;
-			float elapsedTime;
-
-			yield return null;
-
-			while ((elapsedTime = Time.time - startTime) <= duration)
-			{
-				if (Math.Abs(elapsedTime) < Mathf.Epsilon)
-				{
-					elapsedTime = 0.05f;
-				}
-
-				float durationFraction = elapsedTime / duration;
-				float tweenValue = Mathf.Lerp(originalAlpha, target, durationFraction);
-				shadowCanvasGroup.alpha = tweenValue;
-
-				yield return null;
-			}
-
-			shadowCanvasGroup.alpha = target;
-		}
-
 		private void InitializeCanvasGroup()
 		{
 			if (backgroundShadow != null)
 			{
-				shadowCanvasGroup = backgroundShadow.GetComponent<CanvasGroup>();
-
-				if (shadowCanvasGroup == null)
-				{
-					shadowCanvasGroup = backgroundShadow.AddComponent<CanvasGroup>();
-				}
-
+				shadowCanvasGroup = backgroundShadow.GetOrAddComponent<CanvasGroup>();
 				shadowCanvasGroup.alpha = 0;
 			}
 		}

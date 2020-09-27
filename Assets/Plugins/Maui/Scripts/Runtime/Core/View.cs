@@ -38,7 +38,6 @@ namespace Maui
 		[SerializeField] private Transition outTransition;
 		
 		private readonly TransitionHandler transitionHandler = new TransitionHandler();
-
 		private RectTransform rectTransform;
 
 		protected virtual void Reset()
@@ -83,7 +82,7 @@ namespace Maui
 		{
 			OnHiding();
 
-			await transitionHandler.Hide(rectTransform, animate ? outTransition : null);
+			await transitionHandler.Hide(rectTransform, animate ? OutTransition : null);
 
 			SetViewModel(default);
 			OnOutTransitionFinished();
@@ -91,7 +90,7 @@ namespace Maui
 
 		protected virtual void SetViewModel(T viewModel)
 		{
-			if (targetComponent != null)
+			if (targetComponent)
 			{
 				targetComponent.ViewModel = viewModel;
 			}
