@@ -1,4 +1,4 @@
-﻿namespace Maui.Sandbox
+﻿namespace Maui
 {
 	public class IntToStringOperator : ToOperator<int, string>
 	{

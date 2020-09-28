@@ -17,9 +17,10 @@ namespace Maui
 		public bool CloseOnShadowClick => closeOnShadowClick;
 
 		[Header("Window Properties")]
+		[SerializeField] private bool isPopup;
 		[SerializeField] private WindowPriority windowQueuePriority = WindowPriority.ForceForeground;
 		[SerializeField] private bool hideOnForegroundLost = true;
-		[SerializeField] private bool isPopup;
+		[DrawIf(nameof(isPopup), true)]
 		[SerializeField] private bool closeOnShadowClick = true;
 
 		public Task Show(IViewModel viewModel)

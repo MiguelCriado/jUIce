@@ -37,6 +37,32 @@ namespace Maui.Editor
 			return result;
 		}
 
+		public static PropertyDrawer GetCustomPropertyDrawer(FieldInfo fieldInfo)
+		{
+			// Getting the field type this way assumes that the property instance is not a managed reference (with a SerializeReference attribute); if it was, it should be retrieved in a different way:
+			Type fieldType = fieldInfo.FieldType;
+
+			Type propertyDrawerType = (Type) Type.GetType("UnityEditor.ScriptAttributeUtility,UnityEditor")
+				.GetMethod("GetDrawerTypeForType", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public)
+				.Invoke(null, new object[] {fieldType});
+
+			PropertyDrawer propertyDrawer = null;
+
+			if (typeof(PropertyDrawer).IsAssignableFrom(propertyDrawerType))
+			{
+				propertyDrawer = (PropertyDrawer) Activator.CreateInstance(propertyDrawerType);
+			}
+
+			if (propertyDrawer != null)
+			{
+				typeof(PropertyDrawer)
+					.GetField("m_FieldInfo", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+					.SetValue(propertyDrawer, fieldInfo);
+			}
+
+			return propertyDrawer;
+		}
+
 		private static int GetElementIndex<T>(SerializedProperty property) where T : class
 		{
 			var index = Convert.ToInt32(new string(property.propertyPath.Where(c => char.IsDigit(c)).ToArray()));

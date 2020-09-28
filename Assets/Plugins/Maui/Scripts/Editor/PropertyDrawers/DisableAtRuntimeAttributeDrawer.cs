@@ -1,6 +1,4 @@
-﻿using System;
-using System.Reflection;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 
 namespace Maui.Editor
@@ -32,34 +30,8 @@ namespace Maui.Editor
 		{
 			if (cachedPropertyDrawer == null)
 			{
-				cachedPropertyDrawer = GetPropertyDrawer();
+				cachedPropertyDrawer = PropertyDrawerUtility.GetCustomPropertyDrawer(fieldInfo);
 			}
-		}
-		
-		private PropertyDrawer GetPropertyDrawer()
-		{
-			// Getting the field type this way assumes that the property instance is not a managed reference (with a SerializeReference attribute); if it was, it should be retrieved in a different way:
-			Type fieldType = fieldInfo.FieldType;
-
-			Type propertyDrawerType = (Type) Type.GetType("UnityEditor.ScriptAttributeUtility,UnityEditor")
-				.GetMethod("GetDrawerTypeForType", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public)
-				.Invoke(null, new object[] {fieldType});
-
-			PropertyDrawer propertyDrawer = null;
-
-			if (typeof(PropertyDrawer).IsAssignableFrom(propertyDrawerType))
-			{
-				propertyDrawer = (PropertyDrawer) Activator.CreateInstance(propertyDrawerType);
-			}
-
-			if (propertyDrawer != null)
-			{
-				typeof(PropertyDrawer)
-					.GetField("m_FieldInfo", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-					.SetValue(propertyDrawer, fieldInfo);
-			}
-
-			return propertyDrawer;
 		}
 	}
 }

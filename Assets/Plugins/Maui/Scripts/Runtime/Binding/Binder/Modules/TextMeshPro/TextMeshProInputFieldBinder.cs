@@ -1,32 +1,25 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
+using TMPro;
 
 namespace Maui
 {
-	[RequireComponent(typeof(InputField))]
-	public class InputFieldBinder : CommandBinder<string>
+	[RequireComponent(typeof(TMP_InputField))]
+	public class TextMeshProInputFieldBinder : CommandBinder<string>
 	{
 		[SerializeField] private BindingInfo textValueBinding = new BindingInfo(typeof(IReadOnlyObservableVariable<object>));
 		[SerializeField] private bool sendOnValueChanged;
 
 		private VariableBinding<object> textBinding;
-		private InputField inputField;
-
-		protected override void Reset()
-		{
-			base.Reset();
-			
-			textValueBinding = new BindingInfo(typeof(IReadOnlyObservableVariable<object>));
-		}
+		private TMP_InputField inputField;
 
 		protected override void Awake()
 		{
 			base.Awake();
-
+			
 			textBinding = new VariableBinding<object>(textValueBinding, this);
 			textBinding.Property.Changed += OnTextBindingPropertyChanged;
-			
-			inputField = GetComponent<InputField>();
+
+			inputField = GetComponent<TMP_InputField>();
 		}
 
 		protected override void OnEnable()

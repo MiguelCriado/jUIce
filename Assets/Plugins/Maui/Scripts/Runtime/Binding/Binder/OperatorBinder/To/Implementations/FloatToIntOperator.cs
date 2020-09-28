@@ -1,9 +1,7 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Maui
 {
-	[Serializable]
 	public class FloatToIntOperator : ToOperator<float, int>
 	{
 		public enum CrunchMode
@@ -13,13 +11,13 @@ namespace Maui
 			Ceil
 		}
 
-		public CrunchMode Mode;
+		[SerializeField] private CrunchMode mode;
 		
 		protected override int Convert(float value)
 		{
 			int result;
 
-			switch (Mode)
+			switch (mode)
 			{
 				default:
 				case CrunchMode.Round: result = Mathf.RoundToInt(value); break;

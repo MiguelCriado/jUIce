@@ -29,7 +29,7 @@ namespace Maui
 			}
 		}
 
-		internal void SetPriorityWindow(WindowParaLayer priorityParaLayer)
+		internal void SetPriorityLayer(WindowParaLayer priorityParaLayer)
 		{
 			this.priorityParaLayer = priorityParaLayer;
 
@@ -176,8 +176,14 @@ namespace Maui
 
 		private bool ShouldEnqueue(IWindow window)
 		{
-			return window.WindowPriority != WindowPriority.ForceForeground
-			       && (CurrentWindow != null || windowQueue.Count > 0);
+			bool CurrentWindowHasMorePriority() => CurrentWindow != null && CurrentWindow.IsPopup && window.IsPopup == false;
+			bool NextWindowHasMorePriority() => windowQueue.Count > 0 && windowQueue.Peek().View.IsPopup && window.IsPopup == false;
+			bool WantsToBeEnqueued() => window.WindowPriority != WindowPriority.ForceForeground;
+			bool CurrentWindowHasSamePriority() => CurrentWindow != null && CurrentWindow.IsPopup == window.IsPopup;
+			bool NextWindowHasSamePriority() => windowQueue.Count > 0 && windowQueue.Peek().View.IsPopup == window.IsPopup;
+			return CurrentWindowHasMorePriority()
+			       || NextWindowHasMorePriority()
+			       || (WantsToBeEnqueued() && (CurrentWindowHasSamePriority() || NextWindowHasSamePriority()));
 		}
 
 		private void EnqueueWindow(IWindow window, IViewModel viewModel)
@@ -204,8 +210,6 @@ namespace Maui
 				priorityParaLayer.ShowBackgroundShadow();
 			}
 
-			await windowEntry.Show();
-			
 			if (CurrentWindow != windowEntry.View
 			    && CurrentWindow != null
 			    && CurrentWindow.HideOnForegroundLost
@@ -213,8 +217,10 @@ namespace Maui
 			{
 				CurrentWindow.Hide().RunAndForget();
 			}
-
+			
 			CurrentWindow = windowEntry.View;
+
+			await windowEntry.Show();
 		}
 
 		private Task DoShow(IWindow window, IViewModel viewModel)

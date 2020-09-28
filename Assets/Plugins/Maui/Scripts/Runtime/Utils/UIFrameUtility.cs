@@ -34,7 +34,7 @@ namespace Maui
 
 			WindowParaLayer priorityWindowLayer = CreatePriorityWindowLayer();
 			priorityWindowLayer.transform.SetParent(mainCanvas.transform, false);
-			windowLayer.SetPriorityWindow(priorityWindowLayer);
+			windowLayer.SetPriorityLayer(priorityWindowLayer);
 			
 			GameObject tutorialPanelLayer = CreateUIObject("Tutorial Panel Layer");
 			tutorialPanelLayer.transform.SetParent(mainCanvas.transform, false);
