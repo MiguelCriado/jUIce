@@ -8,6 +8,14 @@ namespace Maui
 {
 	public class UIFrame : MonoBehaviour
 	{
+		public delegate void WindowOpenHandler(IWindow openedWindow, IWindow closedWindow);
+		public delegate void WindowCloseHandler(IWindow closedWindow, IWindow nextWindow);
+
+		public event WindowOpenHandler WindowOpening;
+		public event WindowOpenHandler WindowOpened;
+		public event WindowCloseHandler WindowClosing;
+		public event WindowCloseHandler WindowClosed;
+		
 		public Canvas MainCanvas
 		{
 			get
@@ -59,7 +67,7 @@ namespace Maui
 				}
 				else
 				{
-					panelLayer.Initialize();
+					panelLayer.Initialize(this);
 				}
 			}
 
@@ -73,9 +81,11 @@ namespace Maui
 				}
 				else
 				{
-					windowLayer.Initialize();
-					windowLayer.RequestViewBlock += OnRequestViewBlock;
-					windowLayer.RequestViewUnblock += OnRequestViewUnblock;
+					windowLayer.WindowOpening += OnWindowOpening;
+					windowLayer.WindowOpened += OnWindowOpened;
+					windowLayer.WindowClosing += OnWindowClosing;
+					windowLayer.WindowClosed += OnWindowClosed;
+					windowLayer.Initialize(this);
 				}
 			}
 
@@ -180,9 +190,53 @@ namespace Maui
 			}
 		}
 
+		public async Task CloseCurrentWindow()
+		{
+			if (CurrentWindow != null)
+			{
+				await windowLayer.HideView(CurrentWindow);
+			}
+		}
+
 		public bool IsViewRegistered<T>() where T : IView
 		{
 			return registeredViews.ContainsKey(typeof(T));
+		}
+		
+		internal void BlockInteraction()
+		{
+			if (graphicRaycaster)
+			{
+				graphicRaycaster.enabled = false;
+			}
+		}
+
+		internal void UnblockInteraction()
+		{
+			if (graphicRaycaster)
+			{
+				graphicRaycaster.enabled = true;
+			}
+		}
+		
+		private void OnWindowOpening(IWindow openedWindow, IWindow closedWindow)
+		{
+			WindowOpening?.Invoke(openedWindow, closedWindow);
+		}
+		
+		private void OnWindowOpened(IWindow openedWindow, IWindow closedWindow)
+		{
+			WindowOpened?.Invoke(openedWindow, closedWindow);
+		}
+
+		private void OnWindowClosing(IWindow closedWindow, IWindow nextWindow)
+		{
+			WindowClosing?.Invoke(closedWindow, nextWindow);
+		}
+		
+		private void OnWindowClosed(IWindow closedWindow, IWindow nextWindow)
+		{
+			WindowClosed?.Invoke(closedWindow, nextWindow);
 		}
 
 		private bool IsViewValid(IView view)
@@ -212,22 +266,6 @@ namespace Maui
 			layer.RegisterView(view);
 			layer.ReparentView(view, viewAsComponent.transform);
 			registeredViews.Add(viewType, view);
-		}
-
-		private void OnRequestViewBlock()
-		{
-			if (graphicRaycaster != null)
-			{
-				graphicRaycaster.enabled = false;
-			}
-		}
-
-		private void OnRequestViewUnblock()
-		{
-			if (graphicRaycaster != null)
-			{
-				graphicRaycaster.enabled = true;
-			}
 		}
 	}
 }

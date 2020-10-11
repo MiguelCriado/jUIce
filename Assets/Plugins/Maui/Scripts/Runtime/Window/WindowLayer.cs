@@ -6,10 +6,13 @@ namespace Maui
 {
 	public class WindowLayer : Layer<IWindow>
 	{
-		public delegate void WindowLayerEventHandler();
+		public delegate void WindowOpenHandler(IWindow openedWindow, IWindow closedWindow);
+		public delegate void WindowCloseHandler(IWindow closedWindow, IWindow nextWindow);
 
-		public event WindowLayerEventHandler RequestViewBlock;
-		public event WindowLayerEventHandler RequestViewUnblock;
+		public event WindowOpenHandler WindowOpening;
+		public event WindowOpenHandler WindowOpened;
+		public event WindowCloseHandler WindowClosing;
+		public event WindowCloseHandler WindowClosed;
 
 		public IWindow CurrentWindow { get; private set; }
 
@@ -71,18 +74,29 @@ namespace Maui
 					priorityParaLayer.HideBackgroundShadow();
 				}
 
-				await view.Hide();
+				IWindow windowToClose = view;
+				IWindow windowToOpen = GetNextWindow();
 
-				CurrentWindow = null;
+				OnWindowClosing(windowToClose, windowToOpen);
 
-				if (windowQueue.Count > 0)
+				if (windowToClose == windowToOpen)
 				{
-					await ShowNextInQueue();
+					await view.Hide();
+					
+					CurrentWindow = null;
+					
+					await ShowNextWindow();
 				}
-				else if (windowHistory.Count > 0)
+				else
 				{
-					await ShowPreviousInHistory();
+					CurrentWindow = null;
+					
+					await Task.WhenAll(
+						view.Hide(),
+						ShowNextWindow());
 				}
+
+				OnWindowClosed(windowToClose, windowToOpen);
 			}
 			else
 			{
@@ -145,6 +159,38 @@ namespace Maui
 			view.OutTransitionFinished -= OnOutAnimationFinished;
 			view.CloseRequested -= OnCloseRequestedByWindow;
 		}
+		
+		protected virtual void OnWindowClosing(IWindow windowToClose, IWindow windowToOpen)
+		{
+			WindowClosing?.Invoke(windowToClose, windowToOpen);
+		}
+		
+		protected virtual void OnWindowClosed(IWindow windowToClose, IWindow windowToOpen)
+		{
+			WindowClosed?.Invoke(windowToClose, windowToOpen);
+		}
+		
+		protected virtual void OnWindowOpening(IWindow windowToOpen, IWindow windowToClose)
+		{
+			WindowOpening?.Invoke(windowToOpen, windowToClose);
+		}
+		
+		protected virtual void OnWindowOpened(IWindow windowToOpen, IWindow windowToClose)
+		{
+			WindowOpened?.Invoke(windowToOpen, windowToClose);
+		}
+		
+		private async Task ShowNextWindow()
+		{
+			if (windowQueue.Count > 0)
+			{
+				await ShowNextInQueue();
+			}
+			else if (windowHistory.Count > 0)
+			{
+				await ShowPreviousInHistory();
+			}
+		}
 
 		private void OnInAnimationFinished(IView controller)
 		{
@@ -172,6 +218,22 @@ namespace Maui
 			{
 				HideView(CurrentWindow).RunAndForget();
 			}
+		}
+		
+		private IWindow GetNextWindow()
+		{
+			IWindow result = null;
+
+			if (windowQueue.Count > 0)
+			{
+				result = windowQueue.Peek().View;
+			}
+			else if (windowHistory.Count > 0)
+			{
+				result = windowHistory.Peek().View;
+			}
+
+			return result;
 		}
 
 		private bool ShouldEnqueue(IWindow window)
@@ -217,10 +279,17 @@ namespace Maui
 			{
 				CurrentWindow.Hide().RunAndForget();
 			}
+
+			IWindow windowToOpen = windowEntry.View;
+			IWindow windowToClose = CurrentWindow;
+
+			OnWindowOpening(windowToOpen, windowToClose);
 			
 			CurrentWindow = windowEntry.View;
 
 			await windowEntry.Show();
+			
+			OnWindowOpened(windowToOpen, windowToClose);
 		}
 
 		private Task DoShow(IWindow window, IViewModel viewModel)
@@ -231,7 +300,7 @@ namespace Maui
 		private void AddTransition(IView view)
 		{
 			viewsTransitioning.Add(view);
-			RequestViewBlock?.Invoke();
+			uiFrame.BlockInteraction();
 		}
 
 		private void RemoveTransition(IView view)
@@ -240,7 +309,7 @@ namespace Maui
 
 			if (IsViewTransitionInProgress == false)
 			{
-				RequestViewUnblock?.Invoke();
+				uiFrame.UnblockInteraction();
 			}
 		}
 

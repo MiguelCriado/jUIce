@@ -8,10 +8,12 @@ namespace Maui
 	public abstract class Layer<T> : MonoBehaviour where T : IView
 	{
 		protected readonly Dictionary<Type, T> registeredViews = new Dictionary<Type, T>();
-
-		public virtual void Initialize()
+		
+		protected UIFrame uiFrame;
+		
+		public virtual void Initialize(UIFrame uiFrame)
 		{
-
+			this.uiFrame = uiFrame;
 		}
 
 		public abstract Task ShowView(T view);
