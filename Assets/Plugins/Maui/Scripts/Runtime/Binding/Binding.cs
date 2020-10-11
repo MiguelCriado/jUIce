@@ -35,7 +35,7 @@ namespace Maui
 		{
 			UnbindProperty();
 
-			if (bindingInfo.ViewModelContainer != null)
+			if (bindingInfo.ViewModelContainer)
 			{
 				bindingInfo.ViewModelContainer.ViewModelChanged -= ViewModelChangedHandler;
 			}
@@ -54,13 +54,13 @@ namespace Maui
 
 		private void BindProperty()
 		{
-			if (bindingInfo.ViewModelContainer == null && string.IsNullOrEmpty(bindingInfo.PropertyName) == false)
+			if (!bindingInfo.ViewModelContainer && string.IsNullOrEmpty(bindingInfo.PropertyName) == false)
 			{
 				Type bindingType = GetBindingType();
 				bindingInfo.ViewModelContainer = FindViewModelComponent(context.transform, bindingType);
 			}
 
-			if (bindingInfo.ViewModelContainer != null)
+			if (bindingInfo.ViewModelContainer)
 			{
 				if (bindingInfo.ViewModelContainer.ViewModel != null)
 				{
