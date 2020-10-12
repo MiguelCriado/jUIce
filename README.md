@@ -1,5 +1,5 @@
 # Maui
-Maui is a framework built on top of [Unity's uGui](https://docs.unity3d.com/Packages/com.unity.ugui@1.0/manual/index.html) solution. It provides a series of systems and guidelines to boost your runtime UI development within Unity.
+Maui is a MVVM UI framework built on top of [Unity's uGui](https://docs.unity3d.com/Packages/com.unity.ugui@1.0/manual/index.html) solution. It provides a series of systems and guidelines to boost your runtime UI development within Unity.
 
 It aims to split the UI workflow into two distinct phases: technical and stylistic. This means that programmers and designers can cooperate together to achieve the final version of the UI. What this also means is that Maui requires some technical insight to be used; you'll need to code your ViewModels.
 
@@ -69,13 +69,13 @@ Keep in mind that this is the default hierarchy. It should be enough for most of
 There are two kinds of views in Maui: Windows and Panels. The main reason for this distinction is their overall behavior and conceptual meaning; windows are the focal element of information for the user and there can only be one of them focused at any given moment, whereas any number of panels can be open at the same time and alongside the current window so they work as containers for complementary info.
 
 ### Window
-A window is the focal element of UI information at any given time (if any). They usually take up all the space available in the screen and, therefore, only one of them can be focused in a particular moment.
+A window is the focal element of UI information at any given time (if any). They usually take up all the space available in the screen and, therefore, only one of them can be focused in a particular moment. They are stored in the history stack and will be automatically shown again with the same ViewModel when the next window in the stack is closed.
 
 According to their behavior, there are two kinds of window: regular and popup. 
 
-A **regular window** is stored in the history stack and will be automatically shown again with the same ViewModel when the next window is closed. 
+A **regular window** is your main source of dialog with the player. They usually take all the screen space and conform the menu tree of your game.
 
-A **popup**, on the other hand, is a volatile kind of window that is supposed to be shown over the current displayed views (both windows and panels), which is discarded after being closed. 
+A **popup**, on the other hand, is a volatile kind of window that is supposed to be shown over the current displayed views (both windows and panels). They are automatically shown over a background shadow to occlude previous information.
 
 Both of them can be enqueued so they are shown in order when the previous one is closed. 
 
@@ -204,5 +204,11 @@ This mechanism grants Maui an important expressive power, allowing the designers
 
 OperatorBinders are heavily inspired by [ReactiveX](http://reactivex.io/documentation/operators.html) operators, so you can expect to find many of the most valuable operations from that library. 
 
-## Best Practices
-*TODO*
+## Additional Goodies
+The framework also include a couple of subsystems that could be used in your non UI modules. 
+
+### Signals
+`SignalBus` is a lightweight event dispatcher that lets you have independent signal channels to be shared between objects as well as a default bus that can be accessed globally.
+
+### Tweening
+There's also a simple tween library designed to mimic the amazing [DOTween](http://dotween.demigiant.com/) plugin, which is used to add many tweening features in the framework.
