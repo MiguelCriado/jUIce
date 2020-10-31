@@ -28,12 +28,7 @@ namespace Maui
 			}
 		}
 
-		public override Task ShowView(IPanel view)
-		{
-			return view.Show(null);
-		}
-
-		public override async Task ShowView<T>(IPanel view, T viewModel, PanelOptions overrideOptions)
+		protected override async Task ShowView<T>(IPanel view, T viewModel, PanelOptions overrideOptions)
 		{
 			PanelOpening?.Invoke(view);
 			

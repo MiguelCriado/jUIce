@@ -2,7 +2,7 @@
 
 namespace Maui
 {
-	public struct WindowHistoryEntry
+	public readonly struct WindowHistoryEntry
 	{
 		public readonly IWindow View;
 		public readonly IViewModel ViewModel;

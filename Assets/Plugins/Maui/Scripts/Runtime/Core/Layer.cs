@@ -17,25 +17,8 @@ namespace Maui
 		{
 			this.uiFrame = uiFrame;
 		}
-
-		public abstract Task ShowView(TView view);
-
-		public async Task ShowView(Type viewType)
-		{
-			if (registeredViews.TryGetValue(viewType, out TView view))
-			{
-				await ShowView(view);
-			}
-			else
-			{
-				Debug.LogError($"View with type {viewType} not registered to this layer!");
-			}
-		}
-
-		public abstract Task ShowView<TViewModel>(TView view, TViewModel viewModel, TOptions overrideOptions) where TViewModel : IViewModel;
-
-		public async Task ShowView<TViewModel>(Type viewType, TViewModel viewModel, TOptions overrideOptions)
-			where TViewModel : IViewModel
+		
+		public async Task ShowView<TViewModel>(Type viewType, TViewModel viewModel, TOptions overrideOptions) where TViewModel : IViewModel
 		{
 			if (registeredViews.TryGetValue(viewType, out TView view))
 			{
@@ -112,6 +95,8 @@ namespace Maui
 		{
 			return registeredViews.ContainsKey(typeof(T));
 		}
+		
+		protected abstract Task ShowView<TViewModel>(TView view, TViewModel viewModel, TOptions overrideOptions) where TViewModel : IViewModel;
 
 		protected virtual void ProcessViewRegister(TView view)
 		{
@@ -121,7 +106,7 @@ namespace Maui
 
 		protected virtual void ProcessViewUnregister(TView view)
 		{
-			view.ViewDestroyed += OnViewDestroyed;
+			view.ViewDestroyed -= OnViewDestroyed;
 			registeredViews.Remove(view.GetType());
 		}
 

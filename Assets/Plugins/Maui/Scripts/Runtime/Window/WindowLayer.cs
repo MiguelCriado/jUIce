@@ -40,12 +40,7 @@ namespace Maui
 			priorityParaLayer.ShadowClicked += PopupsShadowClicked;
 		}
 
-		public override Task ShowView(IWindow view)
-		{
-			return ShowView<IViewModel>(view, null, null);
-		}
-
-		public override Task ShowView<TViewModel>(IWindow view, TViewModel viewModel, WindowOptions overrideOptions)
+		protected override Task ShowView<TViewModel>(IWindow view, TViewModel viewModel, WindowOptions overrideOptions)
 		{
 			Task result;
 
