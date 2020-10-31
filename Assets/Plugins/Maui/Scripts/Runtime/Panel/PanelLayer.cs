@@ -3,17 +3,22 @@ using UnityEngine;
 
 namespace Maui
 {
-	public class PanelLayer : Layer<IPanel>
+	public class PanelLayer : Layer<IPanel, PanelOptions>
 	{
+		public delegate void PanelOperationHandler(IPanel panel);
+
+		public event PanelOperationHandler PanelOpening;
+		public event PanelOperationHandler PanelOpened;
+		public event PanelOperationHandler PanelClosing;
+		public event PanelOperationHandler PanelClosed;
+	
 		internal PanelPriorityLayerList PriorityLayers { get => priorityLayers; set => priorityLayers = value; }
 
 		[SerializeField] private PanelPriorityLayerList priorityLayers = null;
 
 		public override void ReparentView(IView view, Transform viewTransform)
 		{
-			IPanel panel = view as IPanel;
-
-			if (panel != null)
+			if (view is IPanel panel)
 			{
 				ReparentToParaLayer(panel.Priority, viewTransform);
 			}
@@ -28,22 +33,29 @@ namespace Maui
 			return view.Show(null);
 		}
 
-		public override Task ShowView<T>(IPanel view, T viewModel) 
+		public override async Task ShowView<T>(IPanel view, T viewModel, PanelOptions overrideOptions)
 		{
-			return view.Show(viewModel);
+			PanelOpening?.Invoke(view);
+			
+			await view.Show(viewModel);
+			
+			PanelOpened?.Invoke(view);
 		}
 
 		public override async Task HideView(IPanel view)
 		{
+			PanelClosing?.Invoke(view);
+			
 			await view.Hide();
+			
+			PanelClosed?.Invoke(view);
 		}
 
 		public bool IsPanelVisible<T>()
 		{
 			bool result = false;
-			IPanel panel;
 
-			if (registeredViews.TryGetValue(typeof(T), out panel))
+			if (registeredViews.TryGetValue(typeof(T), out IPanel panel))
 			{
 				result = panel.IsVisible;
 			}

@@ -50,7 +50,7 @@ namespace Maui
 			rectTransform = GetComponent<RectTransform>();
 		}
 
-		public async Task Show(IViewModel viewModel)
+		public async Task Show(IViewModel viewModel, Transition overrideTransition = null)
 		{
 			if (viewModel != null)
 			{
@@ -72,7 +72,9 @@ namespace Maui
 			}
 			else
 			{
-				await transitionHandler.Show(rectTransform, InTransition);
+				Transition transition = overrideTransition ? overrideTransition : InTransition;
+				
+				await transitionHandler.Show(rectTransform, transition);
 				
 				OnInTransitionFinished();
 			}

@@ -10,12 +10,17 @@ namespace Maui
 	{
 		public delegate void WindowOpenHandler(IWindow openedWindow, IWindow closedWindow);
 		public delegate void WindowCloseHandler(IWindow closedWindow, IWindow nextWindow);
+		public delegate void PanelOperationHandler(IPanel panel);
 
 		public event WindowOpenHandler WindowOpening;
 		public event WindowOpenHandler WindowOpened;
 		public event WindowCloseHandler WindowClosing;
 		public event WindowCloseHandler WindowClosed;
-		
+		public event PanelOperationHandler PanelOpening;
+		public event PanelOperationHandler PanelOpened;
+		public event PanelOperationHandler PanelClosing;
+		public event PanelOperationHandler PanelClosed;
+
 		public Canvas MainCanvas
 		{
 			get
@@ -40,7 +45,7 @@ namespace Maui
 		private WindowLayer windowLayer;
 		private GraphicRaycaster graphicRaycaster;
 
-		private Dictionary<Type, IView> registeredViews = new Dictionary<Type, IView>();
+		private readonly Dictionary<Type, IView> registeredViews = new Dictionary<Type, IView>();
 
 		private void Reset()
 		{
@@ -67,6 +72,10 @@ namespace Maui
 				}
 				else
 				{
+					panelLayer.PanelOpening += OnPanelOpening;
+					panelLayer.PanelOpened += OnPanelOpened;
+					panelLayer.PanelClosing += OnPanelClosing;
+					panelLayer.PanelClosed += OnPanelClosed;
 					panelLayer.Initialize(this);
 				}
 			}
@@ -110,7 +119,7 @@ namespace Maui
 				}
 				else
 				{
-					Debug.LogError($"The View type {typeof(T).Name} must implement {typeof(IPanel).Name} or {typeof(IWindow).Name}.");
+					Debug.LogError($"The View type {typeof(T).Name} must implement {nameof(IPanel)} or {nameof(IWindow)}.");
 				}
 			}
 		}
@@ -135,44 +144,33 @@ namespace Maui
 		{
 			UnregisterView(typeof(T));
 		}
-
-		public async Task ShowView<T>() where T : IView
+		
+		public void ShowPanel<T>(IViewModel viewModel, PanelOptions overrideOptions = null) where T : IPanel
 		{
-			Type viewType = typeof(T);
-
-			if (typeof(IPanel).IsAssignableFrom(viewType))
-			{
-				await panelLayer.ShowView(viewType);
-			}
-			else if (typeof(IWindow).IsAssignableFrom(viewType))
-			{
-				await windowLayer.ShowView(viewType);
-			}
-			else
-			{
-				Debug.LogError($"The View type {typeof(T).Name} must implement {typeof(IPanel).Name} or {typeof(IWindow).Name}.");
-			}
+			ShowPanelAsync<T>(viewModel, overrideOptions).RunAndForget();
+		}
+		
+		public async Task ShowPanelAsync<T>(IViewModel viewModel, PanelOptions overrideOptions = null) where T : IPanel
+		{
+			await panelLayer.ShowView(typeof(T), viewModel, overrideOptions);
 		}
 
-		public async Task ShowView<T>(IViewModel viewModel) where T : IView
+		public void ShowWindow<T>(IViewModel viewModel, WindowOptions overrideOptions = null) where T : IWindow
 		{
-			Type viewType = typeof(T);
-
-			if (typeof(IPanel).IsAssignableFrom(viewType))
-			{
-				await panelLayer.ShowView(viewType, viewModel);
-			}
-			else if (typeof(IWindow).IsAssignableFrom(viewType))
-			{
-				await windowLayer.ShowView(viewType, viewModel);
-			}
-			else
-			{
-				Debug.LogError($"The View type {typeof(T).Name} must implement {typeof(IPanel).Name} or {typeof(IWindow).Name}.");
-			}
+			ShowWindowAsync<T>(viewModel, overrideOptions).RunAndForget();
+		}
+		
+		public async Task ShowWindowAsync<T>(IViewModel viewModel, WindowOptions overrideOptions = null) where T : IWindow
+		{
+			await windowLayer.ShowView(typeof(T), viewModel, overrideOptions);
 		}
 
-		public async Task HideView<T>() where T : IView
+		public void HideView<T>() where T : IView
+		{
+			HideViewAsync<T>().RunAndForget();
+		}
+		
+		public async Task HideViewAsync<T>() where T : IView
 		{
 			Type viewType = typeof(T);
 
@@ -186,11 +184,16 @@ namespace Maui
 			}
 			else
 			{
-				Debug.LogError($"The View type {typeof(T).Name} must implement {typeof(IPanel).Name} or {typeof(IWindow).Name}.");
+				Debug.LogError($"The View type {typeof(T).Name} must implement {nameof(IPanel)} or {nameof(IWindow)}.");
 			}
 		}
 
-		public async Task CloseCurrentWindow()
+		public void CloseCurrentWindow()
+		{
+			CloseCurrentWindowAsync().RunAndForget();
+		}
+		
+		public async Task CloseCurrentWindowAsync()
 		{
 			if (CurrentWindow != null)
 			{
@@ -238,6 +241,26 @@ namespace Maui
 		{
 			WindowClosed?.Invoke(closedWindow, nextWindow);
 		}
+		
+		private void OnPanelOpening(IPanel panel)
+		{
+			PanelOpening?.Invoke(panel);
+		}
+		
+		private void OnPanelOpened(IPanel panel)
+		{
+			PanelOpened?.Invoke(panel);
+		}
+		
+		private void OnPanelClosing(IPanel panel)
+		{
+			PanelClosing?.Invoke(panel);
+		}
+		
+		private void OnPanelClosed(IPanel panel)
+		{
+			PanelClosed?.Invoke(panel);
+		}
 
 		private bool IsViewValid(IView view)
 		{
@@ -245,7 +268,7 @@ namespace Maui
 
 			if (viewAsComponent == null)
 			{
-				Debug.LogError($"The View to register must derive from {typeof(Component).Name}");
+				Debug.LogError($"The View to register must derive from {nameof(Component)}");
 				return false;
 			}
 
@@ -258,7 +281,9 @@ namespace Maui
 			return true;
 		}
 
-		private void ProcessViewRegister<T>(T view, Layer<T> layer) where T : IView
+		private void ProcessViewRegister<TView, TOptions>(TView view, Layer<TView, TOptions> layer)
+			where TView : IView
+			where TOptions : IViewOptions
 		{
 			Type viewType = view.GetType();
 			Component viewAsComponent = view as Component;

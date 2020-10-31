@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Maui
 {
@@ -13,7 +14,14 @@ namespace Maui
 			}
 			catch (Exception ex)
 			{
-				onException?.Invoke(ex);
+				if (onException != null)
+				{
+					onException(ex);
+				}
+				else
+				{
+					Debug.LogError(ex);
+				}
 			}
 		}
 	}

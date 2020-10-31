@@ -5,9 +5,11 @@ using UnityEngine;
 
 namespace Maui
 {
-	public abstract class Layer<T> : MonoBehaviour where T : IView
+	public abstract class Layer<TView, TOptions> : MonoBehaviour
+		where TView : IView
+		where TOptions : IViewOptions
 	{
-		protected readonly Dictionary<Type, T> registeredViews = new Dictionary<Type, T>();
+		protected readonly Dictionary<Type, TView> registeredViews = new Dictionary<Type, TView>();
 		
 		protected UIFrame uiFrame;
 		
@@ -16,13 +18,13 @@ namespace Maui
 			this.uiFrame = uiFrame;
 		}
 
-		public abstract Task ShowView(T view);
+		public abstract Task ShowView(TView view);
 
 		public async Task ShowView(Type viewType)
 		{
-			if (registeredViews.TryGetValue(viewType, out T controller))
+			if (registeredViews.TryGetValue(viewType, out TView view))
 			{
-				await ShowView(controller);
+				await ShowView(view);
 			}
 			else
 			{
@@ -30,14 +32,14 @@ namespace Maui
 			}
 		}
 
-		public abstract Task ShowView<TViewModel>(T view, TViewModel properties) where TViewModel : IViewModel;
+		public abstract Task ShowView<TViewModel>(TView view, TViewModel viewModel, TOptions overrideOptions) where TViewModel : IViewModel;
 
-		public async Task ShowView<TViewModel>(Type viewType, TViewModel properties)
+		public async Task ShowView<TViewModel>(Type viewType, TViewModel viewModel, TOptions overrideOptions)
 			where TViewModel : IViewModel
 		{
-			if (registeredViews.TryGetValue(viewType, out T controller))
+			if (registeredViews.TryGetValue(viewType, out TView view))
 			{
-				await ShowView(controller, properties);
+				await ShowView(view, viewModel, overrideOptions);
 			}
 			else
 			{
@@ -45,13 +47,13 @@ namespace Maui
 			}
 		}
 
-		public abstract Task HideView(T view);
+		public abstract Task HideView(TView view);
 
 		public async Task HideView(Type viewType)
 		{
-			if (registeredViews.TryGetValue(viewType, out T controller))
+			if (registeredViews.TryGetValue(viewType, out TView view))
 			{
-				await HideView(controller);
+				await HideView(view);
 			}
 			else
 			{
@@ -64,7 +66,7 @@ namespace Maui
 			Task[] tasks = new Task[registeredViews.Count];
 			int i = 0;
 
-			foreach (KeyValuePair<Type,T> viewEntry in registeredViews)
+			foreach (KeyValuePair<Type,TView> viewEntry in registeredViews)
 			{
 				tasks[i] = viewEntry.Value.Hide(animate);
 				i++;
@@ -78,7 +80,7 @@ namespace Maui
 			viewTransform.SetParent(transform, false);
 		}
 
-		public void RegisterView(T view)
+		public void RegisterView(TView view)
 		{
 			Type viewType = view.GetType();
 
@@ -92,7 +94,7 @@ namespace Maui
 			}
 		}
 
-		public void UnregisterView(T view)
+		public void UnregisterView(TView view)
 		{
 			Type viewType = view.GetType();
 
@@ -106,18 +108,18 @@ namespace Maui
 			}
 		}
 
-		public bool IsViewRegistered<TView>() where TView : T
+		public bool IsViewRegistered<T>() where T : TView
 		{
-			return registeredViews.ContainsKey(typeof(TView));
+			return registeredViews.ContainsKey(typeof(T));
 		}
 
-		protected virtual void ProcessViewRegister(T view)
+		protected virtual void ProcessViewRegister(TView view)
 		{
 			registeredViews.Add(view.GetType(), view);
 			view.ViewDestroyed += OnViewDestroyed;
 		}
 
-		protected virtual void ProcessViewUnregister(T view)
+		protected virtual void ProcessViewUnregister(TView view)
 		{
 			view.ViewDestroyed += OnViewDestroyed;
 			registeredViews.Remove(view.GetType());
@@ -127,7 +129,7 @@ namespace Maui
 		{
 			if (registeredViews.ContainsKey(view.GetType()))
 			{
-				UnregisterView((T)view);
+				UnregisterView((TView)view);
 			}
 		}
 	}

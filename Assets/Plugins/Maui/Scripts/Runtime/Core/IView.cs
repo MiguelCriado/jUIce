@@ -13,7 +13,7 @@ namespace Maui
 
 		bool IsVisible { get; }
 		
-		Task Show(IViewModel viewModel);
+		Task Show(IViewModel viewModel, Transition overrideTransition = null);
 
 		Task Hide(bool animate = true);
 	}

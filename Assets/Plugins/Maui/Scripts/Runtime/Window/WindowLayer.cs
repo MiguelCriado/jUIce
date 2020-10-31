@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Maui
 {
-	public class WindowLayer : Layer<IWindow>
+	public class WindowLayer : Layer<IWindow, WindowOptions>
 	{
 		public delegate void WindowOpenHandler(IWindow openedWindow, IWindow closedWindow);
 		public delegate void WindowCloseHandler(IWindow closedWindow, IWindow nextWindow);
@@ -42,21 +42,21 @@ namespace Maui
 
 		public override Task ShowView(IWindow view)
 		{
-			return ShowView<IViewModel>(view, null);
+			return ShowView<IViewModel>(view, null, null);
 		}
 
-		public override Task ShowView<TViewModel>(IWindow view, TViewModel viewModel)
+		public override Task ShowView<TViewModel>(IWindow view, TViewModel viewModel, WindowOptions overrideOptions)
 		{
 			Task result;
 
-			if (ShouldEnqueue(view))
+			if (ShouldEnqueue(view, overrideOptions))
 			{
-				EnqueueWindow(view, viewModel);
+				EnqueueWindow(view, viewModel, overrideOptions);
 				result = Task.CompletedTask;
 			}
 			else
 			{
-				result = DoShow(view, viewModel);
+				result = DoShow(view, viewModel, overrideOptions);
 			}
 
 			return result;
@@ -236,21 +236,17 @@ namespace Maui
 			return result;
 		}
 
-		private bool ShouldEnqueue(IWindow window)
+		private bool ShouldEnqueue(IWindow window, WindowOptions overrideOptions)
 		{
-			bool CurrentWindowHasMorePriority() => CurrentWindow != null && CurrentWindow.IsPopup && window.IsPopup == false;
-			bool NextWindowHasMorePriority() => windowQueue.Count > 0 && windowQueue.Peek().View.IsPopup && window.IsPopup == false;
-			bool WantsToBeEnqueued() => window.WindowPriority != WindowPriority.ForceForeground;
-			bool CurrentWindowHasSamePriority() => CurrentWindow != null && CurrentWindow.IsPopup == window.IsPopup;
-			bool NextWindowHasSamePriority() => windowQueue.Count > 0 && windowQueue.Peek().View.IsPopup == window.IsPopup;
-			return CurrentWindowHasMorePriority()
-			       || NextWindowHasMorePriority()
-			       || (WantsToBeEnqueued() && (CurrentWindowHasSamePriority() || NextWindowHasSamePriority()));
+			WindowPriority priority = overrideOptions?.Priority ?? window.WindowPriority;
+			
+			return priority != WindowPriority.ForceForeground 
+			       && (CurrentWindow != null || windowQueue.Count > 0); 
 		}
 
-		private void EnqueueWindow(IWindow window, IViewModel viewModel)
+		private void EnqueueWindow(IWindow window, IViewModel viewModel, WindowOptions overrideOptions)
 		{
-			windowQueue.Enqueue(new WindowHistoryEntry(window, viewModel));
+			windowQueue.Enqueue(new WindowHistoryEntry(window, viewModel, overrideOptions));
 		}
 
 		private async Task DoShow(WindowHistoryEntry windowEntry)
@@ -292,9 +288,9 @@ namespace Maui
 			OnWindowOpened(windowToOpen, windowToClose);
 		}
 
-		private Task DoShow(IWindow window, IViewModel viewModel)
+		private Task DoShow(IWindow window, IViewModel viewModel, WindowOptions overrideOptions)
 		{
-			return DoShow(new WindowHistoryEntry(window, viewModel));
+			return DoShow(new WindowHistoryEntry(window, viewModel, overrideOptions));
 		}
 
 		private void AddTransition(IView view)
