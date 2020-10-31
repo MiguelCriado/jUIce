@@ -6,6 +6,8 @@ namespace Maui
 {
 	public class PrefabCollectionBinder : CollectionBinder<object>
 	{
+		public IReadOnlyList<CollectionItemViewModelComponent> CurrentItems => currentItems;
+		
 		[SerializeField] private List<CollectionItemViewModelComponent> prefabs;
 
 		private Transform container;
@@ -48,6 +50,16 @@ namespace Maui
 		{
 			SetItemValue(index, newValue);
 		}
+		
+		protected virtual CollectionItemViewModelComponent SpawnItem(CollectionItemViewModelComponent prefab, Transform container)
+		{
+			return Instantiate(prefab, container, false);
+		}
+
+		protected virtual void DisposeItem(CollectionItemViewModelComponent item)
+		{
+			Destroy(item.gameObject);
+		}
 
 		private void ClearItems()
 		{
@@ -60,14 +72,14 @@ namespace Maui
 		private void RemoveItem(int index)
 		{
 			CollectionItemViewModelComponent item = currentItems[index];
-			Destroy(item.gameObject);
+			DisposeItem(item);
 			currentItems.RemoveAt(index);
 		}
 
 		private void InsertItem(int index, object value)
 		{
 			CollectionItemViewModelComponent bestPrefab = FindBestPrefab(value);
-			CollectionItemViewModelComponent newItem = Instantiate(bestPrefab, container, false);
+			CollectionItemViewModelComponent newItem = SpawnItem(bestPrefab, container);
 			currentItems.Insert(index, newItem);
 			newItem.transform.SetSiblingIndex(index);
 			SetItemValue(index, value);
