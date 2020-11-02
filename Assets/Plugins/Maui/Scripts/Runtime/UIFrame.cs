@@ -8,8 +8,6 @@ namespace Maui
 {
 	public class UIFrame : MonoBehaviour
 	{
-		public delegate void WindowOpenHandler(IWindow openedWindow, IWindow closedWindow);
-		public delegate void WindowCloseHandler(IWindow closedWindow, IWindow nextWindow);
 		public delegate void PanelOperationHandler(IPanel panel);
 
 		public event WindowOpenHandler WindowOpening;
@@ -222,24 +220,24 @@ namespace Maui
 			}
 		}
 		
-		private void OnWindowOpening(IWindow openedWindow, IWindow closedWindow)
+		private void OnWindowOpening(IWindow openedWindow, IWindow closedWindow, WindowOpenReason reason)
 		{
-			WindowOpening?.Invoke(openedWindow, closedWindow);
+			WindowOpening?.Invoke(openedWindow, closedWindow, reason);
 		}
 		
-		private void OnWindowOpened(IWindow openedWindow, IWindow closedWindow)
+		private void OnWindowOpened(IWindow openedWindow, IWindow closedWindow, WindowOpenReason reason)
 		{
-			WindowOpened?.Invoke(openedWindow, closedWindow);
+			WindowOpened?.Invoke(openedWindow, closedWindow, reason);
 		}
 
-		private void OnWindowClosing(IWindow closedWindow, IWindow nextWindow)
+		private void OnWindowClosing(IWindow closedWindow, IWindow nextWindow, WindowHideReason reason)
 		{
-			WindowClosing?.Invoke(closedWindow, nextWindow);
+			WindowClosing?.Invoke(closedWindow, nextWindow, reason);
 		}
 		
-		private void OnWindowClosed(IWindow closedWindow, IWindow nextWindow)
+		private void OnWindowClosed(IWindow closedWindow, IWindow nextWindow, WindowHideReason reason)
 		{
-			WindowClosed?.Invoke(closedWindow, nextWindow);
+			WindowClosed?.Invoke(closedWindow, nextWindow, reason);
 		}
 		
 		private void OnPanelOpening(IPanel panel)

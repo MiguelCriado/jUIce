@@ -1,19 +1,32 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Maui
 {
+	public enum WindowOpenReason
+	{
+		FocusGained,
+		Opened
+	}
+		
+	public enum WindowHideReason
+	{
+		FocusLost,
+		Closed
+	}
+		
+	public delegate void WindowOpenHandler(IWindow openedWindow, IWindow closedWindow, WindowOpenReason reason);
+	public delegate void WindowCloseHandler(IWindow closedWindow, IWindow nextWindow, WindowHideReason reason);
+
 	public class WindowLayer : Layer<IWindow, WindowOptions>
 	{
-		public delegate void WindowOpenHandler(IWindow openedWindow, IWindow closedWindow);
-		public delegate void WindowCloseHandler(IWindow closedWindow, IWindow nextWindow);
-
 		public event WindowOpenHandler WindowOpening;
 		public event WindowOpenHandler WindowOpened;
 		public event WindowCloseHandler WindowClosing;
 		public event WindowCloseHandler WindowClosed;
-
+		
 		public IWindow CurrentWindow { get; private set; }
 
 		[SerializeField] private WindowParaLayer priorityParaLayer = null;
@@ -40,29 +53,11 @@ namespace Maui
 			priorityParaLayer.ShadowClicked += PopupsShadowClicked;
 		}
 
-		protected override Task ShowView<TViewModel>(IWindow view, TViewModel viewModel, WindowOptions overrideOptions)
-		{
-			Task result;
-
-			if (ShouldEnqueue(view, overrideOptions))
-			{
-				EnqueueWindow(view, viewModel, overrideOptions);
-				result = Task.CompletedTask;
-			}
-			else
-			{
-				result = DoShow(view, viewModel, overrideOptions);
-			}
-
-			return result;
-		}
-
 		public override async Task HideView(IWindow view)
 		{
 			if (view == CurrentWindow)
 			{
 				windowHistory.Pop();
-				AddTransition(view);
 
 				if (view.IsPopup && NextWindowIsPopup() == false)
 				{
@@ -72,26 +67,22 @@ namespace Maui
 				IWindow windowToClose = view;
 				IWindow windowToOpen = GetNextWindow();
 
-				OnWindowClosing(windowToClose, windowToOpen);
-
 				if (windowToClose == windowToOpen)
 				{
-					await view.Hide();
+					await HideAndNotify(windowToClose, windowToOpen, WindowHideReason.Closed);
 					
 					CurrentWindow = null;
 					
-					await ShowNextWindow();
+					await ShowNextWindow(windowToClose);
 				}
 				else
 				{
 					CurrentWindow = null;
 					
 					await Task.WhenAll(
-						view.Hide(),
-						ShowNextWindow());
+						HideAndNotify(windowToClose, windowToOpen, WindowHideReason.Closed),
+						ShowNextWindow(windowToClose));
 				}
-
-				OnWindowClosed(windowToClose, windowToOpen);
 			}
 			else
 			{
@@ -106,7 +97,16 @@ namespace Maui
 
 		public override async Task HideAll(bool animate = true)
 		{
-			await base.HideAll(animate);
+			Task[] tasks = new Task[registeredViews.Count];
+			int i = 0;
+
+			foreach (KeyValuePair<Type, IWindow> current in registeredViews)
+			{
+				tasks[i] = HideAndNotify(current.Value, null, WindowHideReason.Closed);
+				i++;
+			}
+
+			await Task.WhenAll(tasks);
 
 			CurrentWindow = null;
 			priorityParaLayer.RefreshDarken();
@@ -141,64 +141,110 @@ namespace Maui
 		{
 			base.ProcessViewRegister(view);
 
-			view.InTransitionFinished += OnInAnimationFinished;
-			view.OutTransitionFinished += OnOutAnimationFinished;
 			view.CloseRequested += OnCloseRequestedByWindow;
 		}
 
 		protected override void ProcessViewUnregister(IWindow view)
 		{
 			base.ProcessViewUnregister(view);
-
-			view.InTransitionFinished -= OnInAnimationFinished;
-			view.OutTransitionFinished -= OnOutAnimationFinished;
+			
 			view.CloseRequested -= OnCloseRequestedByWindow;
 		}
 		
-		protected virtual void OnWindowClosing(IWindow windowToClose, IWindow windowToOpen)
+		protected override Task ShowView<TViewModel>(IWindow view, TViewModel viewModel, WindowOptions overrideOptions)
 		{
-			WindowClosing?.Invoke(windowToClose, windowToOpen);
+			Task result;
+
+			if (ShouldEnqueue(view, overrideOptions))
+			{
+				EnqueueWindow(view, viewModel, overrideOptions);
+				result = Task.CompletedTask;
+			}
+			else
+			{
+				result = ShowInForeground(view, viewModel, overrideOptions, WindowOpenReason.Opened);
+			}
+
+			return result;
 		}
 		
-		protected virtual void OnWindowClosed(IWindow windowToClose, IWindow windowToOpen)
+		protected virtual void OnWindowClosing(IWindow windowToClose, IWindow windowToOpen, WindowHideReason reason)
 		{
-			WindowClosed?.Invoke(windowToClose, windowToOpen);
+			WindowClosing?.Invoke(windowToClose, windowToOpen, reason);
 		}
 		
-		protected virtual void OnWindowOpening(IWindow windowToOpen, IWindow windowToClose)
+		protected virtual void OnWindowClosed(IWindow windowToClose, IWindow windowToOpen, WindowHideReason reason)
 		{
-			WindowOpening?.Invoke(windowToOpen, windowToClose);
+			WindowClosed?.Invoke(windowToClose, windowToOpen, reason);
 		}
 		
-		protected virtual void OnWindowOpened(IWindow windowToOpen, IWindow windowToClose)
+		protected virtual void OnWindowOpening(IWindow windowToOpen, IWindow windowToClose, WindowOpenReason reason)
 		{
-			WindowOpened?.Invoke(windowToOpen, windowToClose);
+			WindowOpening?.Invoke(windowToOpen, windowToClose, reason);
 		}
 		
-		private async Task ShowNextWindow()
+		protected virtual void OnWindowOpened(IWindow windowToOpen, IWindow windowToClose, WindowOpenReason reason)
+		{
+			WindowOpened?.Invoke(windowToOpen, windowToClose, reason);
+		}
+		
+		private async Task ShowNextWindow(IWindow closedWindow)
 		{
 			if (windowQueue.Count > 0)
 			{
-				await ShowNextInQueue();
+				await ShowNextInQueue(closedWindow);
 			}
 			else if (windowHistory.Count > 0)
 			{
-				await ShowPreviousInHistory();
+				await ShowPreviousInHistory(closedWindow);
+			}
+		}
+		
+		private async Task ShowNextInQueue(IWindow closedWindow)
+		{
+			if (windowQueue.Count > 0)
+			{
+				WindowHistoryEntry window = windowQueue.Dequeue();
+				
+				await ShowWindow(window, closedWindow, WindowOpenReason.Opened);
 			}
 		}
 
-		private void OnInAnimationFinished(IView controller)
+		private async Task ShowPreviousInHistory(IWindow closedWindow)
 		{
-			RemoveTransition(controller);
+			if (windowHistory.Count > 0)
+			{
+				WindowHistoryEntry window = windowHistory.Pop();
+				
+				await ShowWindow(window, closedWindow, WindowOpenReason.FocusGained);
+			}
+		}
+		
+		private async Task HideAndNotify(IWindow windowToClose, IWindow windowToOpen, WindowHideReason reason)
+		{
+			OnWindowClosing(windowToClose, windowToOpen, reason);
+			AddTransition(windowToClose);
+
+			await windowToClose.Hide();
+			
+			priorityParaLayer.RefreshDarken();
+			RemoveTransition(windowToClose);
+			OnWindowClosed(windowToClose, windowToOpen, reason);
 		}
 
-		private void OnOutAnimationFinished(IView controller)
+		private void AddTransition(IView view)
 		{
-			RemoveTransition(controller);
+			viewsTransitioning.Add(view);
+			uiFrame.BlockInteraction();
+		}
 
-			if (controller is IWindow window && window.IsPopup)
+		private void RemoveTransition(IView view)
+		{
+			viewsTransitioning.Remove(view);
+
+			if (IsViewTransitionInProgress == false)
 			{
-				priorityParaLayer.RefreshDarken();
+				uiFrame.UnblockInteraction();
 			}
 		}
 
@@ -243,8 +289,13 @@ namespace Maui
 		{
 			windowQueue.Enqueue(new WindowHistoryEntry(window, viewModel, overrideOptions));
 		}
+		
+		private Task ShowInForeground(IWindow window, IViewModel viewModel, WindowOptions overrideOptions, WindowOpenReason reason)
+		{
+			return ShowInForeground(new WindowHistoryEntry(window, viewModel, overrideOptions), reason);
+		}
 
-		private async Task DoShow(WindowHistoryEntry windowEntry)
+		private async Task ShowInForeground(WindowHistoryEntry windowEntry, WindowOpenReason reason)
 		{
 			if (CurrentWindow == windowEntry.View)
 			{
@@ -254,54 +305,35 @@ namespace Maui
 				                 " (eg: when implementing a warning message pop-up), it closes itself upon the player input" +
 				                 " that triggers the continuation of the flow.");
 			}
-
-			windowHistory.Push(windowEntry);
-			AddTransition(windowEntry.View);
-
-			if (windowEntry.View.IsPopup)
-			{
-				priorityParaLayer.ShowBackgroundShadow();
-			}
-
+			
 			if (CurrentWindow != windowEntry.View
 			    && CurrentWindow != null
 			    && CurrentWindow.HideOnForegroundLost
 			    && !windowEntry.View.IsPopup)
 			{
-				CurrentWindow.Hide().RunAndForget();
+				HideAndNotify(CurrentWindow, windowEntry.View, WindowHideReason.FocusLost).RunAndForget();
+			}
+			
+			await ShowWindow(windowEntry, CurrentWindow, reason);
+		}
+
+		private async Task ShowWindow(WindowHistoryEntry windowEntry, IWindow closedWindow, WindowOpenReason reason)
+		{
+			if (windowEntry.View.IsPopup)
+			{
+				priorityParaLayer.ShowBackgroundShadow();
 			}
 
-			IWindow windowToOpen = windowEntry.View;
-			IWindow windowToClose = CurrentWindow;
-
-			OnWindowOpening(windowToOpen, windowToClose);
-			
+			windowHistory.Push(windowEntry);
 			CurrentWindow = windowEntry.View;
 
+			OnWindowOpening(windowEntry.View, closedWindow, reason);
+			AddTransition(windowEntry.View);
+			
 			await windowEntry.Show();
 			
-			OnWindowOpened(windowToOpen, windowToClose);
-		}
-
-		private Task DoShow(IWindow window, IViewModel viewModel, WindowOptions overrideOptions)
-		{
-			return DoShow(new WindowHistoryEntry(window, viewModel, overrideOptions));
-		}
-
-		private void AddTransition(IView view)
-		{
-			viewsTransitioning.Add(view);
-			uiFrame.BlockInteraction();
-		}
-
-		private void RemoveTransition(IView view)
-		{
-			viewsTransitioning.Remove(view);
-
-			if (IsViewTransitionInProgress == false)
-			{
-				uiFrame.UnblockInteraction();
-			}
+			RemoveTransition(windowEntry.View);
+			OnWindowOpened(windowEntry.View, closedWindow, reason);
 		}
 
 		private bool NextWindowIsPopup()
@@ -310,24 +342,6 @@ namespace Maui
 			bool lastWindowInHistoryIsPopup = windowHistory.Count > 0 && windowHistory.Peek().View.IsPopup;
 
 			return nextWindowInQueueIsPopup || (windowQueue.Count == 0 && lastWindowInHistoryIsPopup);
-		}
-
-		private async Task ShowNextInQueue()
-		{
-			if (windowQueue.Count > 0)
-			{
-				WindowHistoryEntry window = windowQueue.Dequeue();
-				await DoShow(window);
-			}
-		}
-
-		private async Task ShowPreviousInHistory()
-		{
-			if (windowHistory.Count > 0)
-			{
-				WindowHistoryEntry window = windowHistory.Pop();
-				await DoShow(window);
-			}
 		}
 	}
 }
