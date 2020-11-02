@@ -33,12 +33,12 @@ namespace Maui
 			
 			if (boundProperty != null)
 			{
-				boundProperty.Reset += BoundPropertyResetHandler;
-				boundProperty.CountChanged += BoundPropertyCountChangedHandler;
-				boundProperty.ItemAdded += BoundPropertyItemAddedHandler;
-				boundProperty.ItemMoved += BoundPropertyItemMovedHandler;
-				boundProperty.ItemRemoved += BoundPropertyItemRemovedHandler;
-				boundProperty.ItemReplaced += BoundPropertyItemReplacedHandler;
+				boundProperty.Reset += OnBoundPropertyReset;
+				boundProperty.CountChanged += OnBoundPropertyCountChanged;
+				boundProperty.ItemAdded += OnBoundPropertyItemAdded;
+				boundProperty.ItemMoved += OnBoundPropertyItemMoved;
+				boundProperty.ItemRemoved += OnBoundPropertyItemRemoved;
+				boundProperty.ItemReplaced += OnBoundPropertyItemReplaced;
 
 				exposedProperty.Clear();
 				
@@ -57,12 +57,12 @@ namespace Maui
 		{
 			if (boundProperty != null)
 			{
-				boundProperty.Reset -= BoundPropertyResetHandler;
-				boundProperty.CountChanged -= BoundPropertyCountChangedHandler;
-				boundProperty.ItemAdded -= BoundPropertyItemAddedHandler;
-				boundProperty.ItemMoved -= BoundPropertyItemMovedHandler;
-				boundProperty.ItemRemoved -= BoundPropertyItemRemovedHandler;
-				boundProperty.ItemReplaced -= BoundPropertyItemReplacedHandler;
+				boundProperty.Reset -= OnBoundPropertyReset;
+				boundProperty.CountChanged -= OnBoundPropertyCountChanged;
+				boundProperty.ItemAdded -= OnBoundPropertyItemAdded;
+				boundProperty.ItemMoved -= OnBoundPropertyItemMoved;
+				boundProperty.ItemRemoved -= OnBoundPropertyItemRemoved;
+				boundProperty.ItemReplaced -= OnBoundPropertyItemReplaced;
 
 				boundProperty = null;
 			}
@@ -85,32 +85,32 @@ namespace Maui
 			return result;
 		}
 
-		private void BoundPropertyResetHandler()
+		private void OnBoundPropertyReset()
 		{
 			exposedProperty.Clear();
 		}
 		
-		private void BoundPropertyCountChangedHandler(int oldCount, int newCount)
+		private void OnBoundPropertyCountChanged(int oldCount, int newCount)
 		{
 			
 		}
 		
-		private void BoundPropertyItemAddedHandler(int index, T value)
+		private void OnBoundPropertyItemAdded(int index, T value)
 		{
 			exposedProperty.Insert(index, value);
 		}
 		
-		private void BoundPropertyItemMovedHandler(int oldIndex, int newIndex, T value)
+		private void OnBoundPropertyItemMoved(int oldIndex, int newIndex, T value)
 		{
 			exposedProperty.Move(oldIndex, newIndex);
 		}
 		
-		private void BoundPropertyItemRemovedHandler(int index, T value)
+		private void OnBoundPropertyItemRemoved(int index, T value)
 		{
 			exposedProperty.RemoveAt(index);
 		}
 		
-		private void BoundPropertyItemReplacedHandler(int index, T oldValue, T newValue)
+		private void OnBoundPropertyItemReplaced(int index, T oldValue, T newValue)
 		{
 			exposedProperty[index] = newValue;
 		}

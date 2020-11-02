@@ -26,7 +26,7 @@ namespace Maui
 				BindingInfo current = infoList.BindingInfos[i];
 				var newVariable = new VariableBinding<T>(current, context);
 				int index = i;
-				newVariable.Property.Changed += newValue => VariableChangedHandler(index, newValue);
+				newVariable.Property.Changed += newValue => OnBoundVariableChanged(index, newValue);
 				bindingList.Add(newVariable);
 				values.Add(newVariable.Property.Value);
 			}
@@ -53,7 +53,7 @@ namespace Maui
 			VariableChanged?.Invoke(index, newValue);
 		}
 		
-		private void VariableChangedHandler(int index, T newValue)
+		private void OnBoundVariableChanged(int index, T newValue)
 		{
 			values[index] = newValue;
 			OnVariableChanged(index, newValue);

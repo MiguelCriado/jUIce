@@ -16,7 +16,7 @@ namespace Maui
 		public CommandBinding(BindingInfo bindingInfo, Component context) : base(bindingInfo, context)
 		{
 			canExecuteSource = new ObservableVariable<bool>(false);
-			exposedProperty = new ObservableCommand(canExecuteSource, RequestExecuteHandler);
+			exposedProperty = new ObservableCommand(canExecuteSource, OnExecuteRequested);
 		}
 		
 		protected override Type GetBindingType()
@@ -30,7 +30,7 @@ namespace Maui
 
 			if (boundProperty != null)
 			{
-				boundProperty.CanExecute.Changed += CanExecuteChangedHandler;
+				boundProperty.CanExecute.Changed += OnCanExecuteChanged;
 				RaiseFirstNotification();
 			}
 			else
@@ -43,7 +43,7 @@ namespace Maui
 		{
 			if (boundProperty != null)
 			{
-				boundProperty.CanExecute.Changed -= CanExecuteChangedHandler;
+				boundProperty.CanExecute.Changed -= OnCanExecuteChanged;
 				boundProperty = null;
 				canExecuteSource.Value = false;
 			}
@@ -61,12 +61,12 @@ namespace Maui
 			}
 		}
 
-		private void RequestExecuteHandler()
+		private void OnExecuteRequested()
 		{
 			boundProperty?.Execute();
 		}
 		
-		private void CanExecuteChangedHandler(bool newValue)
+		private void OnCanExecuteChanged(bool newValue)
 		{
 			canExecuteSource.Value = newValue;
 		}
@@ -84,7 +84,7 @@ namespace Maui
 		public CommandBinding(BindingInfo bindingInfo, Component context) : base(bindingInfo, context)
 		{
 			canExecuteSource = new ObservableVariable<bool>(false);
-			exposedProperty = new ObservableCommand<T>(canExecuteSource, RequestExecuteHandler);
+			exposedProperty = new ObservableCommand<T>(canExecuteSource, OnExecuteRequested);
 		}
 
 		protected override Type GetBindingType()
@@ -103,7 +103,7 @@ namespace Maui
 			
 			if (boundProperty != null)
 			{
-				boundProperty.CanExecute.Changed += CanExecuteChangedHandler;
+				boundProperty.CanExecute.Changed += OnCanExecuteChanged;
 				RaiseFirstNotification();
 			}
 			else
@@ -116,7 +116,7 @@ namespace Maui
 		{
 			if (boundProperty != null)
 			{
-				boundProperty.CanExecute.Changed -= CanExecuteChangedHandler;
+				boundProperty.CanExecute.Changed -= OnCanExecuteChanged;
 				boundProperty = null;
 				canExecuteSource.Value = false;
 			}
@@ -151,12 +151,12 @@ namespace Maui
 			}
 		}
 		
-		private void RequestExecuteHandler(T value)
+		private void OnExecuteRequested(T value)
 		{
 			boundProperty?.Execute(value);
 		}
 		
-		private void CanExecuteChangedHandler(bool newValue)
+		private void OnCanExecuteChanged(bool newValue)
 		{
 			canExecuteSource.Value = newValue;
 		}

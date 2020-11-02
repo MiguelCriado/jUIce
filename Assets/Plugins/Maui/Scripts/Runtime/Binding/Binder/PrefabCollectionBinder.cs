@@ -51,9 +51,9 @@ namespace Maui
 			SetItemValue(index, newValue);
 		}
 		
-		protected virtual CollectionItemViewModelComponent SpawnItem(CollectionItemViewModelComponent prefab, Transform container)
+		protected virtual CollectionItemViewModelComponent SpawnItem(CollectionItemViewModelComponent prefab, Transform itemParent)
 		{
-			return Instantiate(prefab, container, false);
+			return Instantiate(prefab, itemParent, false);
 		}
 
 		protected virtual void DisposeItem(CollectionItemViewModelComponent item)
@@ -72,8 +72,8 @@ namespace Maui
 		private void RemoveItem(int index)
 		{
 			CollectionItemViewModelComponent item = currentItems[index];
-			DisposeItem(item);
 			currentItems.RemoveAt(index);
+			DisposeItem(item);
 		}
 
 		private void InsertItem(int index, object value)

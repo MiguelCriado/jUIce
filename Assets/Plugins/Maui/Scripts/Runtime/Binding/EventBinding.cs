@@ -27,7 +27,7 @@ namespace Maui
 
 			if (boundProperty != null)
 			{
-				boundProperty.Raised += BoundPropertyRaisedHandler;
+				boundProperty.Raised += OnBoundPropertyRaised;
 			}
 			else
 			{
@@ -39,12 +39,12 @@ namespace Maui
 		{
 			if (boundProperty != null)
 			{
-				boundProperty.Raised -= BoundPropertyRaisedHandler;
+				boundProperty.Raised -= OnBoundPropertyRaised;
 				boundProperty = null;
 			}
 		}
 		
-		private void BoundPropertyRaisedHandler()
+		private void OnBoundPropertyRaised()
 		{
 			exposedProperty.Raise();
 		}
@@ -79,7 +79,7 @@ namespace Maui
 			
 			if (boundProperty != null)
 			{
-				boundProperty.Raised += BoundPropertyRaisedHandler;
+				boundProperty.Raised += OnBoundPropertyRaised;
 			}
 			else
 			{
@@ -91,7 +91,7 @@ namespace Maui
 		{
 			if (boundProperty != null)
 			{
-				boundProperty.Raised -= BoundPropertyRaisedHandler;
+				boundProperty.Raised -= OnBoundPropertyRaised;
 				boundProperty = null;
 			}
 		}
@@ -113,7 +113,7 @@ namespace Maui
 			return result;
 		}
 
-		private void BoundPropertyRaisedHandler(T eventData)
+		private void OnBoundPropertyRaised(T eventData)
 		{
 			exposedProperty.Raise(eventData);
 		}

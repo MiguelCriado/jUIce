@@ -34,7 +34,7 @@ namespace Maui
 
 			if (boundProperty != null)
 			{
-				boundProperty.Changed += BoundPropertyChangedHandler;
+				boundProperty.Changed += OnBoundPropertyChanged;
 				RaiseFirstNotification();
 			}
 			else
@@ -47,7 +47,7 @@ namespace Maui
 		{
 			if (boundProperty != null)
 			{
-				boundProperty.Changed -= BoundPropertyChangedHandler;
+				boundProperty.Changed -= OnBoundPropertyChanged;
 				boundProperty = null;
 			}
 		}
@@ -86,11 +86,11 @@ namespace Maui
 			}
 			else
 			{
-				BoundPropertyChangedHandler(boundProperty.Value);
+				OnBoundPropertyChanged(boundProperty.Value);
 			}
 		}
 		
-		private void BoundPropertyChangedHandler(T newValue)
+		private void OnBoundPropertyChanged(T newValue)
 		{
 			exposedProperty.Value = newValue;
 		}
