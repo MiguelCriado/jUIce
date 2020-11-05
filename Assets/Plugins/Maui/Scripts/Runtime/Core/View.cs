@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Maui
 {
@@ -14,6 +15,13 @@ namespace Maui
 		public event ViewEventHandler ViewDestroyed;
 
 		public bool IsVisible => transitionHandler.IsVisible;
+
+		public bool AllowInteraction
+		{
+			get => allowInteraction;
+			set => SetAllowInteraction(value);
+		}
+
 		public IViewModel ViewModel => targetComponent != null ? targetComponent.ViewModel : null;
 
 		public Transition InTransition
@@ -39,6 +47,8 @@ namespace Maui
 		
 		private readonly TransitionHandler transitionHandler = new TransitionHandler();
 		private RectTransform rectTransform;
+		private bool allowInteraction;
+		private GraphicRaycaster[] raycasters;
 
 		protected virtual void Reset()
 		{
@@ -48,6 +58,8 @@ namespace Maui
 		protected virtual void Awake()
 		{
 			rectTransform = GetComponent<RectTransform>();
+			allowInteraction = true;
+			raycasters = GetComponentsInChildren<GraphicRaycaster>();
 		}
 
 		public async Task Show(IViewModel viewModel, Transition overrideTransition = null)
@@ -116,6 +128,16 @@ namespace Maui
 		protected virtual void OnOutTransitionFinished()
 		{
 			OutTransitionFinished?.Invoke(this);
+		}
+		
+		private void SetAllowInteraction(bool value)
+		{
+			allowInteraction = value;
+
+			foreach (var current in raycasters)
+			{
+				current.enabled = value;
+			}
 		}
 	}
 }

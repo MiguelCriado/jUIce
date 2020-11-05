@@ -12,6 +12,7 @@ namespace Maui
 		event ViewEventHandler ViewDestroyed;
 
 		bool IsVisible { get; }
+		bool AllowInteraction { get; set; }
 		
 		Task Show(IViewModel viewModel, Transition overrideTransition = null);
 

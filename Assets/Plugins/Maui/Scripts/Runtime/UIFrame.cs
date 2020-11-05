@@ -44,6 +44,7 @@ namespace Maui
 		private GraphicRaycaster graphicRaycaster;
 
 		private readonly Dictionary<Type, IView> registeredViews = new Dictionary<Type, IView>();
+		private readonly HashSet<IView> viewsInTransition = new HashSet<IView>();
 
 		private void Reset()
 		{
@@ -203,61 +204,99 @@ namespace Maui
 		{
 			return registeredViews.ContainsKey(typeof(T));
 		}
-		
-		internal void BlockInteraction()
-		{
-			if (graphicRaycaster)
-			{
-				graphicRaycaster.enabled = false;
-			}
-		}
 
-		internal void UnblockInteraction()
-		{
-			if (graphicRaycaster)
-			{
-				graphicRaycaster.enabled = true;
-			}
-		}
-		
 		private void OnWindowOpening(IWindow openedWindow, IWindow closedWindow, WindowOpenReason reason)
 		{
+			OnViewStartsTransition(openedWindow);
 			WindowOpening?.Invoke(openedWindow, closedWindow, reason);
 		}
 		
 		private void OnWindowOpened(IWindow openedWindow, IWindow closedWindow, WindowOpenReason reason)
 		{
+			OnViewEndsTransition(openedWindow);
 			WindowOpened?.Invoke(openedWindow, closedWindow, reason);
 		}
 
 		private void OnWindowClosing(IWindow closedWindow, IWindow nextWindow, WindowHideReason reason)
 		{
+			OnViewStartsTransition(closedWindow);
 			WindowClosing?.Invoke(closedWindow, nextWindow, reason);
 		}
 		
 		private void OnWindowClosed(IWindow closedWindow, IWindow nextWindow, WindowHideReason reason)
 		{
+			OnViewEndsTransition(closedWindow);
 			WindowClosed?.Invoke(closedWindow, nextWindow, reason);
 		}
 		
 		private void OnPanelOpening(IPanel panel)
 		{
+			OnViewStartsTransition(panel);
 			PanelOpening?.Invoke(panel);
 		}
 		
 		private void OnPanelOpened(IPanel panel)
 		{
+			OnViewEndsTransition(panel);
 			PanelOpened?.Invoke(panel);
 		}
 		
 		private void OnPanelClosing(IPanel panel)
 		{
+			OnViewStartsTransition(panel);
 			PanelClosing?.Invoke(panel);
 		}
 		
 		private void OnPanelClosed(IPanel panel)
 		{
+			OnViewEndsTransition(panel);
 			PanelClosed?.Invoke(panel);
+		}
+
+		private void OnViewStartsTransition(IView view)
+		{
+			viewsInTransition.Add(view);
+
+			if (viewsInTransition.Count == 1)
+			{
+				BlockInteraction();
+			}
+		}
+
+		private void OnViewEndsTransition(IView view)
+		{
+			viewsInTransition.Remove(view);
+
+			if (viewsInTransition.Count <= 0)
+			{
+				UnblockInteraction();
+			}
+		}
+		
+		private void BlockInteraction()
+		{
+			if (graphicRaycaster)
+			{
+				graphicRaycaster.enabled = false;
+			}
+
+			foreach (var current in registeredViews)
+			{
+				current.Value.AllowInteraction = false;
+			}
+		}
+
+		private void UnblockInteraction()
+		{
+			if (graphicRaycaster)
+			{
+				graphicRaycaster.enabled = true;
+			}
+			
+			foreach (var current in registeredViews)
+			{
+				current.Value.AllowInteraction = true;
+			}
 		}
 
 		private bool IsViewValid(IView view)

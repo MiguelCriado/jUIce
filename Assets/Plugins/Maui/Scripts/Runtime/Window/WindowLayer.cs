@@ -33,15 +33,13 @@ namespace Maui
 
 		private readonly Queue<WindowHistoryEntry> windowQueue = new Queue<WindowHistoryEntry>();
 		private readonly Stack<WindowHistoryEntry> windowHistory = new Stack<WindowHistoryEntry>();
-		private readonly HashSet<IView> viewsTransitioning = new HashSet<IView>();
-		private bool IsViewTransitionInProgress => viewsTransitioning.Count > 0;
 
 		protected virtual void OnEnable()
 		{
 			if (priorityParaLayer != null)
 			{
-				priorityParaLayer.ShadowClicked -= PopupsShadowClicked;
-				priorityParaLayer.ShadowClicked += PopupsShadowClicked;
+				priorityParaLayer.ShadowClicked -= OnPopupsShadowClicked;
+				priorityParaLayer.ShadowClicked += OnPopupsShadowClicked;
 			}
 		}
 
@@ -49,8 +47,8 @@ namespace Maui
 		{
 			this.priorityParaLayer = priorityParaLayer;
 
-			priorityParaLayer.ShadowClicked -= PopupsShadowClicked;
-			priorityParaLayer.ShadowClicked += PopupsShadowClicked;
+			priorityParaLayer.ShadowClicked -= OnPopupsShadowClicked;
+			priorityParaLayer.ShadowClicked += OnPopupsShadowClicked;
 		}
 
 		public override async Task HideView(IWindow view)
@@ -223,29 +221,11 @@ namespace Maui
 		private async Task HideAndNotify(IWindow windowToClose, IWindow windowToOpen, WindowHideReason reason)
 		{
 			OnWindowClosing(windowToClose, windowToOpen, reason);
-			AddTransition(windowToClose);
 
 			await windowToClose.Hide();
 			
 			priorityParaLayer.RefreshDarken();
-			RemoveTransition(windowToClose);
 			OnWindowClosed(windowToClose, windowToOpen, reason);
-		}
-
-		private void AddTransition(IView view)
-		{
-			viewsTransitioning.Add(view);
-			uiFrame.BlockInteraction();
-		}
-
-		private void RemoveTransition(IView view)
-		{
-			viewsTransitioning.Remove(view);
-
-			if (IsViewTransitionInProgress == false)
-			{
-				uiFrame.UnblockInteraction();
-			}
 		}
 
 		private void OnCloseRequestedByWindow(IView controller)
@@ -253,7 +233,7 @@ namespace Maui
 			HideView(controller as IWindow).RunAndForget();
 		}
 
-		private void PopupsShadowClicked()
+		private void OnPopupsShadowClicked()
 		{
 			if (CurrentWindow != null && CurrentWindow.IsPopup && CurrentWindow.CloseOnShadowClick)
 			{
@@ -328,11 +308,9 @@ namespace Maui
 			CurrentWindow = windowEntry.View;
 
 			OnWindowOpening(windowEntry.View, closedWindow, reason);
-			AddTransition(windowEntry.View);
 			
 			await windowEntry.Show();
 			
-			RemoveTransition(windowEntry.View);
 			OnWindowOpened(windowEntry.View, closedWindow, reason);
 		}
 
