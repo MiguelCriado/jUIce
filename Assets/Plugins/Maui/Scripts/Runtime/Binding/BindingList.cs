@@ -28,7 +28,7 @@ namespace Maui
 				int index = i;
 				newVariable.Property.Changed += newValue => OnBoundVariableChanged(index, newValue);
 				bindingList.Add(newVariable);
-				values.Add(newVariable.Property.Value);
+				values.Add(newVariable.Property.GetValue(default));
 			}
 		}
 

@@ -7,8 +7,8 @@ namespace Maui
 	{
 		public enum LogicalOperation
 		{
-			AND,
-			OR
+			And,
+			Or
 		}
 
 		[SerializeField] private LogicalOperation operation;
@@ -32,8 +32,8 @@ namespace Maui
 			switch (operation)
 			{
 				default:
-				case LogicalOperation.AND: return a && b;
-				case LogicalOperation.OR: return a || b;
+				case LogicalOperation.And: return a && b;
+				case LogicalOperation.Or: return a || b;
 			}
 		}
 
@@ -42,8 +42,8 @@ namespace Maui
 			switch (operation)
 			{
 				default:
-				case LogicalOperation.AND: return currentValue == true;
-				case LogicalOperation.OR: return currentValue == false;
+				case LogicalOperation.And: return currentValue == true;
+				case LogicalOperation.Or: return currentValue == false;
 			}
 		}
 	}

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace Maui
 {
@@ -17,7 +16,7 @@ namespace Maui
 
 			set
 			{
-				if (Compare(value, this.value) == false)
+				if (!HasValue || Compare(value, this.value) == false)
 				{
 					SetValue(value);
 					OnChanged(value);
@@ -25,18 +24,30 @@ namespace Maui
 			}
 		}
 
-		[SerializeField] private T value;
+		private T value;
+		private EqualityComparer<T> equalityComparer;
 
-		public ObservableVariable() : this(default)
+		public ObservableVariable()
 		{
-
+			equalityComparer = EqualityComparer<T>.Default;
 		}
 		
-		public ObservableVariable(T initialValue)
+		public ObservableVariable(T initialValue) : this()
 		{
 			SetValue(initialValue);
 		}
 
+		public ObservableVariable(EqualityComparer<T> equalityComparer) : this()
+		{
+			this.equalityComparer = equalityComparer;
+		}
+		
+		public void Clear()
+		{
+			value = default;
+			HasValue = false;
+		}
+		
 		public void ForceChangedNotification()
 		{
 			OnChanged(Value);
@@ -49,7 +60,7 @@ namespace Maui
 		
 		private bool Compare(T x, T y)
 		{
-			return EqualityComparer<T>.Default.Equals(x, y);
+			return equalityComparer.Equals(x, y);
 		}
 
 		private void SetValue(T newValue)

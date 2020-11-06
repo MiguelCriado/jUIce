@@ -28,6 +28,7 @@ namespace Maui
 			toggle.onValueChanged.AddListener(ToggleValueChangedHandler);
 			
 			commandBinding.Bind();
+			ToggleValueChangedHandler(toggle.isOn);
 		}
 
 		protected override void OnDisable()

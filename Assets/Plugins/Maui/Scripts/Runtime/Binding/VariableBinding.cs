@@ -50,6 +50,8 @@ namespace Maui
 				boundProperty.Changed -= OnBoundPropertyChanged;
 				boundProperty = null;
 			}
+			
+			exposedProperty.Clear();
 		}
 
 		protected override void BindConstant(BindingInfo info)
@@ -80,11 +82,7 @@ namespace Maui
 		
 		private void RaiseFirstNotification()
 		{
-			if (EqualityComparer<T>.Default.Equals(boundProperty.Value, exposedProperty.Value))
-			{
-				exposedProperty.ForceChangedNotification();
-			}
-			else
+			if (boundProperty.HasValue)
 			{
 				OnBoundPropertyChanged(boundProperty.Value);
 			}

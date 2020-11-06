@@ -13,8 +13,8 @@ namespace Maui
 		[SerializeField] private MathComparisonType operation;
 		[SerializeField] private FloatConstantBindingInfo operandB = new FloatConstantBindingInfo();
 
-		private float A => operandABinding.Property.Value;
-		private float B => operandBBinding.Property.Value;
+		private float A => operandABinding.Property.GetValue(0);
+		private float B => operandBBinding.Property.GetValue(0);
 
 		private ObservableVariable<bool> result;
 		private OperatorBinderVariableViewModel<bool> viewModel;

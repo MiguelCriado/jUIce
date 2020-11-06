@@ -15,6 +15,11 @@
 			boxedVariable.Changed += BoxedVariableChangedHandler;
 		}
 
+		public T GetValue(T fallback)
+		{
+			return boxedVariable.GetValue((U)fallback);
+		}
+
 		private void BoxedVariableChangedHandler(U newValue)
 		{
 			Changed?.Invoke(newValue);

@@ -51,13 +51,13 @@ namespace Maui
 		
 		private void RaiseFirstNotification()
 		{
-			if (boundProperty.CanExecute.Value == canExecuteSource.Value)
+			if (boundProperty.CanExecute.HasValue && boundProperty.CanExecute.Value == canExecuteSource.Value)
 			{
 				canExecuteSource.ForceChangedNotification();
 			}
 			else
 			{
-				canExecuteSource.Value = boundProperty.CanExecute.Value;
+				canExecuteSource.Value = boundProperty.CanExecute.GetValue(false);
 			}
 		}
 
@@ -141,13 +141,13 @@ namespace Maui
 		
 		private void RaiseFirstNotification()
 		{
-			if (boundProperty.CanExecute.Value == canExecuteSource.Value)
+			if (boundProperty.CanExecute.HasValue && boundProperty.CanExecute.Value == canExecuteSource.Value)
 			{
 				canExecuteSource.ForceChangedNotification();
 			}
 			else
 			{
-				canExecuteSource.Value = boundProperty.CanExecute.Value;
+				canExecuteSource.Value = boundProperty.CanExecute.GetValue(false);
 			}
 		}
 		

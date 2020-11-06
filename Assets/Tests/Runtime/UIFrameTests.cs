@@ -126,7 +126,7 @@ namespace Maui.Tests
 
 			async void ShowPanel()
 			{
-				await uiFrame.ShowView<PanelA>();
+				await uiFrame.ShowPanelAsync<PanelA>(null);
 				isPanelShown = true;
 			}
 
@@ -149,7 +149,7 @@ namespace Maui.Tests
 			
 			async void ShowPanel()
 			{
-				await uiFrame.ShowView<PanelA>();
+				await uiFrame.ShowPanelAsync<PanelA>(null);
 				isPanelShown = true;
 			}
 
@@ -169,7 +169,7 @@ namespace Maui.Tests
 			WindowWithProperties windowInstance = Object.Instantiate(windowPrefab);
 			uiFrame.RegisterView(windowInstance);
 
-			uiFrame.ShowView<WindowWithProperties>();
+			uiFrame.ShowWindowAsync<WindowWithProperties>(null);
 
 			Assert.IsTrue(uiFrame.CurrentWindow.GetType() == typeof(WindowWithProperties));
 			yield return null;
