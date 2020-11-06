@@ -23,12 +23,12 @@ namespace Maui
 
 		protected override void ProcessedCommandExecuteRequestedHandler(T parameter)
 		{
+			valueReceivedCount++;
+
 			if (valueReceivedCount >= skipAmount)
 			{
 				base.ProcessedCommandExecuteRequestedHandler(parameter);
 			}
-
-			valueReceivedCount++;
 		}
 
 		protected override T ProcessValue(T value)

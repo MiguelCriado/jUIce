@@ -4,7 +4,7 @@ namespace Maui
 {
 	public class SkipOperator<T> : ProcessorOperatorBinder<T, T>
 	{
-		private static readonly BindingType[] AllowedTypesStatic = new[]
+		private static readonly BindingType[] AllowedTypesStatic = 
 		{
 			BindingType.Variable,
 			BindingType.Command,

@@ -23,12 +23,12 @@ namespace Maui
 
 		protected override void BoundVariableChangedHandler(T newValue)
 		{
+			valueReceivedCount++;
+			
 			if (valueReceivedCount >= skipAmount)
 			{
 				base.BoundVariableChangedHandler(newValue);
 			}
-
-			valueReceivedCount++;
 		}
 
 		protected override T ProcessValue(T value)
