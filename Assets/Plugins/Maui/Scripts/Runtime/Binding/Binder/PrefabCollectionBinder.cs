@@ -12,6 +12,7 @@ namespace Maui
 
 		private Transform container;
 		private List<CollectionItemViewModelComponent> currentItems;
+		private Dictionary<Type, CollectionItemViewModelComponent> prefabResolutionCache;
 
 		protected override void Awake()
 		{
@@ -19,6 +20,7 @@ namespace Maui
 
 			container = transform;
 			currentItems = new List<CollectionItemViewModelComponent>();
+			prefabResolutionCache = new Dictionary<Type, CollectionItemViewModelComponent>();
 		}
 
 		protected override void OnCollectionReset()
@@ -48,7 +50,15 @@ namespace Maui
 
 		protected override void OnCollectionItemReplaced(int index, object oldValue, object newValue)
 		{
-			SetItemValue(index, newValue);
+			if (GetBestPrefabFromCache(oldValue) == GetBestPrefabFromCache(newValue))
+			{
+				SetItemValue(index, newValue);
+			}
+			else
+			{
+				RemoveItem(index);
+				InsertItem(index, newValue);
+			}
 		}
 		
 		protected virtual CollectionItemViewModelComponent SpawnItem(CollectionItemViewModelComponent prefab, Transform itemParent)
@@ -78,7 +88,7 @@ namespace Maui
 
 		private void InsertItem(int index, object value)
 		{
-			CollectionItemViewModelComponent bestPrefab = FindBestPrefab(value);
+			CollectionItemViewModelComponent bestPrefab = GetBestPrefabFromCache(value);
 			CollectionItemViewModelComponent newItem = SpawnItem(bestPrefab, container);
 			currentItems.Insert(index, newItem);
 			newItem.transform.SetSiblingIndex(index);
@@ -98,17 +108,33 @@ namespace Maui
 			item.transform.SetSiblingIndex(newIndex);
 		}
 
-		private CollectionItemViewModelComponent FindBestPrefab(object value)
+		private CollectionItemViewModelComponent GetBestPrefabFromCache(object value)
+		{
+			Type valueType = value.GetType();
+
+			if (prefabResolutionCache.TryGetValue(valueType, out var result) == false)
+			{
+				result = FindBestPrefab(valueType);
+
+				if (result != null)
+				{
+					prefabResolutionCache[valueType] = result;
+				}
+			}
+
+			return result;
+		}
+
+		private CollectionItemViewModelComponent FindBestPrefab(Type valueType)
 		{
 			CollectionItemViewModelComponent result = null;
-			Type valueType = value.GetType();
 			int bestDepth = -1;
 
 			foreach (CollectionItemViewModelComponent prefab in prefabs)
 			{
 				Type injectionType = prefab.InjectionType;
 				Type viewModelType;
-				
+
 				if (injectionType != null
 				    && (viewModelType = GetViewModelType(injectionType)) != null
 				    && viewModelType.GenericTypeArguments[0].IsAssignableFrom(valueType))
