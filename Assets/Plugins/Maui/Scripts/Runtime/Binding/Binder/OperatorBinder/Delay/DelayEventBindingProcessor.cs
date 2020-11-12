@@ -22,9 +22,15 @@ namespace Maui
 			base.Bind();
 		}
 
+		public override void Unbind()
+		{
+			actionQueue.Clear();
+			LifecycleUtils.OnUpdate -= Update;
+			base.Unbind();
+		}
+
 		protected override T ProcessValue(T value)
 		{
-			LifecycleUtils.OnUpdate -= Update;
 			return value;
 		}
 

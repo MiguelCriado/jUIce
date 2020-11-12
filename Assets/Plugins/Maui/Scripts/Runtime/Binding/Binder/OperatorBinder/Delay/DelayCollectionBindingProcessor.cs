@@ -18,13 +18,13 @@ namespace Maui
 
 		public override void Bind()
 		{
-			actionQueue.Clear();
 			LifecycleUtils.OnUpdate += Update;
 			base.Bind();
 		}
 
 		public override void Unbind()
 		{
+			actionQueue.Clear();
 			LifecycleUtils.OnUpdate -= Update;
 			base.Unbind();
 		}

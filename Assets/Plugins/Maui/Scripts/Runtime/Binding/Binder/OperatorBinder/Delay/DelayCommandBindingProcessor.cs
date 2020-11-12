@@ -24,6 +24,7 @@ namespace Maui
 
 		public override void Unbind()
 		{
+			actionQueue.Clear();
 			LifecycleUtils.OnUpdate -= Update;
 			base.Unbind();
 		}
