@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Maui
 {
-	public abstract class Panel : Panel<IViewModel>
+	public abstract class Panel : Panel<NullViewModel>
 	{
 
 	}

@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Maui
 {
-	public abstract class Window : Window<IViewModel>
+	public abstract class Window : Window<NullViewModel>
 	{
 
 	}
