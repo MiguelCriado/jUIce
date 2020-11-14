@@ -1,5 +1,4 @@
-﻿using Maui.Scan;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Maui
 {

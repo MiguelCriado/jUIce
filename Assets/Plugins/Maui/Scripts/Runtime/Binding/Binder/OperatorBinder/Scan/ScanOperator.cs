@@ -1,4 +1,4 @@
-﻿namespace Maui.Scan
+﻿namespace Maui
 {
 	public abstract class ScanOperator<T> : ProcessorOperatorBinder<T, T>
 	{
