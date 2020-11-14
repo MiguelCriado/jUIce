@@ -1,5 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Maui.Pooling;
+using Maui.Utils;
 using UnityEngine;
 
 namespace Maui
@@ -10,11 +11,13 @@ namespace Maui
 
 		[SerializeField] private List<CollectionItemViewModelComponent> prefabs;
 		[SerializeField] private Transform itemsContainer;
-		
+		[SerializeField] private bool poolItems = true;
+
 		private Transform Container => itemsContainer ? itemsContainer : transform;
 		
 		private PrefabPicker<CollectionItemViewModelComponent> prefabPicker;
 		private List<CollectionItemViewModelComponent> currentItems;
+		private ObjectPool pool;
 
 		protected virtual void OnValidate()
 		{
@@ -30,6 +33,16 @@ namespace Maui
 
 			prefabPicker = new PrefabPicker<CollectionItemViewModelComponent>(prefabs);
 			currentItems = new List<CollectionItemViewModelComponent>();
+
+			if (poolItems)
+			{
+				pool = this.GetOrAddComponent<ObjectPool>();
+
+				foreach (CollectionItemViewModelComponent current in prefabs)
+				{
+					pool.CreatePool(current, 3);
+				}
+			}
 		}
 
 		protected override void OnCollectionReset()
@@ -72,12 +85,31 @@ namespace Maui
 		
 		protected virtual CollectionItemViewModelComponent SpawnItem(CollectionItemViewModelComponent prefab, Transform itemParent)
 		{
-			return Instantiate(prefab, itemParent, false);
+			CollectionItemViewModelComponent result;
+			
+			if (pool)
+			{
+				result = pool.Spawn(prefab);
+				result.transform.SetParent(itemParent);
+			}
+			else
+			{
+				result = Instantiate(prefab, itemParent, false);
+			}
+
+			return result;
 		}
 
 		protected virtual void DisposeItem(CollectionItemViewModelComponent item)
 		{
-			Destroy(item.gameObject);
+			if (pool)
+			{
+				pool.Recycle(item);
+			}
+			else
+			{
+				Destroy(item.gameObject);
+			}
 		}
 
 		private void ClearItems()
