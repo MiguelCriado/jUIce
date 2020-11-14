@@ -1,22 +1,12 @@
 ﻿namespace Maui
 {
-	public class OperatorBinderEventViewModel<T> : IViewModel
+	public class OperatorBinderEventViewModel<T> : OperatorBinderViewModel
 	{
 		public IObservableEvent<T> Value { get; }
 
 		public OperatorBinderEventViewModel(IObservableEvent<T> value)
 		{
 			Value = value;
-		}
-
-		public void Enable()
-		{
-			
-		}
-
-		public void Disable()
-		{
-			
 		}
 	}
 }
