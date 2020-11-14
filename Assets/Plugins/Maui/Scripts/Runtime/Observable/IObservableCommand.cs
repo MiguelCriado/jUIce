@@ -7,7 +7,7 @@
 	{
 		event ObservableCommandEventHandler ExecuteRequested;
 
-		IReadOnlyObservableVariable<bool> CanExecute { get; }
+		IObservableVariable<bool> CanExecute { get; }
 
 		bool Execute();
 	}
@@ -16,7 +16,7 @@
 	{
 		event ObservableCommandEventHandler<T> ExecuteRequested;
 
-		IReadOnlyObservableVariable<bool> CanExecute { get; }
+		IObservableVariable<bool> CanExecute { get; }
 
 		bool Execute(T parameter);
 	}

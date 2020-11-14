@@ -4,9 +4,9 @@
 	{
 		public event ObservableCommandEventHandler ExecuteRequested;
 
-		public IReadOnlyObservableVariable<bool> CanExecute { get; }
+		public IObservableVariable<bool> CanExecute { get; }
 
-		public ObservableCommand(IReadOnlyObservableVariable<bool> canExecuteSource)
+		public ObservableCommand(IObservableVariable<bool> canExecuteSource)
 		{
 			CanExecute = canExecuteSource;
 		}
@@ -21,7 +21,7 @@
 			ExecuteRequested = onRequestCallback;
 		}
 
-		public ObservableCommand(IReadOnlyObservableVariable<bool> canExecuteSource, ObservableCommandEventHandler onRequestCallback) : this(canExecuteSource)
+		public ObservableCommand(IObservableVariable<bool> canExecuteSource, ObservableCommandEventHandler onRequestCallback) : this(canExecuteSource)
 		{
 			ExecuteRequested = onRequestCallback;
 		}
@@ -49,9 +49,9 @@
 	{
 		public event ObservableCommandEventHandler<T> ExecuteRequested;
 
-		public IReadOnlyObservableVariable<bool> CanExecute { get; }
+		public IObservableVariable<bool> CanExecute { get; }
 
-		public ObservableCommand(IReadOnlyObservableVariable<bool> canExecuteSource)
+		public ObservableCommand(IObservableVariable<bool> canExecuteSource)
 		{
 			CanExecute = canExecuteSource;
 		}
@@ -66,7 +66,7 @@
 			ExecuteRequested = onRequestCallback;
 		}
 
-		public ObservableCommand(IReadOnlyObservableVariable<bool> canExecuteSource, ObservableCommandEventHandler<T> onRequestCallback) : this(canExecuteSource)
+		public ObservableCommand(IObservableVariable<bool> canExecuteSource, ObservableCommandEventHandler<T> onRequestCallback) : this(canExecuteSource)
 		{
 			ExecuteRequested = onRequestCallback;
 		}

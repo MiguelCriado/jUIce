@@ -4,7 +4,7 @@
 	{
 		public event ObservableCommandEventHandler<T> ExecuteRequested;
 
-		public IReadOnlyObservableVariable<bool> CanExecute => boxedCommand.CanExecute;
+		public IObservableVariable<bool> CanExecute => boxedCommand.CanExecute;
 
 		private readonly IObservableCommand<U> boxedCommand;
 
