@@ -49,17 +49,17 @@ namespace Maui
 
 		private void ResetId()
 		{
-			string candidate = NewId();
+			string candidate = GetNewId();
 
 			while (IsIdAvailable(candidate) == false)
 			{
-				candidate = NewId();
+				candidate = GetNewId();
 			}
 
 			id = candidate;
 		}
 
-		private string NewId()
+		private string GetNewId()
 		{
 			return Guid.NewGuid().ToString().Substring(0, 4);
 		}
