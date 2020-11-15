@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Maui.Tweening;
 using Maui.Utils;
 using UnityEngine;
@@ -10,31 +11,22 @@ namespace Maui
 	{
 		internal delegate void WindowParaLayerEventHandler();
 
-		internal event WindowParaLayerEventHandler ShadowClicked;
-
-		[SerializeField] private GameObject backgroundShadow = null;
-		[SerializeField] private float shadowFadeTime;
+		internal event WindowParaLayerEventHandler BackgroundClicked;
+		
+		[SerializeField] private Widget backgroundWidget;
 
 		private readonly List<GameObject> containedViews = new List<GameObject>();
-		private CanvasGroup shadowCanvasGroup;
-		private Button shadowButton;
+		private Button backgroundButton;
 		private bool isHiding;
-
-		private void Reset()
-		{
-			shadowFadeTime = 0.3f;
-		}
 
 		private void Awake()
 		{
-			InitializeCanvasGroup();
 			InitializeShadowButton();
 		}
 
-		internal void SetBackgroundShadow(GameObject backgroundShadow)
+		internal void SetBackgroundWidget(Widget backgroundWidget)
 		{
-			this.backgroundShadow = backgroundShadow;
-			InitializeCanvasGroup();
+			this.backgroundWidget = backgroundWidget;
 			InitializeShadowButton();
 		}
 
@@ -44,99 +36,93 @@ namespace Maui
 			containedViews.Add(viewTransform.gameObject);
 		}
 
-		public void RefreshDarken()
+		public void RefreshBackground()
 		{
-			if (IsShadowVisible() != ShouldShadowBeVisible())
+			if (IsBackgroundVisible() != ShouldBackgroundBeVisible())
 			{
-				ToggleBackgroundShadow();
+				ToggleBackground();
 			}
 		}
 
-		public void ToggleBackgroundShadow()
+		public void ToggleBackground()
 		{
-			if (IsShadowVisible())
+			if (IsBackgroundVisible())
 			{
-				HideBackgroundShadow();
+				HideBackground();
 			}
 			else
 			{
-				ShowBackgroundShadow();
+				ShowBackground();
 			}
 		}
 
-		public void ShowBackgroundShadow()
+		public void ShowBackground()
 		{
-			Tween.Kill(shadowCanvasGroup);
-			isHiding = false;
-			backgroundShadow.SetActive(true);
-			backgroundShadow.transform.SetAsLastSibling();
-			shadowCanvasGroup.Fade(1, shadowFadeTime);
-		}
-
-		public void HideBackgroundShadow()
-		{
-			Tween.Kill(shadowCanvasGroup);
-			isHiding = true;
-			shadowCanvasGroup.Fade(0, shadowFadeTime)
-				.Completed += t =>
+			if (backgroundWidget)
 			{
-				backgroundShadow.gameObject.SetActive(false);
-				isHiding = false;
-			};
+				backgroundWidget.transform.SetAsLastSibling();
+				backgroundWidget.Show().RunAndForget();
+			}
 		}
 
-		private bool IsShadowVisible()
+		public void HideBackground()
 		{
-			return backgroundShadow.activeSelf && isHiding == false;
+			HideBackgroundAsync().RunAndForget();
 		}
 
-		private bool ShouldShadowBeVisible()
+		private async Task HideBackgroundAsync()
+		{
+			if (backgroundWidget)
+			{
+				isHiding = true;
+				
+				await backgroundWidget.Hide();
+
+				isHiding = false;
+			}
+		}
+
+		private bool IsBackgroundVisible()
+		{
+			return backgroundWidget.IsVisible && isHiding == false;
+		}
+
+		private bool ShouldBackgroundBeVisible()
 		{
 			bool result = false;
-			int i = 0;
 
-			while (result == false && i < containedViews.Count)
+			if (backgroundWidget)
 			{
-				if (containedViews[i] != null && containedViews[i].activeSelf)
-				{
-					result = true;
-				}
+				int i = 0;
 
-				i++;
+				while (result == false && i < containedViews.Count)
+				{
+					if (containedViews[i] && containedViews[i].activeSelf)
+					{
+						result = true;
+					}
+
+					i++;
+				}
 			}
 
 			return result;
 		}
 
-		private void InitializeCanvasGroup()
-		{
-			if (backgroundShadow != null)
-			{
-				shadowCanvasGroup = backgroundShadow.GetOrAddComponent<CanvasGroup>();
-				shadowCanvasGroup.alpha = 0;
-			}
-		}
-
 		private void InitializeShadowButton()
 		{
-			if (backgroundShadow != null)
+			if (backgroundWidget)
 			{
-				shadowButton = backgroundShadow.GetComponent<Button>();
-
-				if (shadowButton == null)
-				{
-					shadowButton = backgroundShadow.AddComponent<Button>();
-					shadowButton.transition = Selectable.Transition.None;
-				}
-
-				shadowButton.onClick.RemoveListener(OnShadowClicked);
-				shadowButton.onClick.AddListener(OnShadowClicked);
+				backgroundButton = backgroundWidget.GetOrAddComponent<Button>();
+				backgroundButton.transition = Selectable.Transition.None;
+				backgroundButton.onClick.RemoveListener(OnBackgroundClicked);
+				backgroundButton.onClick.AddListener(OnBackgroundClicked);
 			}
 		}
 
-		private void OnShadowClicked()
+		private void OnBackgroundClicked()
 		{
-			ShadowClicked?.Invoke();
+			BackgroundClicked?.Invoke();
 		}
 	}
 }

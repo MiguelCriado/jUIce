@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using ICSharpCode.NRefactory.Ast;
 using UnityEngine;
 
 namespace Maui
@@ -26,20 +27,33 @@ namespace Maui
 
 		private readonly TransitionHandler transitionHandler = new TransitionHandler();
 		private RectTransform rectTransform;
+		private bool isInitialized;
 
 		protected virtual void Awake()
 		{
-			rectTransform = GetComponent<RectTransform>();
+			Initialize();
 		}
 
 		public Task Show()
 		{
+			Initialize();
 			return transitionHandler.Show(rectTransform, InTransition);
 		}
 
 		public Task Hide()
 		{
+			Initialize();
 			return transitionHandler.Hide(rectTransform, OutTransition);
+		}
+
+		private void Initialize()
+		{
+			if (isInitialized == false)
+			{
+				rectTransform = GetComponent<RectTransform>();
+
+				isInitialized = true;
+			}
 		}
 	}
 }

@@ -38,8 +38,8 @@ namespace Maui
 		{
 			if (priorityParaLayer != null)
 			{
-				priorityParaLayer.ShadowClicked -= OnPopupsShadowClicked;
-				priorityParaLayer.ShadowClicked += OnPopupsShadowClicked;
+				priorityParaLayer.BackgroundClicked -= OnPopupsBackgroundClicked;
+				priorityParaLayer.BackgroundClicked += OnPopupsBackgroundClicked;
 			}
 		}
 
@@ -47,8 +47,8 @@ namespace Maui
 		{
 			this.priorityParaLayer = priorityParaLayer;
 
-			priorityParaLayer.ShadowClicked -= OnPopupsShadowClicked;
-			priorityParaLayer.ShadowClicked += OnPopupsShadowClicked;
+			priorityParaLayer.BackgroundClicked -= OnPopupsBackgroundClicked;
+			priorityParaLayer.BackgroundClicked += OnPopupsBackgroundClicked;
 		}
 
 		public override async Task HideView(IWindow view)
@@ -59,7 +59,7 @@ namespace Maui
 
 				if (view.IsPopup && NextWindowIsPopup() == false)
 				{
-					priorityParaLayer.HideBackgroundShadow();
+					priorityParaLayer.HideBackground();
 				}
 
 				IWindow windowToClose = view;
@@ -107,7 +107,7 @@ namespace Maui
 			await Task.WhenAll(tasks);
 
 			CurrentWindow = null;
-			priorityParaLayer.RefreshDarken();
+			priorityParaLayer.RefreshBackground();
 			windowHistory.Clear();
 		}
 
@@ -224,7 +224,6 @@ namespace Maui
 
 			await windowToClose.Hide();
 			
-			priorityParaLayer.RefreshDarken();
 			OnWindowClosed(windowToClose, windowToOpen, reason);
 		}
 
@@ -233,7 +232,7 @@ namespace Maui
 			HideView(controller as IWindow).RunAndForget();
 		}
 
-		private void OnPopupsShadowClicked()
+		private void OnPopupsBackgroundClicked()
 		{
 			if (CurrentWindow != null && CurrentWindow.IsPopup && CurrentWindow.CloseOnShadowClick)
 			{
@@ -301,7 +300,7 @@ namespace Maui
 		{
 			if (windowEntry.View.IsPopup)
 			{
-				priorityParaLayer.ShowBackgroundShadow();
+				priorityParaLayer.ShowBackground();
 			}
 
 			windowHistory.Push(windowEntry);

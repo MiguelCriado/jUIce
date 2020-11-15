@@ -32,7 +32,7 @@ namespace Maui
 
 		private async Task DoAnimation(RectTransform target, Transition transition, bool isVisible)
 		{
-			if (transition == null)
+			if (!transition)
 			{
 				target.gameObject.SetActive(isVisible);
 			}

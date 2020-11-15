@@ -57,7 +57,8 @@ namespace Maui
 			GameObject gameObject = new GameObject("UI Camera");
 			Camera result = gameObject.AddComponent<Camera>();
 			result.cullingMask = 1 << LayerMask.NameToLayer(UIMaskName);
-			;
+			result.depth = 1;
+			result.clearFlags = CameraClearFlags.Depth;
 			return result;
 		}
 
@@ -103,11 +104,18 @@ namespace Maui
 		private static WindowParaLayer CreatePriorityWindowLayer()
 		{
 			WindowParaLayer result = CreateUIObject<WindowParaLayer>("Priority Window Layer");
-			Image background = CreateUIObject<Image>("Background Shadow");
-			background.color = new Color(0, 0, 0, 0.7f);
-			background.transform.SetParent(result.transform, false);
-			background.gameObject.SetActive(false);
-			result.SetBackgroundShadow(background.gameObject);
+			Widget backgroundWidget = CreateUIObject<Widget>("Background Widget");
+			FadeTransition inTransition = backgroundWidget.gameObject.AddComponent<FadeTransition>();
+			inTransition.FadeTypeInternal = FadeTransition.FadeType.In;
+			FadeTransition outTransition = backgroundWidget.gameObject.AddComponent<FadeTransition>();
+			outTransition.FadeTypeInternal = FadeTransition.FadeType.Out;
+			backgroundWidget.InTransition = inTransition;
+			backgroundWidget.OutTransition = outTransition;
+			Image backgroundImage = backgroundWidget.gameObject.AddComponent<Image>();
+			backgroundImage.color = new Color(0, 0, 0, 0.7f);
+			backgroundImage.transform.SetParent(result.transform, false);
+			backgroundImage.gameObject.SetActive(false);
+			result.SetBackgroundWidget(backgroundWidget);
 			return result;
 		}
 

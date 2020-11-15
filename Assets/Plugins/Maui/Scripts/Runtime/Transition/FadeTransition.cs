@@ -13,6 +13,8 @@ namespace Maui
 			Out
 		}
 
+		internal FadeType FadeTypeInternal { get => fadeType; set => fadeType = value; }
+
 		[SerializeField] private FadeType fadeType = FadeType.In;
 		[SerializeField] private float duration = 0.3f;
 		[SerializeField] private Ease ease = Ease.InOutSine;
