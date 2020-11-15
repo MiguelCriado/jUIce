@@ -3,6 +3,7 @@
 	public class VariableBoxer<T, U> : IReadOnlyObservableVariable<T> where U : struct, T
 	{
 		public event ObservableVariableEventHandler<T> Changed;
+		public event ObservableVariableClearEventHandler Cleared;
 
 		public bool HasValue => boxedVariable.HasValue;
 		public T Value => boxedVariable.Value;
@@ -12,7 +13,8 @@
 		public VariableBoxer(IReadOnlyObservableVariable<U> boxedVariable)
 		{
 			this.boxedVariable = boxedVariable;
-			boxedVariable.Changed += BoxedVariableChangedHandler;
+			boxedVariable.Changed += OnBoxedVariableChanged;
+			boxedVariable.Cleared -= OnBoxedVariableCleared;
 		}
 
 		public T GetValue(T fallback)
@@ -20,9 +22,14 @@
 			return boxedVariable.GetValue((U)fallback);
 		}
 
-		private void BoxedVariableChangedHandler(U newValue)
+		private void OnBoxedVariableChanged(U newValue)
 		{
 			Changed?.Invoke(newValue);
+		}
+
+		private void OnBoxedVariableCleared() 
+		{
+			Cleared?.Invoke();
 		}
 	}
 }

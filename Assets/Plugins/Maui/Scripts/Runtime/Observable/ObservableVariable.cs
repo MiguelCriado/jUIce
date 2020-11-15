@@ -7,6 +7,7 @@ namespace Maui
 	public class ObservableVariable<T> : IObservableVariable<T>
 	{
 		public event ObservableVariableEventHandler<T> Changed;
+		public event ObservableVariableClearEventHandler Cleared;
 
 		public bool HasValue { get; protected set; }
 
@@ -46,6 +47,7 @@ namespace Maui
 		{
 			value = default;
 			HasValue = false;
+			OnCleared();
 		}
 		
 		public void ForceChangedNotification()
@@ -56,6 +58,11 @@ namespace Maui
 		protected virtual void OnChanged(T newValue)
 		{
 			Changed?.Invoke(newValue);
+		}
+
+		protected virtual void OnCleared()
+		{
+			Cleared?.Invoke();
 		}
 		
 		private bool Compare(T x, T y)
