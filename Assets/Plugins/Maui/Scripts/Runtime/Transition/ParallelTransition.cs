@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Maui
 {
-	public class CombineTransition : Transition
+	public class ParallelTransition : Transition
 	{
 		[SerializeField] private List<Transition> transitions;
 
