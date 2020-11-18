@@ -3,7 +3,7 @@ using FluentAssertions;
 using NUnit.Framework;
 using Assert = UnityEngine.Assertions.Assert;
 
-namespace Maui.Tests
+namespace Juice.Tests
 {
 	public class BindingUtilsTests
 	{

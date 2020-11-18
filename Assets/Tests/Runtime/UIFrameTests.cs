@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.TestTools;
 
-namespace Maui.Tests
+namespace Juice.Tests
 {
 	public class UIFrameTests
 	{

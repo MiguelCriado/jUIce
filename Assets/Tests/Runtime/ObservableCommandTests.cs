@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework;
 
-namespace Maui.Tests
+namespace Juice.Tests
 {
 	public class ObservableCommandTests
 	{

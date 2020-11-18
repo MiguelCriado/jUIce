@@ -1,4 +1,4 @@
-﻿namespace Maui.Tests
+﻿namespace Juice.Tests
 {
 	public class WindowWithProperties : Window<IViewModel>
 	{

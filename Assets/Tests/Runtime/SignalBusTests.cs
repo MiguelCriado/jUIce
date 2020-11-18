@@ -3,7 +3,7 @@ using FluentAssertions;
 using NUnit.Framework;
 using UnityEngine.TestTools;
 
-namespace Maui.Tests
+namespace Juice.Tests
 {
 	public class SignalBusTests
 	{
