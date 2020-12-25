@@ -92,11 +92,12 @@ namespace Juice
 			}
 		}
 
-		public async Task Hide(bool animate = true)
+		public async Task Hide(Transition overrideTransition = null)
 		{
 			OnHiding();
+			Transition transition = overrideTransition ? overrideTransition : OutTransition;
 
-			await transitionHandler.Hide(rectTransform, animate ? OutTransition : null);
+			await transitionHandler.Hide(rectTransform, transition);
 
 			SetViewModel(default);
 			OnOutTransitionFinished();

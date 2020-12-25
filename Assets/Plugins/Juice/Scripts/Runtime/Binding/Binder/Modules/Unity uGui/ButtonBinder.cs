@@ -19,14 +19,14 @@ namespace Juice
 		{
 			base.OnEnable();
 			
-			button.onClick.AddListener(ButtonClickedHandler);
+			button.onClick.AddListener(OnButtonClicked);
 		}
 
 		protected override void OnDisable()
 		{
 			base.OnDisable();
 			
-			button.onClick.RemoveListener(ButtonClickedHandler);
+			button.onClick.RemoveListener(OnButtonClicked);
 		}
 
 		protected override void OnCommandCanExecuteChanged(bool newValue)
@@ -34,7 +34,7 @@ namespace Juice
 			button.interactable = newValue;
 		}
 
-		private void ButtonClickedHandler()
+		private void OnButtonClicked()
 		{
 			ExecuteCommand();
 		}

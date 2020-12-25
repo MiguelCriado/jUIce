@@ -30,13 +30,13 @@ namespace Juice
 			}
 		}
 
-		public abstract Task HideView(TView view);
+		public abstract Task HideView(TView view, TOptions overrideOptions = default);
 
-		public async Task HideView(Type viewType)
+		public async Task HideView(Type viewType, TOptions overrideOptions = default)
 		{
 			if (registeredViews.TryGetValue(viewType, out TView view))
 			{
-				await HideView(view);
+				await HideView(view, overrideOptions);
 			}
 			else
 			{
@@ -44,14 +44,14 @@ namespace Juice
 			}
 		}
 
-		public virtual Task HideAll(bool animate = true)
+		public virtual Task HideAll()
 		{
 			Task[] tasks = new Task[registeredViews.Count];
 			int i = 0;
 
 			foreach (KeyValuePair<Type,TView> viewEntry in registeredViews)
 			{
-				tasks[i] = viewEntry.Value.Hide(animate);
+				tasks[i] = viewEntry.Value.Hide();
 				i++;
 			}
 

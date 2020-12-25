@@ -29,6 +29,7 @@ This version changes radically the way the framework works and how is it used.
 - GameObject pooling library. 
 
 ### Changed
+- Project name from "Maui" to "Juice".
 - The main control pattern. Now the framework features a MVVM approach. (This is **HUGE**).
 - View are now registered as instances instead of prefabs.
 - Popup's background is now a Widget instead a fixed shadow.

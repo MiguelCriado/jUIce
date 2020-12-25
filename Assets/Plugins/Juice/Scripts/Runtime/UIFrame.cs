@@ -164,26 +164,22 @@ namespace Juice
 			await windowLayer.ShowView(typeof(T), viewModel, overrideOptions);
 		}
 
-		public void HideView<T>() where T : IView
+		public void HidePanel<T>(PanelOptions overrideOptions = null) where T : IPanel
 		{
-			HideViewAsync<T>().RunAndForget();
+			HidePanelAsync<T>(overrideOptions).RunAndForget();
 		}
 		
-		public async Task HideViewAsync<T>() where T : IView
+		public async Task HidePanelAsync<T>(PanelOptions overrideOptions = null) where T : IPanel
 		{
-			Type viewType = typeof(T);
+			Type panelType = typeof(T);
 
-			if (typeof(IPanel).IsAssignableFrom(viewType))
+			if (typeof(IPanel).IsAssignableFrom(panelType))
 			{
-				await panelLayer.HideView(viewType);
-			}
-			else if (typeof(IWindow).IsAssignableFrom(viewType))
-			{
-				await windowLayer.HideView(viewType);
+				await panelLayer.HideView(panelType);
 			}
 			else
 			{
-				Debug.LogError($"The View type {typeof(T).Name} must implement {nameof(IPanel)} or {nameof(IWindow)}.");
+				Debug.LogError($"The View type {typeof(T).Name} must implement {nameof(IPanel)}.");
 			}
 		}
 

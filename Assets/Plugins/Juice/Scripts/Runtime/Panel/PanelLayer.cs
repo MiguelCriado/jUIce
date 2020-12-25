@@ -37,11 +37,11 @@ namespace Juice
 			PanelOpened?.Invoke(view);
 		}
 
-		public override async Task HideView(IPanel view)
+		public override async Task HideView(IPanel view, PanelOptions overrideOptions = default)
 		{
 			PanelClosing?.Invoke(view);
 			
-			await view.Hide();
+			await view.Hide(overrideOptions?.Transition);
 			
 			PanelClosed?.Invoke(view);
 		}
