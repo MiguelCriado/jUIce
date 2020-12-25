@@ -7,7 +7,7 @@ namespace Juice
 	{
 		[SerializeField] private UIFrame uiFrame;
 
-		private void Awake()
+		private void Start()
 		{
 			foreach (var view in GetComponentsInChildren<Component>().OfType<IView>())
 			{
