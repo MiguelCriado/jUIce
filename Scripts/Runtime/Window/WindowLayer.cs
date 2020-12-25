@@ -51,7 +51,7 @@ namespace Juice
 			priorityParaLayer.BackgroundClicked += OnPopupsBackgroundClicked;
 		}
 
-		public override async Task HideView(IWindow view)
+		public override async Task HideView(IWindow view, WindowOptions overrideOptions = null)
 		{
 			if (view == CurrentWindow)
 			{
@@ -67,7 +67,7 @@ namespace Juice
 
 				if (windowToClose == windowToOpen)
 				{
-					await HideAndNotify(windowToClose, windowToOpen, WindowHideReason.Closed);
+					await HideAndNotify(windowToClose, windowToOpen, WindowHideReason.Closed, overrideOptions?.OutTransition);
 					
 					CurrentWindow = null;
 					
@@ -93,7 +93,7 @@ namespace Juice
 			}
 		}
 
-		public override async Task HideAll(bool animate = true)
+		public override async Task HideAll()
 		{
 			Task[] tasks = new Task[registeredViews.Count];
 			int i = 0;
@@ -218,11 +218,11 @@ namespace Juice
 			}
 		}
 		
-		private async Task HideAndNotify(IWindow windowToClose, IWindow windowToOpen, WindowHideReason reason)
+		private async Task HideAndNotify(IWindow windowToClose, IWindow windowToOpen, WindowHideReason reason, Transition overrideTransition = null)
 		{
 			OnWindowClosing(windowToClose, windowToOpen, reason);
 
-			await windowToClose.Hide();
+			await windowToClose.Hide(overrideTransition);
 			
 			OnWindowClosed(windowToClose, windowToOpen, reason);
 		}
@@ -290,7 +290,12 @@ namespace Juice
 			    && CurrentWindow.HideOnForegroundLost
 			    && !windowEntry.View.IsPopup)
 			{
-				HideAndNotify(CurrentWindow, windowEntry.View, WindowHideReason.FocusLost).RunAndForget();
+				HideAndNotify(
+					CurrentWindow,
+					windowEntry.View,
+					WindowHideReason.FocusLost,
+					windowEntry.OverrideOptions?.OutTransition)
+					.RunAndForget();
 			}
 			
 			await ShowWindow(windowEntry, CurrentWindow, reason);

@@ -16,6 +16,6 @@ namespace Juice
 		
 		Task Show(IViewModel viewModel, Transition overrideTransition = null);
 
-		Task Hide(bool animate = true);
+		Task Hide(Transition overrideTransition = null);
 	}
 }
