@@ -5,19 +5,17 @@ namespace Juice
 	public readonly struct WindowHistoryEntry
 	{
 		public readonly IWindow View;
-		public readonly IViewModel ViewModel;
-		public readonly WindowOptions OverrideOptions;
+		public readonly WindowShowSettings Settings;
 
-		public WindowHistoryEntry(IWindow view, IViewModel viewModel, WindowOptions overrideOptions)
+		public WindowHistoryEntry(IWindow view, WindowShowSettings settings)
 		{
 			View = view;
-			ViewModel = viewModel;
-			OverrideOptions = overrideOptions;
+			Settings = settings;
 		}
 
 		public Task Show()
 		{
-			return View.Show(ViewModel, OverrideOptions?.InTransition);
+			return View.Show(Settings.ViewModel, Settings.InTransition);
 		}
 	}
 }

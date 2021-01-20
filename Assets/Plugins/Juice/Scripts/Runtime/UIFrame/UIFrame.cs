@@ -36,7 +36,7 @@ namespace Juice
 
 		public IWindow CurrentWindow => windowLayer.CurrentWindow;
 
-		[SerializeField] private bool initializeOnAwake;
+		[SerializeField] private bool initializeOnAwake = true;
 
 		private Canvas mainCanvas;
 		private PanelLayer panelLayer;
@@ -138,62 +138,35 @@ namespace Juice
 				registeredViews.Remove(viewType);
 			}
 		}
-		
+
 		public void UnregisterView<T>() where T : IView
 		{
 			UnregisterView(typeof(T));
 		}
-		
-		public void ShowPanel<T>(IViewModel viewModel, PanelOptions overrideOptions = null) where T : IPanel
+
+		public IPanelShowLauncher ShowPanel<T>() where T : IPanel
 		{
-			ShowPanelAsync<T>(viewModel, overrideOptions).RunAndForget();
-		}
-		
-		public async Task ShowPanelAsync<T>(IViewModel viewModel, PanelOptions overrideOptions = null) where T : IPanel
-		{
-			await panelLayer.ShowView(typeof(T), viewModel, overrideOptions);
+			return new PanelShowLauncher(this, typeof(T));
 		}
 
-		public void ShowWindow<T>(IViewModel viewModel, WindowOptions overrideOptions = null) where T : IWindow
+		public IWindowShowLauncher ShowWindow<T>() where T : IWindow
 		{
-			ShowWindowAsync<T>(viewModel, overrideOptions).RunAndForget();
-		}
-		
-		public async Task ShowWindowAsync<T>(IViewModel viewModel, WindowOptions overrideOptions = null) where T : IWindow
-		{
-			await windowLayer.ShowView(typeof(T), viewModel, overrideOptions);
+			return new WindowShowLauncher(this, typeof(T));
 		}
 
-		public void HidePanel<T>(PanelOptions overrideOptions = null) where T : IPanel
+		public IPanelHideLauncher HidePanel<T>() where T : IPanel
 		{
-			HidePanelAsync<T>(overrideOptions).RunAndForget();
-		}
-		
-		public async Task HidePanelAsync<T>(PanelOptions overrideOptions = null) where T : IPanel
-		{
-			Type panelType = typeof(T);
-
-			if (typeof(IPanel).IsAssignableFrom(panelType))
-			{
-				await panelLayer.HideView(panelType);
-			}
-			else
-			{
-				Debug.LogError($"The View type {typeof(T).Name} must implement {nameof(IPanel)}.");
-			}
+			return new PanelHideLauncher(this, typeof(T));
 		}
 
-		public void CloseCurrentWindow()
+		public IWindowHideLauncher HideWindow<T>() where T : IWindow
 		{
-			CloseCurrentWindowAsync().RunAndForget();
+			return new WindowHideLauncher(this, typeof(T));
 		}
-		
-		public async Task CloseCurrentWindowAsync()
+
+		public IWindowHideLauncher CloseCurrentWindow()
 		{
-			if (CurrentWindow != null)
-			{
-				await windowLayer.HideView(CurrentWindow);
-			}
+			return new WindowHideLauncher(this, CurrentWindow.GetType());
 		}
 
 		public bool IsViewRegistered<T>() where T : IView
@@ -201,12 +174,32 @@ namespace Juice
 			return registeredViews.ContainsKey(typeof(T));
 		}
 
+		internal void ShowPanel(PanelShowSettings settings)
+		{
+			panelLayer.ShowView(settings);
+		}
+
+		internal void ShowWindow(WindowShowSettings settings)
+		{
+			windowLayer.ShowView(settings);
+		}
+
+		internal async Task HidePanel(PanelHideSettings settings)
+		{
+			await panelLayer.HideView(settings);
+		}
+
+		internal async Task HideWindow(WindowHideSettings settings)
+		{
+			await windowLayer.HideView(settings);
+		}
+
 		private void OnWindowOpening(IWindow openedWindow, IWindow closedWindow, WindowOpenReason reason)
 		{
 			OnViewStartsTransition(openedWindow);
 			WindowOpening?.Invoke(openedWindow, closedWindow, reason);
 		}
-		
+
 		private void OnWindowOpened(IWindow openedWindow, IWindow closedWindow, WindowOpenReason reason)
 		{
 			OnViewEndsTransition(openedWindow);
@@ -218,31 +211,31 @@ namespace Juice
 			OnViewStartsTransition(closedWindow);
 			WindowClosing?.Invoke(closedWindow, nextWindow, reason);
 		}
-		
+
 		private void OnWindowClosed(IWindow closedWindow, IWindow nextWindow, WindowHideReason reason)
 		{
 			OnViewEndsTransition(closedWindow);
 			WindowClosed?.Invoke(closedWindow, nextWindow, reason);
 		}
-		
+
 		private void OnPanelOpening(IPanel panel)
 		{
 			OnViewStartsTransition(panel);
 			PanelOpening?.Invoke(panel);
 		}
-		
+
 		private void OnPanelOpened(IPanel panel)
 		{
 			OnViewEndsTransition(panel);
 			PanelOpened?.Invoke(panel);
 		}
-		
+
 		private void OnPanelClosing(IPanel panel)
 		{
 			OnViewStartsTransition(panel);
 			PanelClosing?.Invoke(panel);
 		}
-		
+
 		private void OnPanelClosed(IPanel panel)
 		{
 			OnViewEndsTransition(panel);
@@ -268,7 +261,7 @@ namespace Juice
 				UnblockInteraction();
 			}
 		}
-		
+
 		private void BlockInteraction()
 		{
 			if (graphicRaycaster)
@@ -288,7 +281,7 @@ namespace Juice
 			{
 				graphicRaycaster.enabled = true;
 			}
-			
+
 			foreach (var current in registeredViews)
 			{
 				current.Value.AllowInteraction = true;
@@ -314,9 +307,10 @@ namespace Juice
 			return true;
 		}
 
-		private void ProcessViewRegister<TView, TOptions>(TView view, Layer<TView, TOptions> layer)
+		private void ProcessViewRegister<TView, TShowSettings, THideSettings>(TView view, Layer<TView, TShowSettings, THideSettings> layer)
 			where TView : IView
-			where TOptions : IViewOptions
+			where TShowSettings : IViewShowSettings
+			where THideSettings : IViewHideSettings
 		{
 			Type viewType = view.GetType();
 			Component viewAsComponent = view as Component;

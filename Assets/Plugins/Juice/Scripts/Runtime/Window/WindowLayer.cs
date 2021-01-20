@@ -10,23 +10,23 @@ namespace Juice
 		FocusGained,
 		Opened
 	}
-		
+
 	public enum WindowHideReason
 	{
 		FocusLost,
 		Closed
 	}
-		
+
 	public delegate void WindowOpenHandler(IWindow openedWindow, IWindow closedWindow, WindowOpenReason reason);
 	public delegate void WindowCloseHandler(IWindow closedWindow, IWindow nextWindow, WindowHideReason reason);
 
-	public class WindowLayer : Layer<IWindow, WindowOptions>
+	public class WindowLayer : Layer<IWindow, WindowShowSettings, WindowHideSettings>
 	{
 		public event WindowOpenHandler WindowOpening;
 		public event WindowOpenHandler WindowOpened;
 		public event WindowCloseHandler WindowClosing;
 		public event WindowCloseHandler WindowClosed;
-		
+
 		public IWindow CurrentWindow { get; private set; }
 
 		[SerializeField] private WindowParaLayer priorityParaLayer = null;
@@ -49,48 +49,6 @@ namespace Juice
 
 			priorityParaLayer.BackgroundClicked -= OnPopupsBackgroundClicked;
 			priorityParaLayer.BackgroundClicked += OnPopupsBackgroundClicked;
-		}
-
-		public override async Task HideView(IWindow view, WindowOptions overrideOptions = null)
-		{
-			if (view == CurrentWindow)
-			{
-				windowHistory.Pop();
-
-				if (view.IsPopup && NextWindowIsPopup() == false)
-				{
-					priorityParaLayer.HideBackground();
-				}
-
-				IWindow windowToClose = view;
-				IWindow windowToOpen = GetNextWindow();
-
-				if (windowToClose == windowToOpen)
-				{
-					await HideAndNotify(windowToClose, windowToOpen, WindowHideReason.Closed, overrideOptions?.OutTransition);
-					
-					CurrentWindow = null;
-					
-					await ShowNextWindow(windowToClose);
-				}
-				else
-				{
-					CurrentWindow = null;
-					
-					await Task.WhenAll(
-						HideAndNotify(windowToClose, windowToOpen, WindowHideReason.Closed),
-						ShowNextWindow(windowToClose));
-				}
-			}
-			else
-			{
-				Debug.LogErrorFormat
-				(
-					"Hide requested on Window {0} but that's not the currently open one ({1})! Ignoring request.",
-					view.GetType().Name,
-					CurrentWindow != null ? CurrentWindow.GetType().Name : "current is null"
-				);
-			}
 		}
 
 		public override async Task HideAll()
@@ -145,47 +103,84 @@ namespace Juice
 		protected override void ProcessViewUnregister(IWindow view)
 		{
 			base.ProcessViewUnregister(view);
-			
+
 			view.CloseRequested -= OnCloseRequestedByWindow;
 		}
-		
-		protected override Task ShowView<TViewModel>(IWindow view, TViewModel viewModel, WindowOptions overrideOptions)
-		{
-			Task result;
 
-			if (ShouldEnqueue(view, overrideOptions))
+		protected override void ShowView(IWindow view, WindowShowSettings settings)
+		{
+			if (ShouldEnqueue(view, settings))
 			{
-				EnqueueWindow(view, viewModel, overrideOptions);
-				result = Task.CompletedTask;
+				EnqueueWindow(view, settings);
 			}
 			else
 			{
-				result = ShowInForeground(view, viewModel, overrideOptions, WindowOpenReason.Opened);
+				ShowInForeground(view, settings, WindowOpenReason.Opened);
 			}
-
-			return result;
 		}
-		
+
+		protected override async Task HideView(IWindow view, WindowHideSettings settings)
+		{
+			if (view == CurrentWindow)
+			{
+				windowHistory.Pop();
+
+				if (view.IsPopup && NextWindowIsPopup() == false)
+				{
+					priorityParaLayer.HideBackground();
+				}
+
+				IWindow windowToClose = view;
+				IWindow windowToOpen = GetNextWindow();
+
+				if (windowToClose == windowToOpen)
+				{
+					await HideAndNotify(windowToClose, windowToOpen, WindowHideReason.Closed, settings?.OutTransition);
+
+					CurrentWindow = null;
+
+					await ShowNextWindow(windowToClose);
+				}
+				else
+				{
+					CurrentWindow = null;
+
+					await Task.WhenAll(
+						HideAndNotify(windowToClose, windowToOpen, WindowHideReason.Closed),
+						ShowNextWindow(windowToClose));
+				}
+			}
+			else
+			{
+				Debug.LogErrorFormat
+				(
+					"Hide requested on Window {0} but that's not the currently open one ({1})! Ignoring request.",
+					view.GetType().Name,
+					CurrentWindow != null ? CurrentWindow.GetType().Name : "current is null"
+				);
+			}
+		}
+
 		protected virtual void OnWindowClosing(IWindow windowToClose, IWindow windowToOpen, WindowHideReason reason)
 		{
 			WindowClosing?.Invoke(windowToClose, windowToOpen, reason);
 		}
-		
+
 		protected virtual void OnWindowClosed(IWindow windowToClose, IWindow windowToOpen, WindowHideReason reason)
 		{
 			WindowClosed?.Invoke(windowToClose, windowToOpen, reason);
 		}
-		
+
 		protected virtual void OnWindowOpening(IWindow windowToOpen, IWindow windowToClose, WindowOpenReason reason)
 		{
 			WindowOpening?.Invoke(windowToOpen, windowToClose, reason);
 		}
-		
+
 		protected virtual void OnWindowOpened(IWindow windowToOpen, IWindow windowToClose, WindowOpenReason reason)
 		{
 			WindowOpened?.Invoke(windowToOpen, windowToClose, reason);
 		}
-		
+
 		private async Task ShowNextWindow(IWindow closedWindow)
 		{
 			if (windowQueue.Count > 0)
@@ -197,13 +192,13 @@ namespace Juice
 				await ShowPreviousInHistory(closedWindow);
 			}
 		}
-		
+
 		private async Task ShowNextInQueue(IWindow closedWindow)
 		{
 			if (windowQueue.Count > 0)
 			{
 				WindowHistoryEntry window = windowQueue.Dequeue();
-				
+
 				await ShowWindow(window, closedWindow, WindowOpenReason.Opened);
 			}
 		}
@@ -213,33 +208,38 @@ namespace Juice
 			if (windowHistory.Count > 0)
 			{
 				WindowHistoryEntry window = windowHistory.Pop();
-				
+
 				await ShowWindow(window, closedWindow, WindowOpenReason.FocusGained);
 			}
 		}
-		
+
 		private async Task HideAndNotify(IWindow windowToClose, IWindow windowToOpen, WindowHideReason reason, Transition overrideTransition = null)
 		{
 			OnWindowClosing(windowToClose, windowToOpen, reason);
 
 			await windowToClose.Hide(overrideTransition);
-			
+
 			OnWindowClosed(windowToClose, windowToOpen, reason);
 		}
 
 		private void OnCloseRequestedByWindow(IView controller)
 		{
-			HideView(controller as IWindow).RunAndForget();
+			HideView(BuildEmptyHideSettings(controller)).RunAndForget();
 		}
 
 		private void OnPopupsBackgroundClicked()
 		{
 			if (CurrentWindow != null && CurrentWindow.IsPopup && CurrentWindow.CloseOnShadowClick)
 			{
-				HideView(CurrentWindow).RunAndForget();
+				HideView(BuildEmptyHideSettings(CurrentWindow)).RunAndForget();
 			}
 		}
-		
+
+		private static WindowHideSettings BuildEmptyHideSettings(IView controller)
+		{
+			return new WindowHideSettings(controller.GetType(), null);
+		}
+
 		private IWindow GetNextWindow()
 		{
 			IWindow result = null;
@@ -256,22 +256,22 @@ namespace Juice
 			return result;
 		}
 
-		private bool ShouldEnqueue(IWindow window, WindowOptions overrideOptions)
+		private bool ShouldEnqueue(IWindow window, WindowShowSettings settings)
 		{
-			WindowPriority priority = overrideOptions?.Priority ?? window.WindowPriority;
-			
-			return priority != WindowPriority.ForceForeground 
-			       && (CurrentWindow != null || windowQueue.Count > 0); 
+			WindowPriority priority = settings?.Priority ?? window.WindowPriority;
+
+			return priority != WindowPriority.ForceForeground
+			       && (CurrentWindow != null || windowQueue.Count > 0);
 		}
 
-		private void EnqueueWindow(IWindow window, IViewModel viewModel, WindowOptions overrideOptions)
+		private void EnqueueWindow(IWindow window, WindowShowSettings settings)
 		{
-			windowQueue.Enqueue(new WindowHistoryEntry(window, viewModel, overrideOptions));
+			windowQueue.Enqueue(new WindowHistoryEntry(window, settings));
 		}
-		
-		private Task ShowInForeground(IWindow window, IViewModel viewModel, WindowOptions overrideOptions, WindowOpenReason reason)
+
+		private void ShowInForeground(IWindow window, WindowShowSettings settings, WindowOpenReason reason)
 		{
-			return ShowInForeground(new WindowHistoryEntry(window, viewModel, overrideOptions), reason);
+			ShowInForeground(new WindowHistoryEntry(window, settings), reason).RunAndForget();
 		}
 
 		private async Task ShowInForeground(WindowHistoryEntry windowEntry, WindowOpenReason reason)
@@ -284,7 +284,7 @@ namespace Juice
 				                 " (eg: when implementing a warning message pop-up), it closes itself upon the player input" +
 				                 " that triggers the continuation of the flow.");
 			}
-			
+
 			if (CurrentWindow != windowEntry.View
 			    && CurrentWindow != null
 			    && CurrentWindow.HideOnForegroundLost
@@ -294,10 +294,10 @@ namespace Juice
 					CurrentWindow,
 					windowEntry.View,
 					WindowHideReason.FocusLost,
-					windowEntry.OverrideOptions?.OutTransition)
+					windowEntry.Settings.OutTransition)
 					.RunAndForget();
 			}
-			
+
 			await ShowWindow(windowEntry, CurrentWindow, reason);
 		}
 
@@ -312,9 +312,9 @@ namespace Juice
 			CurrentWindow = windowEntry.View;
 
 			OnWindowOpening(windowEntry.View, closedWindow, reason);
-			
+
 			await windowEntry.Show();
-			
+
 			OnWindowOpened(windowEntry.View, closedWindow, reason);
 		}
 

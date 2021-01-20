@@ -108,56 +108,10 @@ namespace Juice.Tests
 			uiFrame.Initialize();
 			WindowWithProperties windowPrefab = AssetDatabase.LoadAssetAtPath<WindowWithProperties>(WindowWithPropertiesPath);
 			WindowWithProperties windowInstance = Object.Instantiate(windowPrefab);
-			
+
 			uiFrame.RegisterView(windowInstance);
 
 			Assert.IsTrue(uiFrame.IsViewRegistered<WindowWithProperties>());
-			yield return null;
-		}
-
-		[UnityTest]
-		public IEnumerator ShowScreen_WhenPanelShown_PanelIsVisible()
-		{
-			bool isPanelShown = false;
-			uiFrame.Initialize();
-			PanelA panelAPrefab = AssetDatabase.LoadAssetAtPath<PanelA>(PanelAPath);
-			PanelA panelAInstance = Object.Instantiate(panelAPrefab);
-			uiFrame.RegisterView(panelAInstance);
-
-			async void ShowPanel()
-			{
-				await uiFrame.ShowPanelAsync<PanelA>(null);
-				isPanelShown = true;
-			}
-
-			ShowPanel();
-
-			yield return new WaitUntil(() => isPanelShown);
-
-			Assert.IsTrue(panelAInstance.IsVisible);
-			yield return null;
-		}
-
-		[UnityTest]
-		public IEnumerator ShowScreen_WhenPanelShown_PanelIsActive()
-		{
-			bool isPanelShown = false;
-			uiFrame.Initialize();
-			PanelA panelAPrefab = AssetDatabase.LoadAssetAtPath<PanelA>(PanelAPath);
-			PanelA panelAInstance = Object.Instantiate(panelAPrefab);
-			uiFrame.RegisterView(panelAInstance);
-			
-			async void ShowPanel()
-			{
-				await uiFrame.ShowPanelAsync<PanelA>(null);
-				isPanelShown = true;
-			}
-
-			ShowPanel();
-
-			yield return new WaitUntil(() => isPanelShown);
-
-			Assert.IsTrue(panelAInstance.gameObject.activeSelf);
 			yield return null;
 		}
 
@@ -169,7 +123,7 @@ namespace Juice.Tests
 			WindowWithProperties windowInstance = Object.Instantiate(windowPrefab);
 			uiFrame.RegisterView(windowInstance);
 
-			uiFrame.ShowWindowAsync<WindowWithProperties>(null);
+			uiFrame.ShowWindow<WindowWithProperties>().Execute();
 
 			Assert.IsTrue(uiFrame.CurrentWindow.GetType() == typeof(WindowWithProperties));
 			yield return null;

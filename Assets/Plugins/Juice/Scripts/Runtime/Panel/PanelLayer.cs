@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Juice
 {
-	public class PanelLayer : Layer<IPanel, PanelOptions>
+	public class PanelLayer : Layer<IPanel, PanelShowSettings, PanelHideSettings>
 	{
 		public delegate void PanelOperationHandler(IPanel panel);
 
@@ -11,7 +11,7 @@ namespace Juice
 		public event PanelOperationHandler PanelOpened;
 		public event PanelOperationHandler PanelClosing;
 		public event PanelOperationHandler PanelClosed;
-	
+
 		internal PanelPriorityLayerList PriorityLayers { get => priorityLayers; set => priorityLayers = value; }
 
 		[SerializeField] private PanelPriorityLayerList priorityLayers = null;
@@ -28,21 +28,21 @@ namespace Juice
 			}
 		}
 
-		protected override async Task ShowView<T>(IPanel view, T viewModel, PanelOptions overrideOptions)
+		protected override void ShowView(IPanel view, PanelShowSettings settings)
 		{
 			PanelOpening?.Invoke(view);
-			
-			await view.Show(viewModel);
-			
+
+			view.Show(settings.ViewModel, settings.InTransition).RunAndForget();
+
 			PanelOpened?.Invoke(view);
 		}
 
-		public override async Task HideView(IPanel view, PanelOptions overrideOptions = default)
+		protected override async Task HideView(IPanel view, PanelHideSettings settings)
 		{
 			PanelClosing?.Invoke(view);
-			
-			await view.Hide(overrideOptions?.Transition);
-			
+
+			await view.Hide(settings?.OutTransition);
+
 			PanelClosed?.Invoke(view);
 		}
 
@@ -60,9 +60,7 @@ namespace Juice
 
 		private void ReparentToParaLayer(PanelPriority priority, Transform viewTransform)
 		{
-			Transform parentTransform;
-
-			if (priorityLayers.ParaLayerLookup.TryGetValue(priority, out parentTransform) == false)
+			if (priorityLayers.ParaLayerLookup.TryGetValue(priority, out Transform parentTransform) == false)
 			{
 				parentTransform = transform;
 			}
