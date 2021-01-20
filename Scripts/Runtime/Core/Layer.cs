@@ -5,42 +5,41 @@ using UnityEngine;
 
 namespace Juice
 {
-	public abstract class Layer<TView, TOptions> : MonoBehaviour
+	public abstract class Layer<TView, TShowSettings, THideSettings> : MonoBehaviour
 		where TView : IView
-		where TOptions : IViewOptions
+		where TShowSettings : IViewShowSettings
+		where THideSettings : IViewHideSettings
 	{
 		protected readonly Dictionary<Type, TView> registeredViews = new Dictionary<Type, TView>();
-		
+
 		protected UIFrame uiFrame;
-		
+
 		public virtual void Initialize(UIFrame uiFrame)
 		{
 			this.uiFrame = uiFrame;
 		}
-		
-		public async Task ShowView<TViewModel>(Type viewType, TViewModel viewModel, TOptions overrideOptions) where TViewModel : IViewModel
+
+		public void ShowView(TShowSettings settings)
 		{
-			if (registeredViews.TryGetValue(viewType, out TView view))
+			if (registeredViews.TryGetValue(settings.ViewType, out TView view))
 			{
-				await ShowView(view, viewModel, overrideOptions);
+				ShowView(view, settings);
 			}
 			else
 			{
-				Debug.LogError($"View with type {viewType} not registered to this layer!");
+				Debug.LogError($"View with type {settings.ViewType} not registered to this layer!");
 			}
 		}
 
-		public abstract Task HideView(TView view, TOptions overrideOptions = default);
-
-		public async Task HideView(Type viewType, TOptions overrideOptions = default)
+		public async Task HideView(THideSettings settings)
 		{
-			if (registeredViews.TryGetValue(viewType, out TView view))
+			if (registeredViews.TryGetValue(settings.ViewType, out TView view))
 			{
-				await HideView(view, overrideOptions);
+				await HideView(view, settings);
 			}
 			else
 			{
-				Debug.LogError($"Could not hide view of type {viewType} as it is not registered to this layer!");
+				Debug.LogError($"Could not hide view of type {settings.ViewType} as it is not registered to this layer!");
 			}
 		}
 
@@ -95,8 +94,10 @@ namespace Juice
 		{
 			return registeredViews.ContainsKey(typeof(T));
 		}
-		
-		protected abstract Task ShowView<TViewModel>(TView view, TViewModel viewModel, TOptions overrideOptions) where TViewModel : IViewModel;
+
+		protected abstract void ShowView(TView view, TShowSettings settings);
+
+		protected abstract Task HideView(TView view, THideSettings settings);
 
 		protected virtual void ProcessViewRegister(TView view)
 		{
