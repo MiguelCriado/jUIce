@@ -13,8 +13,10 @@ namespace Juice
 
 		bool IsVisible { get; }
 		bool AllowInteraction { get; set; }
-		
-		Task Show(IViewModel viewModel, Transition overrideTransition = null);
+
+		void SetViewModel(IViewModel viewModel);
+
+		Task Show(Transition overrideTransition = null);
 
 		Task Hide(Transition overrideTransition = null);
 	}

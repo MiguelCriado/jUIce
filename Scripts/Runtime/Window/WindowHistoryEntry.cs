@@ -15,7 +15,8 @@ namespace Juice
 
 		public Task Show()
 		{
-			return View.Show(Settings.ViewModel, Settings.InTransition);
+			View.SetViewModel(Settings.ViewModel);
+			return View.Show(Settings.InTransition);
 		}
 	}
 }

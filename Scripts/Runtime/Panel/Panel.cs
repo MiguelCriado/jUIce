@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Juice
 {
@@ -15,10 +14,5 @@ namespace Juice
 
 		[Header("Panel Properties")]
 		[SerializeField] private PanelPriority priority;
-		
-		public Task Show(IViewModel viewModel)
-		{
-			return base.Show((T) viewModel);
-		}
 	}
 }
