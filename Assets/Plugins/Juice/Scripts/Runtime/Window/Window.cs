@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Juice
 {
@@ -23,11 +22,6 @@ namespace Juice
 		[DrawIf(nameof(isPopup), true)]
 		[SerializeField] private bool closeOnShadowClick = true;
 
-		public Task Show(IViewModel viewModel)
-		{
-			return base.Show((T) viewModel);
-		}
-		
 		protected override void OnShowing()
 		{
 			base.OnShowing();

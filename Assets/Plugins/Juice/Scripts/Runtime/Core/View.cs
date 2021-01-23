@@ -22,8 +22,6 @@ namespace Juice
 			set => SetAllowInteraction(value);
 		}
 
-		public IViewModel ViewModel => targetComponent != null ? targetComponent.ViewModel : null;
-
 		public Transition InTransition
 		{
 			get => inTransition;
@@ -44,7 +42,7 @@ namespace Juice
 		[Header("View Animations")]
 		[SerializeField] private Transition inTransition;
 		[SerializeField] private Transition outTransition;
-		
+
 		private readonly TransitionHandler transitionHandler = new TransitionHandler();
 		private RectTransform rectTransform;
 		private bool allowInteraction;
@@ -62,7 +60,7 @@ namespace Juice
 			raycasters = GetComponentsInChildren<GraphicRaycaster>();
 		}
 
-		public async Task Show(IViewModel viewModel, Transition overrideTransition = null)
+		public void SetViewModel(IViewModel viewModel)
 		{
 			if (viewModel != null)
 			{
@@ -75,7 +73,10 @@ namespace Juice
 					Debug.LogError($"ViewModel passed have wrong type! ({viewModel.GetType()} instead of {typeof(T)})", this);
 				}
 			}
+		}
 
+		public async Task Show(Transition overrideTransition = null)
+		{
 			OnShowing();
 
 			if (gameObject.activeSelf)
@@ -85,9 +86,9 @@ namespace Juice
 			else
 			{
 				Transition transition = overrideTransition ? overrideTransition : InTransition;
-				
+
 				await transitionHandler.Show(rectTransform, transition);
-				
+
 				OnInTransitionFinished();
 			}
 		}
@@ -130,7 +131,7 @@ namespace Juice
 		{
 			OutTransitionFinished?.Invoke(this);
 		}
-		
+
 		private void SetAllowInteraction(bool value)
 		{
 			allowInteraction = value;

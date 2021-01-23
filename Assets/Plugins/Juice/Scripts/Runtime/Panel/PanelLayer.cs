@@ -32,7 +32,8 @@ namespace Juice
 		{
 			PanelOpening?.Invoke(view);
 
-			view.Show(settings.ViewModel, settings.InTransition).RunAndForget();
+			view.SetViewModel(settings.ViewModel);
+			view.Show(settings.InTransition).RunAndForget();
 
 			PanelOpened?.Invoke(view);
 		}
