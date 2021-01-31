@@ -6,18 +6,14 @@ namespace Juice
 
 	public interface IView
 	{
-		event ViewEventHandler InTransitionFinished;
-		event ViewEventHandler OutTransitionFinished;
 		event ViewEventHandler CloseRequested;
 		event ViewEventHandler ViewDestroyed;
 
 		bool IsVisible { get; }
-		bool AllowInteraction { get; set; }
+		bool AllowsInteraction { get; set; }
 
 		void SetViewModel(IViewModel viewModel);
-
 		Task Show(Transition overrideTransition = null);
-
 		Task Hide(Transition overrideTransition = null);
 	}
 }

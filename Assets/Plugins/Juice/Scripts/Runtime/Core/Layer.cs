@@ -19,11 +19,11 @@ namespace Juice
 			this.uiFrame = uiFrame;
 		}
 
-		public void ShowView(TShowSettings settings)
+		public async Task ShowView(TShowSettings settings)
 		{
 			if (registeredViews.TryGetValue(settings.ViewType, out TView view))
 			{
-				ShowView(view, settings);
+				await ShowView(view, settings);
 			}
 			else
 			{
@@ -95,7 +95,7 @@ namespace Juice
 			return registeredViews.ContainsKey(typeof(T));
 		}
 
-		protected abstract void ShowView(TView view, TShowSettings settings);
+		protected abstract Task ShowView(TView view, TShowSettings settings);
 
 		protected abstract Task HideView(TView view, THideSettings settings);
 

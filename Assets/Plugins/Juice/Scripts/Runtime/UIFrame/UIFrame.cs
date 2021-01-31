@@ -8,17 +8,6 @@ namespace Juice
 {
 	public class UIFrame : MonoBehaviour
 	{
-		public delegate void PanelOperationHandler(IPanel panel);
-
-		public event WindowOpenHandler WindowOpening;
-		public event WindowOpenHandler WindowOpened;
-		public event WindowCloseHandler WindowClosing;
-		public event WindowCloseHandler WindowClosed;
-		public event PanelOperationHandler PanelOpening;
-		public event PanelOperationHandler PanelOpened;
-		public event PanelOperationHandler PanelClosing;
-		public event PanelOperationHandler PanelClosed;
-
 		public Canvas MainCanvas
 		{
 			get
@@ -32,8 +21,9 @@ namespace Juice
 			}
 		}
 
-		public Camera UICamera => MainCanvas.worldCamera;
+		public event WindowLayer.WindowChangeHandler CurrentWindowChanged;
 
+		public Camera UICamera => MainCanvas.worldCamera;
 		public IWindow CurrentWindow => windowLayer.CurrentWindow;
 
 		[SerializeField] private bool initializeOnAwake = true;
@@ -44,7 +34,7 @@ namespace Juice
 		private GraphicRaycaster graphicRaycaster;
 
 		private readonly Dictionary<Type, IView> registeredViews = new Dictionary<Type, IView>();
-		private readonly HashSet<IView> viewsInTransition = new HashSet<IView>();
+		private readonly HashSet<Type> viewsInTransition = new HashSet<Type>();
 
 		private void Reset()
 		{
@@ -71,10 +61,6 @@ namespace Juice
 				}
 				else
 				{
-					panelLayer.PanelOpening += OnPanelOpening;
-					panelLayer.PanelOpened += OnPanelOpened;
-					panelLayer.PanelClosing += OnPanelClosing;
-					panelLayer.PanelClosed += OnPanelClosed;
 					panelLayer.Initialize(this);
 				}
 			}
@@ -89,11 +75,8 @@ namespace Juice
 				}
 				else
 				{
-					windowLayer.WindowOpening += OnWindowOpening;
-					windowLayer.WindowOpened += OnWindowOpened;
-					windowLayer.WindowClosing += OnWindowClosing;
-					windowLayer.WindowClosed += OnWindowClosed;
 					windowLayer.Initialize(this);
+					windowLayer.CurrentWindowChanged += CurrentWindowChanged;
 				}
 			}
 
@@ -174,77 +157,45 @@ namespace Juice
 			return registeredViews.ContainsKey(typeof(T));
 		}
 
-		internal void ShowPanel(PanelShowSettings settings)
+		internal async Task ShowPanel(PanelShowSettings settings)
 		{
-			panelLayer.ShowView(settings);
+			RegisterTransition(settings.ViewType);
+
+			await panelLayer.ShowView(settings);
+
+			UnregisterTransition(settings.ViewType);
 		}
 
-		internal void ShowWindow(WindowShowSettings settings)
+		internal async Task ShowWindow(WindowShowSettings settings)
 		{
-			windowLayer.ShowView(settings);
+			RegisterTransition(settings.ViewType);
+
+			await windowLayer.ShowView(settings);
+
+			UnregisterTransition(settings.ViewType);
 		}
 
 		internal async Task HidePanel(PanelHideSettings settings)
 		{
+			RegisterTransition(settings.ViewType);
+
 			await panelLayer.HideView(settings);
+
+			UnregisterTransition(settings.ViewType);
 		}
 
 		internal async Task HideWindow(WindowHideSettings settings)
 		{
+			RegisterTransition(settings.ViewType);
+
 			await windowLayer.HideView(settings);
+
+			UnregisterTransition(settings.ViewType);
 		}
 
-		private void OnWindowOpening(IWindow openedWindow, IWindow closedWindow, WindowOpenReason reason)
+		private void RegisterTransition(Type viewType)
 		{
-			OnViewStartsTransition(openedWindow);
-			WindowOpening?.Invoke(openedWindow, closedWindow, reason);
-		}
-
-		private void OnWindowOpened(IWindow openedWindow, IWindow closedWindow, WindowOpenReason reason)
-		{
-			OnViewEndsTransition(openedWindow);
-			WindowOpened?.Invoke(openedWindow, closedWindow, reason);
-		}
-
-		private void OnWindowClosing(IWindow closedWindow, IWindow nextWindow, WindowHideReason reason)
-		{
-			OnViewStartsTransition(closedWindow);
-			WindowClosing?.Invoke(closedWindow, nextWindow, reason);
-		}
-
-		private void OnWindowClosed(IWindow closedWindow, IWindow nextWindow, WindowHideReason reason)
-		{
-			OnViewEndsTransition(closedWindow);
-			WindowClosed?.Invoke(closedWindow, nextWindow, reason);
-		}
-
-		private void OnPanelOpening(IPanel panel)
-		{
-			OnViewStartsTransition(panel);
-			PanelOpening?.Invoke(panel);
-		}
-
-		private void OnPanelOpened(IPanel panel)
-		{
-			OnViewEndsTransition(panel);
-			PanelOpened?.Invoke(panel);
-		}
-
-		private void OnPanelClosing(IPanel panel)
-		{
-			OnViewStartsTransition(panel);
-			PanelClosing?.Invoke(panel);
-		}
-
-		private void OnPanelClosed(IPanel panel)
-		{
-			OnViewEndsTransition(panel);
-			PanelClosed?.Invoke(panel);
-		}
-
-		private void OnViewStartsTransition(IView view)
-		{
-			viewsInTransition.Add(view);
+			viewsInTransition.Add(viewType);
 
 			if (viewsInTransition.Count == 1)
 			{
@@ -252,9 +203,9 @@ namespace Juice
 			}
 		}
 
-		private void OnViewEndsTransition(IView view)
+		private void UnregisterTransition(Type viewType)
 		{
-			viewsInTransition.Remove(view);
+			viewsInTransition.Remove(viewType);
 
 			if (viewsInTransition.Count <= 0)
 			{
@@ -271,7 +222,7 @@ namespace Juice
 
 			foreach (var current in registeredViews)
 			{
-				current.Value.AllowInteraction = false;
+				current.Value.AllowsInteraction = false;
 			}
 		}
 
@@ -284,7 +235,7 @@ namespace Juice
 
 			foreach (var current in registeredViews)
 			{
-				current.Value.AllowInteraction = true;
+				current.Value.AllowsInteraction = true;
 			}
 		}
 

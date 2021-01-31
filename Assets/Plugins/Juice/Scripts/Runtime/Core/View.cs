@@ -9,17 +9,15 @@ namespace Juice
 	public abstract class View<T> : MonoBehaviour, IView, IViewModelInjector
 		where T : IViewModel
 	{
-		public event ViewEventHandler InTransitionFinished;
-		public event ViewEventHandler OutTransitionFinished;
 		public event ViewEventHandler CloseRequested;
 		public event ViewEventHandler ViewDestroyed;
 
 		public bool IsVisible => transitionHandler.IsVisible;
 
-		public bool AllowInteraction
+		public bool AllowsInteraction
 		{
-			get => allowInteraction;
-			set => SetAllowInteraction(value);
+			get => allowsInteraction;
+			set => SetAllowsInteraction(value);
 		}
 
 		public Transition InTransition
@@ -45,7 +43,7 @@ namespace Juice
 
 		private readonly TransitionHandler transitionHandler = new TransitionHandler();
 		private RectTransform rectTransform;
-		private bool allowInteraction;
+		private bool allowsInteraction;
 		private GraphicRaycaster[] raycasters;
 
 		protected virtual void Reset()
@@ -56,7 +54,7 @@ namespace Juice
 		protected virtual void Awake()
 		{
 			rectTransform = GetComponent<RectTransform>();
-			allowInteraction = true;
+			allowsInteraction = true;
 			raycasters = GetComponentsInChildren<GraphicRaycaster>();
 		}
 
@@ -75,33 +73,23 @@ namespace Juice
 			}
 		}
 
-		public async Task Show(Transition overrideTransition = null)
+		public virtual async Task Show(Transition overrideTransition = null)
 		{
-			OnShowing();
-
-			if (gameObject.activeSelf)
-			{
-				OnInTransitionFinished();
-			}
-			else
+			if (gameObject.activeSelf == false)
 			{
 				Transition transition = overrideTransition ? overrideTransition : InTransition;
 
 				await transitionHandler.Show(rectTransform, transition);
-
-				OnInTransitionFinished();
 			}
 		}
 
-		public async Task Hide(Transition overrideTransition = null)
+		public virtual async Task Hide(Transition overrideTransition = null)
 		{
-			OnHiding();
 			Transition transition = overrideTransition ? overrideTransition : OutTransition;
 
 			await transitionHandler.Hide(rectTransform, transition);
 
 			SetViewModel(default);
-			OnOutTransitionFinished();
 		}
 
 		protected virtual void SetViewModel(T viewModel)
@@ -112,29 +100,9 @@ namespace Juice
 			}
 		}
 
-		protected virtual void OnShowing()
+		private void SetAllowsInteraction(bool value)
 		{
-
-		}
-
-		protected virtual void OnInTransitionFinished()
-		{
-			InTransitionFinished?.Invoke(this);
-		}
-
-		protected virtual void OnHiding()
-		{
-
-		}
-
-		protected virtual void OnOutTransitionFinished()
-		{
-			OutTransitionFinished?.Invoke(this);
-		}
-
-		private void SetAllowInteraction(bool value)
-		{
-			allowInteraction = value;
+			allowsInteraction = value;
 
 			foreach (var current in raycasters)
 			{
