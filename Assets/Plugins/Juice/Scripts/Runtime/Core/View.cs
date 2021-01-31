@@ -1,18 +1,15 @@
 ﻿using System;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace Juice
 {
 	[RequireComponent(typeof(ViewModelComponent), typeof(RectTransform))]
-	public abstract class View<T> : MonoBehaviour, IView, IViewModelInjector
+	public abstract class View<T> : Widget, IView, IViewModelInjector
 		where T : IViewModel
 	{
 		public event ViewEventHandler CloseRequested;
 		public event ViewEventHandler ViewDestroyed;
-
-		public bool IsVisible => transitionHandler.IsVisible;
 
 		public bool AllowsInteraction
 		{
@@ -20,29 +17,12 @@ namespace Juice
 			set => SetAllowsInteraction(value);
 		}
 
-		public Transition InTransition
-		{
-			get => inTransition;
-			set => inTransition = value;
-		}
-
-		public Transition OutTransition
-		{
-			get => outTransition;
-			set => outTransition = value;
-		}
-
 		public Type InjectionType => typeof(T);
 		public ViewModelComponent Target => targetComponent;
 
 		[Header("Target ViewModel Component")]
 		[SerializeField] private ViewModelComponent targetComponent;
-		[Header("View Animations")]
-		[SerializeField] private Transition inTransition;
-		[SerializeField] private Transition outTransition;
 
-		private readonly TransitionHandler transitionHandler = new TransitionHandler();
-		private RectTransform rectTransform;
 		private bool allowsInteraction;
 		private GraphicRaycaster[] raycasters;
 
@@ -51,9 +31,8 @@ namespace Juice
 			targetComponent = GetComponentInChildren<ViewModelComponent>();
 		}
 
-		protected virtual void Awake()
+		protected override void Awake()
 		{
-			rectTransform = GetComponent<RectTransform>();
 			allowsInteraction = true;
 			raycasters = GetComponentsInChildren<GraphicRaycaster>();
 		}
@@ -71,25 +50,6 @@ namespace Juice
 					Debug.LogError($"ViewModel passed have wrong type! ({viewModel.GetType()} instead of {typeof(T)})", this);
 				}
 			}
-		}
-
-		public virtual async Task Show(Transition overrideTransition = null)
-		{
-			if (gameObject.activeSelf == false)
-			{
-				Transition transition = overrideTransition ? overrideTransition : InTransition;
-
-				await transitionHandler.Show(rectTransform, transition);
-			}
-		}
-
-		public virtual async Task Hide(Transition overrideTransition = null)
-		{
-			Transition transition = overrideTransition ? overrideTransition : OutTransition;
-
-			await transitionHandler.Hide(rectTransform, transition);
-
-			SetViewModel(default);
 		}
 
 		protected virtual void SetViewModel(T viewModel)
