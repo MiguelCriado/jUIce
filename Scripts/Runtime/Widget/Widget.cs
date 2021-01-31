@@ -20,7 +20,7 @@ namespace Juice
 			set => outTransition = value;
 		}
 
-		[Header("Widget Animations")]
+		[Header("Transitions")]
 		[SerializeField] private Transition inTransition;
 		[SerializeField] private Transition outTransition;
 
@@ -33,16 +33,22 @@ namespace Juice
 			Initialize();
 		}
 
-		public Task Show()
+		public virtual async Task Show(Transition overrideTransition = null)
 		{
 			Initialize();
-			return transitionHandler.Show(rectTransform, InTransition);
+
+			Transition transition = overrideTransition ? overrideTransition : InTransition;
+
+			await transitionHandler.Show(rectTransform, transition);
 		}
 
-		public Task Hide()
+		public virtual async Task Hide(Transition overrideTransition = null)
 		{
 			Initialize();
-			return transitionHandler.Hide(rectTransform, OutTransition);
+
+			Transition transition = overrideTransition ? overrideTransition : OutTransition;
+
+			await transitionHandler.Hide(rectTransform, transition);
 		}
 
 		private void Initialize()
