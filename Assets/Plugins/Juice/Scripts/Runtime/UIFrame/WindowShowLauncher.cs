@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Juice
 {
@@ -44,20 +45,30 @@ namespace Juice
 
 		public void Execute()
 		{
+			ExecuteAsync().RunAndForget();
+		}
+
+		public async Task ExecuteAsync()
+		{
 			priority = null;
-			context.ShowWindow(BuildSettings());
+			await context.ShowWindow(BuildSettings());
 		}
 
 		public void InForeground()
 		{
+			InForegroundAsync().RunAndForget();
+		}
+
+		public async Task InForegroundAsync()
+		{
 			priority = WindowPriority.ForceForeground;
-			context.ShowWindow(BuildSettings());
+			await context.ShowWindow(BuildSettings());
 		}
 
 		public void Enqueue()
 		{
 			priority = WindowPriority.Enqueue;
-			context.ShowWindow(BuildSettings());
+			context.ShowWindow(BuildSettings()).RunAndForget();
 		}
 
 		private WindowShowSettings BuildSettings()

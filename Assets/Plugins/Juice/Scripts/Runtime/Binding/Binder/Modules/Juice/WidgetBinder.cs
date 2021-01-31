@@ -18,11 +18,11 @@ namespace Juice
 		{
 			if (value)
 			{
-				widget.Show();
+				widget.Show().RunAndForget();
 			}
 			else
 			{
-				widget.Hide();
+				widget.Hide().RunAndForget();
 			}
 		}
 	}

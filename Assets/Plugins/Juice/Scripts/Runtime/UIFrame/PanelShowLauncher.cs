@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Juice
 {
@@ -37,7 +38,12 @@ namespace Juice
 
 		public void Execute()
 		{
-			context.ShowPanel(BuildSettings());
+			context.ShowPanel(BuildSettings()).RunAndForget();
+		}
+
+		public async Task ExecuteAsync()
+		{
+			await context.ShowPanel(BuildSettings());
 		}
 
 		private PanelShowSettings BuildSettings()
