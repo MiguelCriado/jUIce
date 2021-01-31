@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Threading.Tasks;
+using UnityEngine;
 
 namespace Juice
 {
@@ -22,11 +23,11 @@ namespace Juice
 		[DrawIf(nameof(isPopup), true)]
 		[SerializeField] private bool closeOnShadowClick = true;
 
-		protected override void OnShowing()
+		public override Task Show(Transition overrideTransition = null)
 		{
-			base.OnShowing();
-
 			transform.SetAsLastSibling();
+
+			return base.Show(overrideTransition);
 		}
 	}
 }

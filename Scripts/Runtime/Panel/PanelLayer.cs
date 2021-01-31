@@ -5,13 +5,6 @@ namespace Juice
 {
 	public class PanelLayer : Layer<IPanel, PanelShowSettings, PanelHideSettings>
 	{
-		public delegate void PanelOperationHandler(IPanel panel);
-
-		public event PanelOperationHandler PanelOpening;
-		public event PanelOperationHandler PanelOpened;
-		public event PanelOperationHandler PanelClosing;
-		public event PanelOperationHandler PanelClosed;
-
 		internal PanelPriorityLayerList PriorityLayers { get => priorityLayers; set => priorityLayers = value; }
 
 		[SerializeField] private PanelPriorityLayerList priorityLayers = null;
@@ -28,23 +21,16 @@ namespace Juice
 			}
 		}
 
-		protected override void ShowView(IPanel view, PanelShowSettings settings)
+		protected override async Task ShowView(IPanel view, PanelShowSettings settings)
 		{
-			PanelOpening?.Invoke(view);
-
 			view.SetViewModel(settings.ViewModel);
-			view.Show(settings.InTransition).RunAndForget();
 
-			PanelOpened?.Invoke(view);
+			await view.Show(settings.InTransition);
 		}
 
 		protected override async Task HideView(IPanel view, PanelHideSettings settings)
 		{
-			PanelClosing?.Invoke(view);
-
 			await view.Hide(settings?.OutTransition);
-
-			PanelClosed?.Invoke(view);
 		}
 
 		public bool IsPanelVisible<T>()
