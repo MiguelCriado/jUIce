@@ -11,7 +11,7 @@ namespace Juice
 		[SerializeField] private float duration;
 		[SerializeField] private Ease ease;
 
-		public override void PrepareForAnimation(RectTransform target)
+		public override void Prepare(RectTransform target)
 		{
 			Tween.Kill(target);
 			target.localScale = origin;

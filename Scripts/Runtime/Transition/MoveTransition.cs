@@ -11,7 +11,7 @@ namespace Juice
 		[SerializeField] private float duration = 0.3f;
 		[SerializeField] private Ease ease = Ease.InOutSine;
 
-		public override void PrepareForAnimation(RectTransform target)
+		public override void Prepare(RectTransform target)
 		{
 			Tween.Kill(target);
 			target.anchoredPosition = anchoredOrigin;

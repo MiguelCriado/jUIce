@@ -23,7 +23,7 @@ namespace Juice
 		[DrawIf(nameof(isPopup), true)]
 		[SerializeField] private bool closeOnShadowClick = true;
 
-		public override Task Show(Transition overrideTransition = null)
+		public override Task Show(ITransition overrideTransition = null)
 		{
 			transform.SetAsLastSibling();
 

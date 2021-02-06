@@ -13,21 +13,21 @@ namespace Juice
 
 		public bool IsVisible => transitionHandler.IsVisible;
 
-		public Transition InTransition
+		public Transition ShowTransition
 		{
-			get => inTransition;
-			set => inTransition = value;
+			get => showTransition;
+			set => showTransition = value;
 		}
 
-		public Transition OutTransition
+		public Transition HideTransition
 		{
-			get => outTransition;
-			set => outTransition = value;
+			get => hideTransition;
+			set => hideTransition = value;
 		}
 
 		[Header("Transitions")]
-		[SerializeField] private Transition inTransition;
-		[SerializeField] private Transition outTransition;
+		[SerializeField] private Transition showTransition;
+		[SerializeField] private Transition hideTransition;
 
 		private readonly TransitionHandler transitionHandler = new TransitionHandler();
 		private RectTransform rectTransform;
@@ -38,24 +38,24 @@ namespace Juice
 			Initialize();
 		}
 
-		public virtual async Task Show(Transition overrideTransition = null)
+		public virtual async Task Show(ITransition overrideTransition = null)
 		{
 			Initialize();
 			Showing?.Invoke(this);
 
-			Transition transition = overrideTransition ? overrideTransition : InTransition;
+			ITransition transition = overrideTransition ?? ShowTransition;
 
 			await transitionHandler.Show(rectTransform, transition);
 
 			Shown?.Invoke(this);
 		}
 
-		public virtual async Task Hide(Transition overrideTransition = null)
+		public virtual async Task Hide(ITransition overrideTransition = null)
 		{
 			Initialize();
 			Hiding?.Invoke(this);
 
-			Transition transition = overrideTransition ? overrideTransition : OutTransition;
+			ITransition transition = overrideTransition ?? HideTransition;
 
 			await transitionHandler.Hide(rectTransform, transition);
 
