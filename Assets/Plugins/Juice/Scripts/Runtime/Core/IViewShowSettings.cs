@@ -6,7 +6,7 @@ namespace Juice
 	{
 		Type ViewType { get; }
 		IViewModel ViewModel { get; }
-		Transition InTransition { get; }
-		Transition OutTransition { get; }
+		ITransition ShowTransition { get; }
+		ITransition HideTransition { get; }
 	}
 }

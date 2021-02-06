@@ -5,12 +5,12 @@ namespace Juice
 	public class WindowHideSettings : IViewHideSettings
 	{
 		public Type ViewType { get; }
-		public Transition OutTransition { get; }
+		public ITransition Transition { get; }
 
-		public WindowHideSettings(Type viewType, Transition outTransition)
+		public WindowHideSettings(Type viewType, ITransition transition)
 		{
 			ViewType = viewType;
-			OutTransition = outTransition;
+			Transition = transition;
 		}
 	}
 }

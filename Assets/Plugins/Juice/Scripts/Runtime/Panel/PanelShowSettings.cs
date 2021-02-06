@@ -6,15 +6,15 @@ namespace Juice
 	{
 		public Type ViewType { get; }
 		public IViewModel ViewModel { get; }
-		public Transition InTransition { get; }
-		public Transition OutTransition { get; }
+		public ITransition ShowTransition { get; }
+		public ITransition HideTransition { get; }
 
-		public PanelShowSettings(Type viewType, IViewModel viewModel, Transition inTransition, Transition outTransition)
+		public PanelShowSettings(Type viewType, IViewModel viewModel, ITransition showTransition, ITransition hideTransition)
 		{
 			ViewType = viewType;
 			ViewModel = viewModel;
-			InTransition = inTransition;
-			OutTransition = outTransition;
+			ShowTransition = showTransition;
+			HideTransition = hideTransition;
 		}
 	}
 }

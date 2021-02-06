@@ -140,13 +140,13 @@ namespace Juice
 
 				if (windowToClose == windowToOpen)
 				{
-					await HideWindow(windowToClose, settings?.OutTransition);
+					await HideWindow(windowToClose, settings?.Transition);
 					await ShowNextWindow();
 				}
 				else
 				{
 					await Task.WhenAll(
-						HideWindow(windowToClose, settings?.OutTransition),
+						HideWindow(windowToClose, settings?.Transition),
 						ShowNextWindow());
 				}
 			}
@@ -190,7 +190,7 @@ namespace Juice
 			return result;
 		}
 
-		private async Task HideWindow(IWindow window, Transition overrideTransition = null)
+		private async Task HideWindow(IWindow window, ITransition overrideTransition = null)
 		{
 			await window.Hide(overrideTransition);
 		}
@@ -274,7 +274,7 @@ namespace Juice
 			    && CurrentWindow.HideOnForegroundLost
 			    && !windowEntry.View.IsPopup)
 			{
-				HideWindow(CurrentWindow, windowEntry.Settings.OutTransition).RunAndForget();
+				HideWindow(CurrentWindow, windowEntry.Settings.HideTransition).RunAndForget();
 			}
 
 			await ShowWindow(windowEntry);

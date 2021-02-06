@@ -25,12 +25,12 @@ namespace Juice
 		{
 			view.SetViewModel(settings.ViewModel);
 
-			await view.Show(settings.InTransition);
+			await view.Show(settings.ShowTransition);
 		}
 
 		protected override async Task HideView(IPanel view, PanelHideSettings settings)
 		{
-			await view.Hide(settings?.OutTransition);
+			await view.Hide(settings?.Transition);
 		}
 
 		public bool IsPanelVisible<T>()

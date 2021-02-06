@@ -3,8 +3,8 @@
 	public interface IPanelShowLauncher
 	{
 		IPanelShowLauncher WithViewModel(IViewModel viewModel);
-		IPanelShowLauncher WithInTransition(Transition transition);
-		IPanelShowLauncher WithOutTransition(Transition transition);
+		IPanelShowLauncher WithShowTransition(ITransition transition);
+		IPanelShowLauncher WithHideTransition(ITransition transition);
 		void Execute();
 	}
 }

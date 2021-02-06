@@ -33,9 +33,9 @@ namespace Juice
 		{
 			lookup = new Dictionary<PanelPriority, Transform>();
 
-			for (int i = 0; i < paralayers.Count; i++)
+			foreach (var current in paralayers)
 			{
-				lookup.Add(paralayers[i].Priority, paralayers[i].TargetTransform);
+				lookup.Add(current.Priority, current.TargetTransform);
 			}
 		}
 	}

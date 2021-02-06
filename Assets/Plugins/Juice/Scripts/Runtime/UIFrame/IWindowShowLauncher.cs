@@ -5,8 +5,8 @@ namespace Juice
 	public interface IWindowShowLauncher
 	{
 		IWindowShowLauncher WithViewModel(IViewModel viewModel);
-		IWindowShowLauncher WithInTransition(Transition transition);
-		IWindowShowLauncher WithOutTransition(Transition transition);
+		IWindowShowLauncher WithShowTransition(ITransition transition);
+		IWindowShowLauncher WithHideTransition(ITransition transition);
 		IWindowShowLauncher WithPriority(WindowPriority priority);
 		void Execute();
 		Task ExecuteAsync();

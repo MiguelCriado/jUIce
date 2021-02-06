@@ -5,12 +5,12 @@ namespace Juice
 	public class PanelHideSettings : IViewHideSettings
 	{
 		public Type ViewType { get; }
-		public Transition OutTransition { get; }
+		public ITransition Transition { get; }
 
-		public PanelHideSettings(Type viewType, Transition outTransition)
+		public PanelHideSettings(Type viewType, ITransition outTransition)
 		{
 			ViewType = viewType;
-			OutTransition = outTransition;
+			Transition = outTransition;
 		}
 	}
 }
