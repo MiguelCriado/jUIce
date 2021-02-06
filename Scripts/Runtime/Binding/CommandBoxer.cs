@@ -12,7 +12,7 @@
 		{
 			this.boxedCommand = boxedCommand;
 		}
-		
+
 		public bool Execute(T parameter)
 		{
 			return boxedCommand.Execute((U)parameter);

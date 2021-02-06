@@ -229,14 +229,14 @@ namespace Juice
 
 		private void OnCloseRequestedByWindow(IView controller)
 		{
-			uiFrame.HideWindow(BuildEmptyHideSettings(controller)).RunAndForget();
+			uiFrame.CloseCurrentWindow().Execute();
 		}
 
 		private void OnPopupsBackgroundClicked()
 		{
 			if (CurrentWindow != null && CurrentWindow.IsPopup && CurrentWindow.CloseOnShadowClick)
 			{
-				uiFrame.HideWindow(BuildEmptyHideSettings(CurrentWindow)).RunAndForget();
+				uiFrame.CloseCurrentWindow().Execute();
 			}
 		}
 

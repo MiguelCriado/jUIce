@@ -59,9 +59,9 @@ namespace Juice.Editor
 		public static void ShowWindow(Type supertype)
 		{
 			var window = CreateInstance<ViewCreationWizardEditorWindow>();
-			
+
 			string saveDirectory = ProjectViewUtility.GetSelectedPathOrFallback();
-			
+
 			window.SetupNamespace();
 			window.SetupSupertype(supertype);
 			window.SetupViewModelType(typeof(IViewModel));
@@ -71,21 +71,21 @@ namespace Juice.Editor
 			window.titleContent = new GUIContent("View Creation Wizard");
 			window.minSize = new Vector2(WindowWidth, WindowHeight);
 			window.maxSize = new Vector2(WindowWidth * 2, WindowHeight);
-			
+
 			try
 			{
 				window.ShowModal();
 			}
 			catch (NullReferenceException e)
 			{
-				
+				Debug.LogError(e);
 			}
 		}
 
 		public void OnGUI()
 		{
 			serializedObject.Update();
-			
+
 			DrawNamespace();
 			DrawSuperType();
 			DrawViewModelType();
@@ -125,7 +125,7 @@ namespace Juice.Editor
 		{
 			uri = value;
 		}
-		
+
 		private void DrawNamespace()
 		{
 			EditorGUILayout.PropertyField(namespaceProp);
@@ -176,11 +176,11 @@ namespace Juice.Editor
 		private void DrawCreateButton()
 		{
 			GUILayout.Space(EditorGUIUtility.singleLineHeight / 2f);
-			
+
 			if (GUILayout.Button("Create View"))
 			{
 				EditorPrefs.SetString(DefaultNamespaceKey, @namespace);
-				
+
 				FileInfo fileInfo = new FileInfo(Path.Combine(uri, $"{className}.cs"));
 
 				ClassFileWriter.ClassDefinition classDefinition = new ClassFileWriter.ClassDefinition
@@ -194,7 +194,7 @@ namespace Juice.Editor
 
 				ClassFileWriter.WriteClassFile(fileInfo, classDefinition);
 				AssetDatabase.Refresh();
-				
+
 				Close();
 			}
 		}
