@@ -96,7 +96,7 @@ namespace Juice.Tests
 			PanelA panelInstance = Object.Instantiate(panelAPrefab);
 
 			uiFrame.RegisterView(panelInstance);
-			uiFrame.UnregisterView(panelInstance.GetType());
+			uiFrame.UnregisterView(panelInstance);
 
 			Assert.IsFalse(uiFrame.IsViewRegistered<PanelA>());
 			yield return null;

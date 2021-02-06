@@ -5,15 +5,15 @@ namespace Juice
 {
 	public class PanelHideLauncher : IPanelHideLauncher
 	{
-		private readonly UIFrame context;
 		private readonly Type panelType;
+		private readonly Func<PanelHideSettings, Task> hideCallback;
 
 		private Transition outTransition;
 
-		public PanelHideLauncher(UIFrame context, Type panelType)
+		public PanelHideLauncher(Type panelType, Func<PanelHideSettings, Task> hideCallback)
 		{
-			this.context = context;
 			this.panelType = panelType;
+			this.hideCallback = hideCallback;
 		}
 
 		public IPanelHideLauncher WithOutTransition(Transition transition)
@@ -29,7 +29,7 @@ namespace Juice
 
 		public async Task ExecuteAsync()
 		{
-			await context.HidePanel(BuildSettings());
+			await hideCallback(BuildSettings());
 		}
 
 		private PanelHideSettings BuildSettings()

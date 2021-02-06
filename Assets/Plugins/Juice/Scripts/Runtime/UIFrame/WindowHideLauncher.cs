@@ -5,15 +5,15 @@ namespace Juice
 {
 	public class WindowHideLauncher : IWindowHideLauncher
 	{
-		private readonly UIFrame context;
 		private readonly Type windowType;
+		private readonly Func<WindowHideSettings, Task> hideCallback;
 
 		private Transition outTransition;
 
-		public WindowHideLauncher(UIFrame context, Type windowType)
+		public WindowHideLauncher(Type windowType, Func<WindowHideSettings, Task> hideCallback)
 		{
-			this.context = context;
 			this.windowType = windowType;
+			this.hideCallback = hideCallback;
 		}
 
 		public IWindowHideLauncher WithOutTransition(Transition transition)
@@ -29,7 +29,7 @@ namespace Juice
 
 		public async Task ExecuteAsync()
 		{
-			await context.HideWindow(BuildSettings());
+			await hideCallback(BuildSettings());
 		}
 
 		private WindowHideSettings BuildSettings()

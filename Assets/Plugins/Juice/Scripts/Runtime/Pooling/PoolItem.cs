@@ -17,7 +17,7 @@ namespace Juice.Pooling
 
 			foreach (IPoolable next in potentialPoolables)
 			{
-				if (next != this)
+				if (!ReferenceEquals(next, this))
 				{
 					poolables.Add(next);
 				}

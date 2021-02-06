@@ -5,16 +5,16 @@ namespace Juice
 {
 	public class PanelShowLauncher : IPanelShowLauncher
 	{
-		private readonly UIFrame context;
 		private readonly Type panelType;
+		private readonly Func<PanelShowSettings, Task> showCallback;
 
 		private IViewModel viewModel;
 		private Transition inTransition;
 		private Transition outTransition;
 
-		public PanelShowLauncher(UIFrame context, Type panelType)
+		public PanelShowLauncher(Type panelType, Func<PanelShowSettings, Task> showCallback)
 		{
-			this.context = context;
+			this.showCallback = showCallback;
 			this.panelType = panelType;
 		}
 
@@ -38,12 +38,12 @@ namespace Juice
 
 		public void Execute()
 		{
-			context.ShowPanel(BuildSettings()).RunAndForget();
+			ExecuteAsync().RunAndForget();
 		}
 
 		public async Task ExecuteAsync()
 		{
-			await context.ShowPanel(BuildSettings());
+			await showCallback(BuildSettings());
 		}
 
 		private PanelShowSettings BuildSettings()

@@ -5,18 +5,18 @@ namespace Juice
 {
 	public class WindowShowLauncher : IWindowShowLauncher
 	{
-		private readonly UIFrame context;
 		private readonly Type windowType;
+		private readonly Func<WindowShowSettings, Task> showCallback;
 
 		private IViewModel viewModel;
 		private Transition inTransition;
 		private Transition outTransition;
 		private WindowPriority? priority;
 
-		public WindowShowLauncher(UIFrame context, Type windowType)
+		public WindowShowLauncher(Type windowType, Func<WindowShowSettings, Task> showCallback)
 		{
-			this.context = context;
 			this.windowType = windowType;
+			this.showCallback = showCallback;
 		}
 
 		public IWindowShowLauncher WithViewModel(IViewModel viewModel)
@@ -51,7 +51,7 @@ namespace Juice
 		public async Task ExecuteAsync()
 		{
 			priority = null;
-			await context.ShowWindow(BuildSettings());
+			await showCallback(BuildSettings());
 		}
 
 		public void InForeground()
@@ -62,13 +62,13 @@ namespace Juice
 		public async Task InForegroundAsync()
 		{
 			priority = WindowPriority.ForceForeground;
-			await context.ShowWindow(BuildSettings());
+			await showCallback(BuildSettings());
 		}
 
 		public void Enqueue()
 		{
 			priority = WindowPriority.Enqueue;
-			context.ShowWindow(BuildSettings()).RunAndForget();
+			showCallback(BuildSettings()).RunAndForget();
 		}
 
 		private WindowShowSettings BuildSettings()

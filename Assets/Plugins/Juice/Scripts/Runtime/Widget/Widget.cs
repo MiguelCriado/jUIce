@@ -6,6 +6,11 @@ namespace Juice
 	[RequireComponent(typeof(RectTransform))]
 	public class Widget : MonoBehaviour, ITransitionable
 	{
+		public event TransitionableEventHandler Showing;
+		public event TransitionableEventHandler Shown;
+		public event TransitionableEventHandler Hiding;
+		public event TransitionableEventHandler Hidden;
+
 		public bool IsVisible => transitionHandler.IsVisible;
 
 		public Transition InTransition
@@ -36,19 +41,25 @@ namespace Juice
 		public virtual async Task Show(Transition overrideTransition = null)
 		{
 			Initialize();
+			Showing?.Invoke(this);
 
 			Transition transition = overrideTransition ? overrideTransition : InTransition;
 
 			await transitionHandler.Show(rectTransform, transition);
+
+			Shown?.Invoke(this);
 		}
 
 		public virtual async Task Hide(Transition overrideTransition = null)
 		{
 			Initialize();
+			Hiding?.Invoke(this);
 
 			Transition transition = overrideTransition ? overrideTransition : OutTransition;
 
 			await transitionHandler.Hide(rectTransform, transition);
+
+			Hidden?.Invoke(this);
 		}
 
 		private void Initialize()

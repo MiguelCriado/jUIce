@@ -8,6 +8,8 @@ namespace Juice
 {
 	public class UIFrame : MonoBehaviour
 	{
+		public event WindowLayer.WindowChangeHandler CurrentWindowChanged;
+
 		public Canvas MainCanvas
 		{
 			get
@@ -21,8 +23,6 @@ namespace Juice
 			}
 		}
 
-		public event WindowLayer.WindowChangeHandler CurrentWindowChanged;
-
 		public Camera UICamera => MainCanvas.worldCamera;
 		public IWindow CurrentWindow => windowLayer.CurrentWindow;
 
@@ -34,7 +34,7 @@ namespace Juice
 		private GraphicRaycaster graphicRaycaster;
 
 		private readonly Dictionary<Type, IView> registeredViews = new Dictionary<Type, IView>();
-		private readonly HashSet<Type> viewsInTransition = new HashSet<Type>();
+		private readonly HashSet<object> blockInteractionRequesters = new HashSet<object>();
 
 		private void Reset()
 		{
@@ -106,50 +106,52 @@ namespace Juice
 			}
 		}
 
-		public void UnregisterView(Type viewType)
+		public void UnregisterView<T>(T view) where T : IView
 		{
-			if (registeredViews.TryGetValue(viewType, out IView view))
+			Type viewType = view.GetType();
+
+			if (registeredViews.ContainsKey(viewType))
 			{
-				Component viewAsComponent = view as Component;
-
-				if (viewAsComponent != null)
+				if (typeof(IPanel).IsAssignableFrom(viewType))
 				{
-					viewAsComponent.gameObject.SetActive(false);
-					viewAsComponent.transform.SetParent(null);
+					IPanel viewAsPanel = view as IPanel;
+					ProcessViewUnregister(viewAsPanel, panelLayer);
 				}
-
-				registeredViews.Remove(viewType);
+				else if (typeof(IWindow).IsAssignableFrom(viewType))
+				{
+					IWindow viewAsWindow = view as IWindow;
+					ProcessViewUnregister(viewAsWindow, windowLayer);
+				}
 			}
-		}
-
-		public void UnregisterView<T>() where T : IView
-		{
-			UnregisterView(typeof(T));
+			else
+			{
+				Debug.LogError($"Provided view {viewType.Name} was not registered.");
+			}
 		}
 
 		public IPanelShowLauncher ShowPanel<T>() where T : IPanel
 		{
-			return new PanelShowLauncher(this, typeof(T));
+			return new PanelShowLauncher(typeof(T), ShowPanel);
 		}
 
 		public IWindowShowLauncher ShowWindow<T>() where T : IWindow
 		{
-			return new WindowShowLauncher(this, typeof(T));
+			return new WindowShowLauncher(typeof(T), ShowWindow);
 		}
 
 		public IPanelHideLauncher HidePanel<T>() where T : IPanel
 		{
-			return new PanelHideLauncher(this, typeof(T));
+			return new PanelHideLauncher(typeof(T), HidePanel);
 		}
 
 		public IWindowHideLauncher HideWindow<T>() where T : IWindow
 		{
-			return new WindowHideLauncher(this, typeof(T));
+			return new WindowHideLauncher(typeof(T), HideWindow);
 		}
 
 		public IWindowHideLauncher CloseCurrentWindow()
 		{
-			return new WindowHideLauncher(this, CurrentWindow.GetType());
+			return new WindowHideLauncher(CurrentWindow.GetType(), HideWindow);
 		}
 
 		public bool IsViewRegistered<T>() where T : IView
@@ -157,85 +159,23 @@ namespace Juice
 			return registeredViews.ContainsKey(typeof(T));
 		}
 
-		internal async Task ShowPanel(PanelShowSettings settings)
+		public void BlockInteraction(object requester)
 		{
-			RegisterTransition(settings.ViewType);
+			blockInteractionRequesters.Add(requester);
 
-			await panelLayer.ShowView(settings);
-
-			UnregisterTransition(settings.ViewType);
-		}
-
-		internal async Task ShowWindow(WindowShowSettings settings)
-		{
-			RegisterTransition(settings.ViewType);
-
-			await windowLayer.ShowView(settings);
-
-			UnregisterTransition(settings.ViewType);
-		}
-
-		internal async Task HidePanel(PanelHideSettings settings)
-		{
-			RegisterTransition(settings.ViewType);
-
-			await panelLayer.HideView(settings);
-
-			UnregisterTransition(settings.ViewType);
-		}
-
-		internal async Task HideWindow(WindowHideSettings settings)
-		{
-			RegisterTransition(settings.ViewType);
-
-			await windowLayer.HideView(settings);
-
-			UnregisterTransition(settings.ViewType);
-		}
-
-		private void RegisterTransition(Type viewType)
-		{
-			viewsInTransition.Add(viewType);
-
-			if (viewsInTransition.Count == 1)
+			if (blockInteractionRequesters.Count == 1)
 			{
 				BlockInteraction();
 			}
 		}
 
-		private void UnregisterTransition(Type viewType)
+		public void UnblockInteraction(object requester)
 		{
-			viewsInTransition.Remove(viewType);
+			blockInteractionRequesters.Remove(requester);
 
-			if (viewsInTransition.Count <= 0)
+			if (blockInteractionRequesters.Count <= 0)
 			{
 				UnblockInteraction();
-			}
-		}
-
-		private void BlockInteraction()
-		{
-			if (graphicRaycaster)
-			{
-				graphicRaycaster.enabled = false;
-			}
-
-			foreach (var current in registeredViews)
-			{
-				current.Value.AllowsInteraction = false;
-			}
-		}
-
-		private void UnblockInteraction()
-		{
-			if (graphicRaycaster)
-			{
-				graphicRaycaster.enabled = true;
-			}
-
-			foreach (var current in registeredViews)
-			{
-				current.Value.AllowsInteraction = true;
 			}
 		}
 
@@ -263,12 +203,111 @@ namespace Juice
 			where TShowSettings : IViewShowSettings
 			where THideSettings : IViewHideSettings
 		{
-			Type viewType = view.GetType();
 			Component viewAsComponent = view as Component;
-			viewAsComponent.gameObject.SetActive(false);
-			layer.RegisterView(view);
-			layer.ReparentView(view, viewAsComponent.transform);
+
+			if (viewAsComponent != null)
+			{
+				viewAsComponent.gameObject.SetActive(false);
+				layer.ReparentView(view, viewAsComponent.transform);
+			}
+
+			Type viewType = view.GetType();
 			registeredViews.Add(viewType, view);
+			layer.RegisterView(view);
+
+			view.Showing += OnViewShowing;
+			view.Shown += OnViewShown;
+			view.Hiding += OnViewHiding;
+			view.Hidden += OnViewHidden;
+		}
+
+		private void ProcessViewUnregister<TView, TShowSettings, THideSettings>(TView view, Layer<TView, TShowSettings, THideSettings> layer)
+			where TView : IView
+			where TShowSettings : IViewShowSettings
+			where THideSettings : IViewHideSettings
+		{
+			Component viewAsComponent = view as Component;
+
+			if (viewAsComponent != null)
+			{
+				viewAsComponent.gameObject.SetActive(false);
+				viewAsComponent.transform.SetParent(null);
+			}
+
+			Type viewType = view.GetType();
+			registeredViews.Remove(viewType);
+			layer.UnregisterView(view);
+
+			view.Showing -= OnViewShowing;
+			view.Shown -= OnViewShown;
+			view.Hiding -= OnViewHiding;
+			view.Hidden -= OnViewHidden;
+		}
+
+		private void OnViewShowing(ITransitionable view)
+		{
+			BlockInteraction(view);
+		}
+
+		private void OnViewShown(ITransitionable view)
+		{
+			UnblockInteraction(view);
+		}
+
+		private void OnViewHiding(ITransitionable view)
+		{
+			BlockInteraction(view);
+		}
+
+		private void OnViewHidden(ITransitionable view)
+		{
+			UnblockInteraction(view);
+		}
+
+		private async Task ShowPanel(PanelShowSettings settings)
+		{
+			await panelLayer.ShowView(settings);
+		}
+
+		private async Task ShowWindow(WindowShowSettings settings)
+		{
+			await windowLayer.ShowView(settings);
+		}
+
+		private async Task HidePanel(PanelHideSettings settings)
+		{
+			await panelLayer.HideView(settings);
+		}
+
+		private async Task HideWindow(WindowHideSettings settings)
+		{
+			await windowLayer.HideView(settings);
+		}
+
+		private void BlockInteraction()
+		{
+			if (graphicRaycaster)
+			{
+				graphicRaycaster.enabled = false;
+			}
+
+			foreach (var current in registeredViews)
+			{
+				current.Value.AllowsInteraction = false;
+			}
+		}
+
+		private void UnblockInteraction()
+		{
+			if (graphicRaycaster)
+			{
+				graphicRaycaster.enabled = true;
+			}
+
+			foreach (var current in registeredViews)
+			{
+				current.Value.AllowsInteraction = true;
+			}
 		}
 	}
 }
