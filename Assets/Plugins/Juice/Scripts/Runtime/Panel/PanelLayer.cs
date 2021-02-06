@@ -31,6 +31,8 @@ namespace Juice
 		protected override async Task HideView(IPanel view, PanelHideSettings settings)
 		{
 			await view.Hide(settings?.Transition);
+
+			view.SetViewModel(default);
 		}
 
 		public bool IsPanelVisible<T>()
