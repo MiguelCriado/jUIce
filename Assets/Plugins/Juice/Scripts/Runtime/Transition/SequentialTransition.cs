@@ -8,11 +8,11 @@ namespace Juice
 	{
 		[SerializeField] private List<Transition> transitions;
 		
-		public override void PrepareForAnimation(RectTransform target)
+		public override void Prepare(RectTransform target)
 		{
 			foreach (Transition current in transitions)
 			{
-				current.PrepareForAnimation(target);
+				current.Prepare(target);
 			}
 		}
 

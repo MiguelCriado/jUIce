@@ -19,11 +19,11 @@ namespace Juice
 		[SerializeField] private float duration = 0.3f;
 		[SerializeField] private Ease ease = Ease.InOutSine;
 
-		public override void PrepareForAnimation(RectTransform target)
+		public override void Prepare(RectTransform target)
 		{
 			CanvasGroup canvasGroup = target.GetOrAddComponent<CanvasGroup>();
 			Tween.Kill(canvasGroup);
-			
+
 			if (fadeType == FadeType.In)
 			{
 				canvasGroup.alpha = 0;

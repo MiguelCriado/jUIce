@@ -25,7 +25,7 @@ namespace Juice
 
 			PanelLayer panelLayer = CreatePanelLayer();
 			panelLayer.transform.SetParent(mainCanvas.transform, false);
-			
+
 			WindowLayer windowLayer = CreateWindowLayer();
 			windowLayer.transform.SetParent(mainCanvas.transform, false);
 
@@ -35,7 +35,7 @@ namespace Juice
 			WindowParaLayer priorityWindowLayer = CreatePriorityWindowLayer();
 			priorityWindowLayer.transform.SetParent(mainCanvas.transform, false);
 			windowLayer.SetPriorityLayer(priorityWindowLayer);
-			
+
 			GameObject tutorialPanelLayer = CreateUIObject("Tutorial Panel Layer");
 			tutorialPanelLayer.transform.SetParent(mainCanvas.transform, false);
 
@@ -109,8 +109,8 @@ namespace Juice
 			inTransition.FadeTypeInternal = FadeTransition.FadeType.In;
 			FadeTransition outTransition = backgroundWidget.gameObject.AddComponent<FadeTransition>();
 			outTransition.FadeTypeInternal = FadeTransition.FadeType.Out;
-			backgroundWidget.InTransition = inTransition;
-			backgroundWidget.OutTransition = outTransition;
+			backgroundWidget.ShowTransition = inTransition;
+			backgroundWidget.HideTransition = outTransition;
 			Image backgroundImage = backgroundWidget.gameObject.AddComponent<Image>();
 			backgroundImage.color = new Color(0, 0, 0, 0.7f);
 			backgroundImage.transform.SetParent(result.transform, false);

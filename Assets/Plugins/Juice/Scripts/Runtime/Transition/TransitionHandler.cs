@@ -8,7 +8,7 @@ namespace Juice
 	{
 		public bool IsVisible { get; private set; }
 
-		public async Task Show(RectTransform target, Transition transition)
+		public async Task Show(RectTransform target, ITransition transition)
 		{
 			if (IsVisible == false)
 			{
@@ -18,21 +18,21 @@ namespace Juice
 			}
 		}
 
-		public async Task Hide(RectTransform target, Transition transition)
+		public async Task Hide(RectTransform target, ITransition transition)
 		{
 			if (IsVisible)
 			{
 				IsVisible = false;
-				
+
 				await DoAnimation(target, transition, false);
-				
+
 				target.gameObject.SetActive(false);
 			}
 		}
 
-		private async Task DoAnimation(RectTransform target, Transition transition, bool isVisible)
+		private async Task DoAnimation(RectTransform target, ITransition transition, bool isVisible)
 		{
-			if (!transition)
+			if (transition == null)
 			{
 				target.gameObject.SetActive(isVisible);
 			}
@@ -43,7 +43,7 @@ namespace Juice
 					target.gameObject.SetActive(true);
 				}
 
-				transition.PrepareForAnimation(target);
+				transition.Prepare(target);
 
 				try
 				{

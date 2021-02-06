@@ -13,7 +13,7 @@ namespace Juice
 
 		bool IsVisible { get; }
 
-		Task Show(Transition overrideTransition = null);
-		Task Hide(Transition overrideTransition = null);
+		Task Show(ITransition overrideTransition = null);
+		Task Hide(ITransition overrideTransition = null);
 	}
 }
