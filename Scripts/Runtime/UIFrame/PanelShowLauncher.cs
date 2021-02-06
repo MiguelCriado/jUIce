@@ -9,8 +9,8 @@ namespace Juice
 		private readonly Func<PanelShowSettings, Task> showCallback;
 
 		private IViewModel viewModel;
-		private Transition inTransition;
-		private Transition outTransition;
+		private ITransition showTransition;
+		private ITransition hideTransition;
 
 		public PanelShowLauncher(Type panelType, Func<PanelShowSettings, Task> showCallback)
 		{
@@ -24,15 +24,15 @@ namespace Juice
 			return this;
 		}
 
-		public IPanelShowLauncher WithInTransition(Transition transition)
+		public IPanelShowLauncher WithShowTransition(ITransition transition)
 		{
-			inTransition = transition;
+			showTransition = transition;
 			return this;
 		}
 
-		public IPanelShowLauncher WithOutTransition(Transition transition)
+		public IPanelShowLauncher WithHideTransition(ITransition transition)
 		{
-			outTransition = transition;
+			hideTransition = transition;
 			return this;
 		}
 
@@ -51,8 +51,8 @@ namespace Juice
 			return new PanelShowSettings(
 				panelType,
 				viewModel,
-				inTransition,
-				outTransition);
+				showTransition,
+				hideTransition);
 		}
 	}
 }

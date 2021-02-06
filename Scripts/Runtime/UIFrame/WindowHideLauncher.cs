@@ -8,7 +8,7 @@ namespace Juice
 		private readonly Type windowType;
 		private readonly Func<WindowHideSettings, Task> hideCallback;
 
-		private Transition outTransition;
+		private ITransition transition;
 
 		public WindowHideLauncher(Type windowType, Func<WindowHideSettings, Task> hideCallback)
 		{
@@ -16,9 +16,9 @@ namespace Juice
 			this.hideCallback = hideCallback;
 		}
 
-		public IWindowHideLauncher WithOutTransition(Transition transition)
+		public IWindowHideLauncher WithTransition(ITransition transition)
 		{
-			outTransition = transition;
+			this.transition = transition;
 			return this;
 		}
 
@@ -34,7 +34,7 @@ namespace Juice
 
 		private WindowHideSettings BuildSettings()
 		{
-			return new WindowHideSettings(windowType, outTransition);
+			return new WindowHideSettings(windowType, transition);
 		}
 	}
 }

@@ -9,8 +9,8 @@ namespace Juice
 		private readonly Func<WindowShowSettings, Task> showCallback;
 
 		private IViewModel viewModel;
-		private Transition inTransition;
-		private Transition outTransition;
+		private ITransition showTransition;
+		private ITransition hideTransition;
 		private WindowPriority? priority;
 
 		public WindowShowLauncher(Type windowType, Func<WindowShowSettings, Task> showCallback)
@@ -25,15 +25,15 @@ namespace Juice
 			return this;
 		}
 
-		public IWindowShowLauncher WithInTransition(Transition transition)
+		public IWindowShowLauncher WithShowTransition(ITransition transition)
 		{
-			inTransition = transition;
+			showTransition = transition;
 			return this;
 		}
 
-		public IWindowShowLauncher WithOutTransition(Transition transition)
+		public IWindowShowLauncher WithHideTransition(ITransition transition)
 		{
-			outTransition = transition;
+			hideTransition = transition;
 			return this;
 		}
 
@@ -76,8 +76,8 @@ namespace Juice
 			return new WindowShowSettings(
 				windowType,
 				viewModel,
-				inTransition,
-				outTransition,
+				showTransition,
+				hideTransition,
 				priority);
 		}
 	}
