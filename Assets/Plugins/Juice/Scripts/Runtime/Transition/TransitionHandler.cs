@@ -14,7 +14,7 @@ namespace Juice
 			{
 				IsVisible = true;
 
-				await DoAnimation(target, transition,true);
+				await AnimateTransition(target, transition,true);
 			}
 		}
 
@@ -24,13 +24,13 @@ namespace Juice
 			{
 				IsVisible = false;
 
-				await DoAnimation(target, transition, false);
+				await AnimateTransition(target, transition, false);
 
 				target.gameObject.SetActive(false);
 			}
 		}
 
-		private async Task DoAnimation(RectTransform target, ITransition transition, bool isVisible)
+		private async Task AnimateTransition(RectTransform target, ITransition transition, bool isVisible)
 		{
 			if (transition == null)
 			{
@@ -43,11 +43,13 @@ namespace Juice
 					target.gameObject.SetActive(true);
 				}
 
-				transition.Prepare(target);
-
 				try
 				{
+					transition.Prepare(target);
+
 					await transition.Animate(target);
+
+					transition.Cleanup(target);
 				}
 				catch (Exception e)
 				{
