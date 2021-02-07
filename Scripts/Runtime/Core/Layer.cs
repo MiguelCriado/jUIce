@@ -12,9 +12,9 @@ namespace Juice
 	{
 		protected readonly Dictionary<Type, TView> registeredViews = new Dictionary<Type, TView>();
 
-		protected UIFrame uiFrame;
+		protected UiFrame uiFrame;
 
-		public virtual void Initialize(UIFrame uiFrame)
+		public virtual void Initialize(UiFrame uiFrame)
 		{
 			this.uiFrame = uiFrame;
 		}

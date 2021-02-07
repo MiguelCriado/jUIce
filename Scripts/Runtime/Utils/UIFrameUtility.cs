@@ -9,10 +9,10 @@ namespace Juice
 	{
 		private static readonly string UIMaskName = "UI";
 
-		public static UIFrame CreateDefaultUIFrame()
+		public static UiFrame CreateDefaultUIFrame()
 		{
 			GameObject uiFrame = new GameObject("UI Frame");
-			UIFrame result = uiFrame.AddComponent<UIFrame>();
+			UiFrame result = uiFrame.AddComponent<UiFrame>();
 
 			Camera camera = CreateCamera();
 			camera.transform.SetParent(uiFrame.transform);
