@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace Juice
 {
-	public class UIFrame : MonoBehaviour
+	public class UiFrame : MonoBehaviour
 	{
 		public event WindowLayer.WindowChangeHandler CurrentWindowChanged;
 
@@ -83,6 +84,29 @@ namespace Juice
 			graphicRaycaster = MainCanvas.GetComponent<GraphicRaycaster>();
 		}
 
+		public UiFrameState GetCurrentState()
+		{
+			return new UiFrameState(windowLayer.GetCurrentState(), panelLayer.GetCurrentState());
+		}
+
+		public void SetState(UiFrameState state)
+		{
+			IEnumerable<IView> allViews = state.WindowLayerState.WindowHistory.Select(x => x.Window as IView)
+				.Concat(state.WindowLayerState.WindowQueue.Select(x => x.Window as IView))
+				.Concat(state.PanelLayerState.VisiblePanels.Select(x => x.Panel));
+			bool isStateValid = allViews.All(x => registeredViews.TryGetValue(x.GetType(), out IView existing) && x == existing);
+
+			if (isStateValid)
+			{
+				windowLayer.SetState(state.WindowLayerState);
+				panelLayer.SetState(state.PanelLayerState);
+			}
+			else
+			{
+				Debug.LogError("All Views included in the state must be already registered.");
+			}
+		}
+
 		public void RegisterView<T>(T view) where T : IView
 		{
 			if (IsViewValid(view))
@@ -152,6 +176,11 @@ namespace Juice
 		public IWindowHideLauncher CloseCurrentWindow()
 		{
 			return new WindowHideLauncher(CurrentWindow.GetType(), HideWindow);
+		}
+
+		public async Task HideAll()
+		{
+			await Task.WhenAll(windowLayer.HideAll(), panelLayer.HideAll());
 		}
 
 		public bool IsViewRegistered<T>() where T : IView

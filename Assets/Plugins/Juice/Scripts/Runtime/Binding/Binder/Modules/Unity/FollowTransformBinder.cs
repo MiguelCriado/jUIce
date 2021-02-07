@@ -9,11 +9,11 @@ namespace Juice
 
 		protected override ConstantBindingInfo<Transform> BindingInfo => bindingInfo;
 
-		private UIFrame UIFrame => GetUIFrameCache();
+		private UiFrame UIFrame => GetUIFrameCache();
 
 		private Camera mainCamera;
 		private Transform target;
-		private UIFrame uiFrameCache;
+		private UiFrame uiFrameCache;
 		private RectTransform referenceTransform;
 		private VariableBinding<Vector2> offsetBinding;
 
@@ -75,11 +75,11 @@ namespace Juice
 			}
 		}
 
-		private UIFrame GetUIFrameCache()
+		private UiFrame GetUIFrameCache()
 		{
 			if (!uiFrameCache)
 			{
-				uiFrameCache = GetComponentInParent<UIFrame>();
+				uiFrameCache = GetComponentInParent<UiFrame>();
 			}
 
 			return uiFrameCache;

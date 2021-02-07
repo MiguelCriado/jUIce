@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -46,6 +47,49 @@ namespace Juice
 			priorityParaLayer.BackgroundClicked += OnPopupsBackgroundClicked;
 		}
 
+		public WindowLayerState GetCurrentState()
+		{
+			IEnumerable<WindowStateEntry> queueState = windowQueue.ToArray().Select(x => new WindowStateEntry(x.View, x.Settings, x.View.IsVisible));
+			IEnumerable<WindowStateEntry> historyState = windowHistory.ToArray().Reverse().Select(x => new WindowStateEntry(x.View, x.Settings, x.View.IsVisible));
+			return new WindowLayerState(queueState, historyState);
+		}
+
+		public void SetState(WindowLayerState state)
+		{
+			windowQueue.Clear();
+			windowHistory.Clear();
+
+			foreach (WindowStateEntry current in state.WindowQueue)
+			{
+				WindowHistoryEntry entry = new WindowHistoryEntry(current.Window, current.Settings);
+				current.Window.Hide(Transition.Null);
+				current.Window.SetViewModel(default);
+				windowQueue.Enqueue(entry);
+			}
+
+			foreach (WindowStateEntry current in state.WindowHistory)
+			{
+				WindowHistoryEntry entry = new WindowHistoryEntry(current.Window, current.Settings);
+				windowHistory.Push(entry);
+
+				if (current.IsVisible)
+				{
+					current.Window.SetViewModel(current.Settings.ViewModel);
+					current.Window.Show(Transition.Null);
+				}
+				else
+				{
+					current.Window.Hide(Transition.Null);
+					current.Window.SetViewModel(default);
+				}
+			}
+
+			if (windowHistory.Count > 0)
+			{
+				ShowWindow(windowHistory.Pop()).RunAndForget();
+			}
+		}
+
 		public override async Task HideAll()
 		{
 			Task[] tasks = new Task[registeredViews.Count];
@@ -53,7 +97,7 @@ namespace Juice
 
 			foreach (KeyValuePair<Type, IWindow> current in registeredViews)
 			{
-				tasks[i] = HideWindow(current.Value, null);
+				tasks[i] = HideWindow(current.Value);
 				i++;
 			}
 

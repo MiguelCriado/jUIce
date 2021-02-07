@@ -1,4 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Juice
@@ -8,6 +11,39 @@ namespace Juice
 		internal PanelPriorityLayerList PriorityLayers { get => priorityLayers; set => priorityLayers = value; }
 
 		[SerializeField] private PanelPriorityLayerList priorityLayers = null;
+
+		private readonly Dictionary<Type, PanelStateEntry> visiblePanels = new Dictionary<Type, PanelStateEntry>();
+
+		public PanelLayerState GetCurrentState()
+		{
+			return new PanelLayerState(visiblePanels.Values.ToArray());
+		}
+
+		public void SetState(PanelLayerState state)
+		{
+			visiblePanels.Clear();
+			var visiblePanelsSet = new HashSet<IPanel>();
+
+			foreach (PanelStateEntry current in state.VisiblePanels)
+			{
+				visiblePanels[current.GetType()] = current;
+				visiblePanelsSet.Add(current.Panel);
+				current.Panel.SetViewModel(current.Settings.ViewModel);
+			}
+
+			foreach (var kvp in registeredViews)
+			{
+				if (visiblePanelsSet.Contains(kvp.Value))
+				{
+					kvp.Value.Show(Transition.Null);
+				}
+				else
+				{
+					kvp.Value.Hide(Transition.Null);
+					kvp.Value.SetViewModel(default);
+				}
+			}
+		}
 
 		public override void ReparentView(IView view, Transform viewTransform)
 		{
@@ -21,20 +57,6 @@ namespace Juice
 			}
 		}
 
-		protected override async Task ShowView(IPanel view, PanelShowSettings settings)
-		{
-			view.SetViewModel(settings.ViewModel);
-
-			await view.Show(settings.ShowTransition);
-		}
-
-		protected override async Task HideView(IPanel view, PanelHideSettings settings)
-		{
-			await view.Hide(settings?.Transition);
-
-			view.SetViewModel(default);
-		}
-
 		public bool IsPanelVisible<T>()
 		{
 			bool result = false;
@@ -45,6 +67,23 @@ namespace Juice
 			}
 
 			return result;
+		}
+
+		protected override async Task ShowView(IPanel view, PanelShowSettings settings)
+		{
+			visiblePanels[view.GetType()] = new PanelStateEntry(view, settings);
+			view.SetViewModel(settings.ViewModel);
+
+			await view.Show(settings.ShowTransition);
+		}
+
+		protected override async Task HideView(IPanel view, PanelHideSettings settings)
+		{
+			visiblePanels.Remove(view.GetType());
+
+			await view.Hide(settings?.Transition);
+
+			view.SetViewModel(default);
 		}
 
 		private void ReparentToParaLayer(PanelPriority priority, Transform viewTransform)

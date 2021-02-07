@@ -12,7 +12,7 @@ namespace Juice.Tests
 		private static readonly string PanelAPath = "Assets/Tests/Runtime/Prefabs/Panel A.prefab";
 		private static readonly string WindowWithPropertiesPath = "Assets/Tests/Runtime/Prefabs/Window With Properties.prefab";
 
-		private UIFrame uiFrame;
+		private UiFrame uiFrame;
 
 		[SetUp]
 		public void Setup()

@@ -5,7 +5,7 @@ namespace Juice
 {
 	public class ViewRegisterer : MonoBehaviour
 	{
-		[SerializeField] private UIFrame uiFrame;
+		[SerializeField] private UiFrame uiFrame;
 
 		private void Start()
 		{
