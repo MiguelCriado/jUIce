@@ -21,7 +21,7 @@ namespace Juice.Editor
 			ViewCreationWizardEditorWindow.ShowForPanel();
 		}
 
-		[MenuItem("GameObject/UI/Muui/Default UI Frame")]
+		[MenuItem("GameObject/UI/jUIce/Default UI Frame")]
 		public static void CreateDefaultUIFrame()
 		{
 			UIFrameUtility.CreateDefaultUIFrame();
