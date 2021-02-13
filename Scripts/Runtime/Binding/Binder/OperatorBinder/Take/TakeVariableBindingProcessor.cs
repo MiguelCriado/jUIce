@@ -1,6 +1,4 @@
-﻿
-
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Juice
 {
@@ -19,20 +17,20 @@ namespace Juice
 		public override void Bind()
 		{
 			valueReceivedCount = 0;
-			
+
 			base.Bind();
 		}
 
 		protected override void BoundVariableChangedHandler(T newValue)
 		{
 			valueReceivedCount++;
-			
+
 			if (valueReceivedCount <= takeAmount)
 			{
 				base.BoundVariableChangedHandler(newValue);
 			}
 		}
-		
+
 		protected override T ProcessValue(T value)
 		{
 			return value;

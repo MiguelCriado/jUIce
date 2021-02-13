@@ -1,5 +1,5 @@
-﻿using UnityEditor;
-using UnityEditor.UIElements;
+﻿using System.IO;
+using UnityEditor;
 using UnityEngine;
 
 namespace Juice.Editor
@@ -27,7 +27,7 @@ namespace Juice.Editor
 		{
 			drawIf = attribute as DrawIfAttribute;
 			string path = property.propertyPath.Contains(".")
-				? System.IO.Path.ChangeExtension(property.propertyPath, drawIf.ComparedPropertyName)
+				? Path.ChangeExtension(property.propertyPath, drawIf.ComparedPropertyName)
 				: drawIf.ComparedPropertyName;
 
 			comparedField = property.serializedObject.FindProperty(path);
@@ -75,7 +75,7 @@ namespace Juice.Editor
 				EditorGUI.PropertyField(position, property, label);
 			}
 		}
-		
+
 		private void CachePropertyDrawer()
 		{
 			if (cachedPropertyDrawer == null)

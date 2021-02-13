@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using UnityEditor;
 
 namespace Juice.Editor
 {
@@ -105,7 +104,7 @@ namespace Juice.Editor
 				WriteNamespaceClosingBracket(writer, indentLevel, definition.Namespace);
 			}
 		}
-		
+
 		private static int WriteNamespaceHeader(StreamWriter writer, int indentLevel, string namespaceName)
 		{
 			bool isNamespaceSet = string.IsNullOrEmpty(namespaceName) == false;

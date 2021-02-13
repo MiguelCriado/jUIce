@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
 using UnityEngine.Assertions;
 
 namespace Juice
@@ -8,7 +7,7 @@ namespace Juice
 	public class PrefabPicker<T> where T : ViewModelComponent
 	{
 		private static readonly Type ExpectedViewModelType = typeof(BindableViewModel<>);
-		
+
 		private List<T> prefabs;
 		private readonly Dictionary<Type, T> prefabResolutionCache;
 
@@ -30,7 +29,7 @@ namespace Juice
 			this.prefabs = prefabs;
 			prefabResolutionCache.Clear();
 		}
-		
+
 		public T FindBestPrefab(object value)
 		{
 			Type valueType = value.GetType();
@@ -88,7 +87,7 @@ namespace Juice
 			Type result = null;
 
 			Type genericType = null;
-			
+
 			if (runtimeType.IsGenericType)
 			{
 				genericType = runtimeType.GetGenericTypeDefinition();
