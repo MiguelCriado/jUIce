@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace Juice
+﻿namespace Juice
 {
 	public readonly struct WindowHistoryEntry
 	{
@@ -11,12 +9,6 @@ namespace Juice
 		{
 			View = view;
 			Settings = settings;
-		}
-
-		public Task Show()
-		{
-			View.SetViewModel(Settings.ViewModel);
-			return View.Show(Settings.ShowTransition);
 		}
 	}
 }
