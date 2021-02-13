@@ -1,5 +1,4 @@
 ﻿using Juice.Collections;
-using UnityEngine;
 
 namespace Juice
 {
@@ -7,13 +6,13 @@ namespace Juice
 	{
 		protected abstract SerializableDictionary<TFrom, TTo> Mapper { get; }
 		protected abstract ConstantBindingInfo Fallback { get; }
-		
+
 		private VariableBinding<TTo> fallbackBinding;
 
 		protected override void Awake()
 		{
 			base.Awake();
-			
+
 			fallbackBinding = new VariableBinding<TTo>(Fallback, this);
 		}
 
@@ -28,7 +27,7 @@ namespace Juice
 			base.OnDisable();
 			fallbackBinding.Unbind();
 		}
-		
+
 		protected override TTo Convert(TFrom value)
 		{
 			if (Mapper.TryGetValue(value, out var result) == false)

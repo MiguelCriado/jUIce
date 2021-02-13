@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data;
 using UnityEngine;
 
 namespace Juice
@@ -26,7 +25,7 @@ namespace Juice
 			result = new ObservableVariable<bool>();
 			viewModel = new OperatorBinderVariableViewModel<bool>(result);
 			ViewModel = viewModel;
-			
+
 			operandABinding = new VariableBinding<float>(operandA, this);
 			operandABinding.Property.Changed += OperandChangedHandler;
 			operandBBinding = new VariableBinding<float>(operandB, this);
@@ -44,7 +43,7 @@ namespace Juice
 			operandABinding.Unbind();
 			operandBBinding.Unbind();
 		}
-		
+
 		private void OperandChangedHandler(float newValue)
 		{
 			result.Value = Evaluate();

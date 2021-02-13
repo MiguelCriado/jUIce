@@ -1,13 +1,10 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using UnityEditor;
-using UnityEngine;
+﻿using UnityEditor;
 
 namespace Juice.Editor
 {
 	public static class MenuItemMethods
 	{
-		private const string CreateMenuBasePath = "Assets/Create/Juice/";
+		private const string CreateMenuBasePath = "Assets/Create/jUIce/";
 
 		[MenuItem(CreateMenuBasePath + "Window")]
 		public static void CreateWindow()

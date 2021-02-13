@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Juice.Tweening;
 using Juice.Utils;
 using UnityEngine;
 using UnityEngine.UI;
@@ -12,7 +11,7 @@ namespace Juice
 		internal delegate void WindowParaLayerEventHandler();
 
 		internal event WindowParaLayerEventHandler BackgroundClicked;
-		
+
 		[SerializeField] private Widget backgroundWidget;
 
 		private readonly List<GameObject> containedViews = new List<GameObject>();
@@ -75,7 +74,7 @@ namespace Juice
 			if (backgroundWidget)
 			{
 				isHiding = true;
-				
+
 				await backgroundWidget.Hide();
 
 				isHiding = false;

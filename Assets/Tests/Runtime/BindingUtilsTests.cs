@@ -1,7 +1,6 @@
 ﻿using System;
 using FluentAssertions;
 using NUnit.Framework;
-using Assert = UnityEngine.Assertions.Assert;
 
 namespace Juice.Tests
 {
@@ -17,7 +16,7 @@ namespace Juice.Tests
 
 			canBeBound.Should().BeTrue();
 		}
-		
+
 		[Test]
 		public void CanBeBound_VariableWithBuiltInValueType_ReturnTrue()
 		{
@@ -28,7 +27,7 @@ namespace Juice.Tests
 
 			canBeBound.Should().BeTrue();
 		}
-		
+
 		[Test]
 		public void CanBeBound_RawTypeToObservableVariable_ReturnFalse()
 		{
@@ -39,7 +38,7 @@ namespace Juice.Tests
 
 			canBeBound.Should().BeFalse();
 		}
-		
+
 		[Test]
 		public void CanBeBound_CollectionWithReferenceType_ReturnTrue()
 		{
@@ -50,7 +49,7 @@ namespace Juice.Tests
 
 			canBeBound.Should().BeTrue();
 		}
-		
+
 		[Test]
 		public void CanBeBound_CollectionWithBuiltInValueType_ReturnTrue()
 		{
@@ -61,7 +60,7 @@ namespace Juice.Tests
 
 			canBeBound.Should().BeTrue();
 		}
-		
+
 		[Test]
 		public void CanBeBound_RawTypeToObservableCollection_ReturnFalse()
 		{
@@ -72,7 +71,7 @@ namespace Juice.Tests
 
 			canBeBound.Should().BeFalse();
 		}
-		
+
 		[Test]
 		public void CanBeBound_CommandWithReferenceType_ReturnTrue()
 		{
@@ -83,7 +82,7 @@ namespace Juice.Tests
 
 			canBeBound.Should().BeTrue();
 		}
-		
+
 		[Test]
 		public void CanBeBound_CommandWithBuiltInValueType_ReturnTrue()
 		{
@@ -94,7 +93,7 @@ namespace Juice.Tests
 
 			canBeBound.Should().BeTrue();
 		}
-		
+
 		[Test]
 		public void CanBeBound_CommandWithoutType_ReturnTrue()
 		{
@@ -105,7 +104,7 @@ namespace Juice.Tests
 
 			canBeBound.Should().BeTrue();
 		}
-		
+
 		[Test]
 		public void CanBeBound_RawTypeToObservableCommand_ReturnFalse()
 		{
@@ -116,7 +115,7 @@ namespace Juice.Tests
 
 			canBeBound.Should().BeFalse();
 		}
-		
+
 		[Test]
 		public void CanBeBound_EventWithReferenceType_ReturnTrue()
 		{
@@ -127,7 +126,7 @@ namespace Juice.Tests
 
 			canBeBound.Should().BeTrue();
 		}
-		
+
 		[Test]
 		public void CanBeBound_EventWithBuiltInValueType_ReturnTrue()
 		{
@@ -138,7 +137,7 @@ namespace Juice.Tests
 
 			canBeBound.Should().BeTrue();
 		}
-		
+
 		[Test]
 		public void CanBeBound_EventWithoutType_ReturnTrue()
 		{
@@ -149,7 +148,7 @@ namespace Juice.Tests
 
 			canBeBound.Should().BeTrue();
 		}
-		
+
 		[Test]
 		public void CanBeBound_RawTypeToObservableEvent_ReturnFalse()
 		{
@@ -182,7 +181,7 @@ namespace Juice.Tests
 
 			needsToBeBoxed.Should().BeFalse();
 		}
-		
+
 		[Test]
 		public void NeedsToBeBoxed_CollectionWithBuiltInValueTypeToObject_ReturnTrue()
 		{
@@ -204,7 +203,7 @@ namespace Juice.Tests
 
 			needsToBeBoxed.Should().BeFalse();
 		}
-		
+
 		[Test]
 		public void NeedsToBeBoxed_CommandWithBuiltInValueTypeToObject_ReturnTrue()
 		{
@@ -226,7 +225,7 @@ namespace Juice.Tests
 
 			needsToBeBoxed.Should().BeFalse();
 		}
-		
+
 		[Test]
 		public void NeedsToBeBoxed_EventWithBuiltInValueTypeToObject_ReturnTrue()
 		{
