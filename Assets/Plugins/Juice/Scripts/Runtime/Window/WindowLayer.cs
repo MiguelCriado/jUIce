@@ -201,11 +201,6 @@ namespace Juice
 			}
 		}
 
-		private static WindowHideSettings BuildEmptyHideSettings(IView controller)
-		{
-			return new WindowHideSettings(controller.GetType(), null);
-		}
-
 		private List<IWindow> GetCurrentPath()
 		{
 			if (currentPathIsDirty)
