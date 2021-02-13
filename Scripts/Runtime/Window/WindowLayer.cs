@@ -8,27 +8,20 @@ namespace Juice
 {
 	public class WindowLayer : Layer<IWindow, WindowShowSettings, WindowHideSettings>
 	{
-		public delegate void WindowChangeHandler(IWindow oldWindow, IWindow newWindow);
+		public delegate void WindowChangeHandler(IWindow oldWindow, IWindow newWindow, bool fromBack);
 
 		public event WindowChangeHandler CurrentWindowChanged;
 
-		public IWindow CurrentWindow
-		{
-			get => currentWindow;
-
-			private set
-			{
-				IWindow oldWindow = currentWindow;
-				currentWindow = value;
-				OnCurrentWindowChanged(oldWindow, currentWindow);
-			}
-		}
+		public IEnumerable<IWindow> CurrentPath => GetCurrentPath();
+		public IWindow CurrentWindow => currentWindow;
 
 		[SerializeField] private WindowParaLayer priorityParaLayer = null;
 
 		private readonly Queue<WindowHistoryEntry> windowQueue = new Queue<WindowHistoryEntry>();
 		private readonly Stack<WindowHistoryEntry> windowHistory = new Stack<WindowHistoryEntry>();
+		private List<IWindow> currentPath = new List<IWindow>();
 		private IWindow currentWindow;
+		private bool currentPathIsDirty;
 
 		protected virtual void OnEnable()
 		{
@@ -86,12 +79,21 @@ namespace Juice
 
 			if (windowHistory.Count > 0)
 			{
-				ShowWindow(windowHistory.Pop()).RunAndForget();
+				WindowHistoryEntry topmostWindow = windowHistory.Pop();
+
+				if (windowHistory.Count > 0)
+				{
+					currentWindow = windowHistory.Peek().View;
+				}
+
+				ShowWindow(topmostWindow, false).RunAndForget();
 			}
 		}
 
 		public override async Task HideAll()
 		{
+			SetCurrentWindow(null, true);
+
 			Task[] tasks = new Task[registeredViews.Count];
 			int i = 0;
 
@@ -103,7 +105,6 @@ namespace Juice
 
 			await Task.WhenAll(tasks);
 
-			CurrentWindow = null;
 			priorityParaLayer.RefreshBackground();
 			windowHistory.Clear();
 		}
@@ -132,9 +133,9 @@ namespace Juice
 			}
 		}
 
-		protected virtual void OnCurrentWindowChanged(IWindow oldWindow, IWindow newWindow)
+		protected virtual void OnCurrentWindowChanged(IWindow oldWindow, IWindow newWindow, bool fromBack)
 		{
-			CurrentWindowChanged?.Invoke(oldWindow, newWindow);
+			CurrentWindowChanged?.Invoke(oldWindow, newWindow, fromBack);
 		}
 
 		protected override void ProcessViewRegister(IWindow view)
@@ -177,11 +178,6 @@ namespace Juice
 				IWindow windowToClose = view;
 				IWindow windowToOpen = GetNextWindow();
 
-				if (windowToOpen == null)
-				{
-					CurrentWindow = null;
-				}
-
 				if (windowToClose == windowToOpen)
 				{
 					await HideWindow(windowToClose, settings?.Transition);
@@ -208,6 +204,25 @@ namespace Juice
 		private static WindowHideSettings BuildEmptyHideSettings(IView controller)
 		{
 			return new WindowHideSettings(controller.GetType(), null);
+		}
+
+		private List<IWindow> GetCurrentPath()
+		{
+			if (currentPathIsDirty)
+			{
+				currentPath = windowHistory.ToArray().Reverse().Select(x => x.View).ToList();
+				currentPathIsDirty = false;
+			}
+
+			return currentPath;
+		}
+
+		private void SetCurrentWindow(IWindow newWindow, bool fromBack)
+		{
+			IWindow oldWindow = currentWindow;
+			currentWindow = newWindow;
+			currentPathIsDirty = true;
+			OnCurrentWindowChanged(oldWindow, currentWindow, fromBack);
 		}
 
 		private bool NextWindowIsPopup()
@@ -249,6 +264,10 @@ namespace Juice
 			{
 				await ShowPreviousInHistory();
 			}
+			else
+			{
+				SetCurrentWindow(null, true);
+			}
 		}
 
 		private async Task ShowNextInQueue()
@@ -257,7 +276,7 @@ namespace Juice
 			{
 				WindowHistoryEntry entry = windowQueue.Dequeue();
 
-				await ShowWindow(entry);
+				await ShowWindow(entry, true);
 			}
 		}
 
@@ -267,7 +286,7 @@ namespace Juice
 			{
 				WindowHistoryEntry window = windowHistory.Pop();
 
-				await ShowWindow(window);
+				await ShowWindow(window, true);
 			}
 		}
 
@@ -321,10 +340,10 @@ namespace Juice
 				HideWindow(CurrentWindow, windowEntry.Settings.HideTransition).RunAndForget();
 			}
 
-			await ShowWindow(windowEntry);
+			await ShowWindow(windowEntry, false);
 		}
 
-		private async Task ShowWindow(WindowHistoryEntry windowEntry)
+		private async Task ShowWindow(WindowHistoryEntry windowEntry, bool fromBack)
 		{
 			if (windowEntry.View.IsPopup)
 			{
@@ -332,9 +351,10 @@ namespace Juice
 			}
 
 			windowHistory.Push(windowEntry);
-			CurrentWindow = windowEntry.View;
+			windowEntry.View.SetViewModel(windowEntry.Settings.ViewModel);
+			SetCurrentWindow(windowEntry.View, fromBack);
 
-			await windowEntry.Show();
+			await windowEntry.View.Show(windowEntry.Settings.ShowTransition);
 		}
 	}
 }

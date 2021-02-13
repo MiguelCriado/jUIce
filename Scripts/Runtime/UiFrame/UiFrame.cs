@@ -25,6 +25,7 @@ namespace Juice
 		}
 
 		public Camera UICamera => MainCanvas.worldCamera;
+		public IEnumerable<IWindow> CurrentWindowPath => windowLayer.CurrentPath;
 		public IWindow CurrentWindow => windowLayer.CurrentWindow;
 
 		[SerializeField] private bool initializeOnAwake = true;
