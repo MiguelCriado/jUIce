@@ -4,13 +4,13 @@ using UnityEngine;
 
 namespace Juice
 {
-	public class SequentialTransition : Transition
+	public class SequentialTransition : ComponentTransition
 	{
-		[SerializeField] private List<Transition> transitions;
+		[SerializeField] private List<ComponentTransition> transitions;
 		
 		public override void Prepare(RectTransform target)
 		{
-			foreach (Transition current in transitions)
+			foreach (ComponentTransition current in transitions)
 			{
 				current.Prepare(target);
 			}
@@ -18,7 +18,7 @@ namespace Juice
 
 		public override async Task Animate(RectTransform target)
 		{
-			foreach (Transition current in transitions)
+			foreach (ComponentTransition current in transitions)
 			{
 				await current.Animate(target);
 			}

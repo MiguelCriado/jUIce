@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Juice
 {
-	public class FadeTransition : Transition
+	public class FadeTransition : ComponentTransition
 	{
 		public enum FadeType
 		{

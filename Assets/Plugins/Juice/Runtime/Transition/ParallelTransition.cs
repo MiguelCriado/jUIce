@@ -4,9 +4,9 @@ using UnityEngine;
 
 namespace Juice
 {
-	public class ParallelTransition : Transition
+	public class ParallelTransition : ComponentTransition
 	{
-		[SerializeField] private List<Transition> transitions;
+		[SerializeField] private List<ComponentTransition> transitions;
 
 		private Task[] tasks;
 
@@ -17,7 +17,7 @@ namespace Juice
 
 		public override void Prepare(RectTransform target)
 		{
-			foreach (Transition current in transitions)
+			foreach (ComponentTransition current in transitions)
 			{
 				current.Prepare(target);
 			}

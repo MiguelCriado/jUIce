@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Juice
 {
-	public abstract class Transition : MonoBehaviour, ITransition
+	public static class Transition
 	{
 		private class NullTransition : ITransition
 		{
@@ -24,17 +24,5 @@ namespace Juice
 		}
 
 		public static readonly ITransition Null = new NullTransition();
-
-		public virtual void Prepare(RectTransform target)
-		{
-
-		}
-
-		public abstract Task Animate(RectTransform target);
-
-		public virtual void Cleanup(RectTransform target)
-		{
-
-		}
 	}
 }
