@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Juice
 {
-	public class MoveTransition : Transition
+	public class MoveTransition : ComponentTransition
 	{
 		[SerializeField] private Vector2 anchoredOrigin;
 		[SerializeField] private Vector2 anchoredDestiny;

@@ -13,21 +13,21 @@ namespace Juice
 
 		public bool IsVisible => transitionHandler.IsVisible;
 
-		public Transition ShowTransition
+		public ComponentTransition ShowTransition
 		{
 			get => showTransition;
 			set => showTransition = value;
 		}
 
-		public Transition HideTransition
+		public ComponentTransition HideTransition
 		{
 			get => hideTransition;
 			set => hideTransition = value;
 		}
 
 		[Header("Transitions")]
-		[SerializeField] private Transition showTransition;
-		[SerializeField] private Transition hideTransition;
+		[SerializeField] private ComponentTransition showTransition;
+		[SerializeField] private ComponentTransition hideTransition;
 
 		private readonly TransitionHandler transitionHandler = new TransitionHandler();
 		private RectTransform rectTransform;

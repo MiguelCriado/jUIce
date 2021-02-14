@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Juice
 {
-	public class ScaleTransition : Transition
+	public class ScaleTransition : ComponentTransition
 	{
 		[SerializeField] private Vector3 origin;
 		[SerializeField] private Vector3 destiny;
