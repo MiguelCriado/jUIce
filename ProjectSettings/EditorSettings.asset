@@ -9,7 +9,8 @@ EditorSettings:
   m_LineEndingsForNewScripts: 1
   m_DefaultBehaviorMode: 0
   m_PrefabRegularEnvironment: {fileID: 0}
-  m_PrefabUIEnvironment: {fileID: 0}
+  m_PrefabUIEnvironment: {fileID: 102900000, guid: 3f68c90b339872b4b84afe5ba8bf888f,
+    type: 3}
   m_SpritePackerMode: 0
   m_SpritePackerPaddingPower: 1
   m_EtcTextureCompressorBehavior: 0
@@ -17,10 +18,10 @@ EditorSettings:
   m_EtcTextureNormalCompressor: 2
   m_EtcTextureBestCompressor: 5
   m_ProjectGenerationIncludedExtensions: txt;xml;fnt;cd;asmdef;asmref;rsp;asmref
-  m_ProjectGenerationRootNamespace: Muui
+  m_ProjectGenerationRootNamespace: Juice
   m_CollabEditorSettings:
     inProgressEnabled: 1
-  m_EnableTextureStreamingInEditMode: 1
+  m_EnableTextureStreamingInEditMode: 0
   m_EnableTextureStreamingInPlayMode: 1
   m_AsyncShaderCompilation: 1
   m_EnterPlayModeOptionsEnabled: 0

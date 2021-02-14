@@ -60,6 +60,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -128,12 +129,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ecf02a630ff44ce47bbfdbcbaacca129, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  targetComponent: {fileID: 0}
   inTransition: {fileID: 0}
   outTransition: {fileID: 0}
-  properties:
-    windowQueuePriority: 0
-    hideOnForegroundLost: 0
-    isPopup: 0
+  windowQueuePriority: 0
+  hideOnForegroundLost: 1
+  isPopup: 0
+  closeOnShadowClick: 1
 --- !u!222 &8998832702340443087
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -157,6 +159,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
+  m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []

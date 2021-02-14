@@ -1,6 +1,6 @@
-﻿namespace Maui.Tests
+﻿namespace Juice.Tests
 {
-	public class PanelA : BasePanelController
+	public class PanelA : Panel
 	{
 
 	}

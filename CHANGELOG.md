@@ -4,6 +4,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+This version changes radically the way the framework works and how is it used. 
+
+### Added
+- A MVVM system.
+- Binding mechanisms. 
+- Operator Binder base class.
+- CombineLatest operator.
+- Delay operator.
+- Map operator.
+- Merge operator.
+- Scan operator.
+- Skip operator.
+- StartWith operator.
+- Take operator.
+- To operator.
+- Tween operator.
+- ConstantBindings. 
+- Observable Event.
+- A View creation wizard. 
+- Built-in transitions. 
+- Tweening library.
+- GameObject pooling library. 
+
+### Changed
+- Project name from "Maui" to "Juice".
+- The main control pattern. Now the framework features a MVVM approach. (This is **HUGE**).
+- View are now registered as instances instead of prefabs.
+- Popup's background is now a Widget instead a fixed shadow.
+- Now ObservableVariable's value is not set on creation. 
+
 ## [0.1.6] - 2020-05-02
 ### Added
 - Event initialization in ObservableCommand's constructor.
