@@ -9,6 +9,7 @@ namespace Juice
 		private readonly Func<PanelShowSettings, Task> showCallback;
 
 		private IViewModel viewModel;
+		private PanelPriority? priority;
 		private ITransition showTransition;
 		private ITransition hideTransition;
 
@@ -21,6 +22,12 @@ namespace Juice
 		public IPanelShowLauncher WithViewModel(IViewModel viewModel)
 		{
 			this.viewModel = viewModel;
+			return this;
+		}
+
+		public IPanelShowLauncher WithPriority(PanelPriority priority)
+		{
+			this.priority = priority;
 			return this;
 		}
 
@@ -51,6 +58,7 @@ namespace Juice
 			return new PanelShowSettings(
 				panelType,
 				viewModel,
+				priority,
 				showTransition,
 				hideTransition);
 		}
