@@ -7,28 +7,23 @@
 		public void Enable()
 		{
 			IsEnabled = true;
-			LifecycleUtils.OnUpdate += Update;
+			OnEnable();
 		}
 
 		public void Disable()
 		{
-			LifecycleUtils.OnUpdate -= Update;
 			IsEnabled = false;
+			OnDisable();
 		}
 
 		protected virtual void OnEnable()
 		{
-			
+
 		}
 
 		protected virtual void OnDisable()
 		{
-			
-		}
 
-		protected virtual void Update()
-		{
-			
 		}
 	}
 }
