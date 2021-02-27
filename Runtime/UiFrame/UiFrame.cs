@@ -78,7 +78,7 @@ namespace Juice
 				else
 				{
 					windowLayer.Initialize(this);
-					windowLayer.CurrentWindowChanged += CurrentWindowChanged;
+					windowLayer.CurrentWindowChanged += OnCurrentWindowChanged;
 				}
 			}
 
@@ -207,6 +207,11 @@ namespace Juice
 			{
 				UnblockInteraction();
 			}
+		}
+
+		protected virtual void OnCurrentWindowChanged(IWindow oldWindow, IWindow newWindow, bool fromBack)
+		{
+			CurrentWindowChanged?.Invoke(oldWindow, newWindow, fromBack);
 		}
 
 		private bool IsViewValid(IView view)
