@@ -28,7 +28,7 @@ namespace Juice
 			GenericArgument = genericArgument;
 		}
 	}
-	
+
 	public static class BindingUtils
 	{
 		private class BindingTypeChecker
@@ -39,7 +39,7 @@ namespace Juice
 			private static readonly Type CommandType = typeof(IObservableCommand);
 			private static readonly Type GenericEventType = typeof(IObservableEvent<>);
 			private static readonly Type EventType = typeof(IObservableEvent);
-			
+
 			public Type TargetType
 			{
 				get => targetType;
@@ -48,13 +48,13 @@ namespace Juice
 					genericTypeToCheck = null;
 					typeToCheck = null;
 					Type genericType = value.GetGenericTypeTowardsRoot();
-					
+
 					if (genericType != null)
 					{
 						Type genericTypeDefinition = genericType.GetGenericTypeDefinition();
-						
-						if (genericType.GenericTypeArguments.Length > 0 
-						    && (genericTypeDefinition.ImplementsOrDerives(GenericVariableType) 
+
+						if (genericType.GenericTypeArguments.Length > 0
+						    && (genericTypeDefinition.ImplementsOrDerives(GenericVariableType)
 						        || genericTypeDefinition.ImplementsOrDerives(GenericCollectionType)
 						        || genericTypeDefinition.ImplementsOrDerives(GenericCommandType)
 						        || genericTypeDefinition.ImplementsOrDerives(GenericEventType)))
@@ -94,7 +94,7 @@ namespace Juice
 					if (genericTypeToCheck != null)
 					{
 						Type genericType = type.GetGenericTypeTowardsRoot();
-						
+
 						if (genericType != null && genericType.GenericTypeArguments.Length > 0)
 						{
 							Type genericTypeDefinition = type.GetGenericTypeDefinition();
@@ -132,11 +132,11 @@ namespace Juice
 
 		private static readonly BindingFlags PropertyBindingFlags = BindingFlags.Public | BindingFlags.Instance;
 		private static readonly BindingTypeChecker Checker = new BindingTypeChecker();
-		
+
 		public static IEnumerable<BindingEntry> GetBindings(Transform context, Type targetType)
 		{
 			Checker.TargetType = targetType;
-			
+
 			foreach (var viewModel in GetComponentsInParents<ViewModelComponent>(context, true))
 			{
 				Type viewModelType = viewModel.ExpectedType;
@@ -166,7 +166,7 @@ namespace Juice
 			foreach (PropertyInfo propertyInfo in viewModelType.GetProperties(PropertyBindingFlags))
 			{
 				Checker.TargetType = propertyInfo.PropertyType;
-				
+
 				if (Checker.CanBeBound(propertyInfo.PropertyType))
 				{
 					bool needsToBeBoxed = Checker.NeedsToBeBoxed(propertyInfo.PropertyType);
@@ -192,8 +192,8 @@ namespace Juice
 			Checker.TargetType = targetType;
 			return Checker.NeedsToBeBoxed(actualType);
 		}
-		
-		private static IEnumerable<T> GetComponentsInParents<T>(Component component, bool includeSelf) where T : Component 
+
+		private static IEnumerable<T> GetComponentsInParents<T>(Component component, bool includeSelf) where T : Component
 		{
 			if (includeSelf)
 			{
@@ -203,7 +203,7 @@ namespace Juice
 				}
 			}
 
-			if (component.transform.parent != null)
+			if (component.transform.parent)
 			{
 				foreach (T current in GetComponentsInParents<T>(component.transform.parent, true))
 				{
