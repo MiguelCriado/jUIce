@@ -8,8 +8,11 @@ namespace Juice
 	public abstract class View<T> : Widget, IView, IViewModelInjector
 		where T : IViewModel
 	{
+		public delegate void ViewModelEventHandler(View<T> source, T lastViewModel, T newViewModel);
+
 		public event ViewEventHandler CloseRequested;
 		public event ViewEventHandler ViewDestroyed;
+		public event ViewModelEventHandler ViewModelChanged;
 
 		public bool AllowsInteraction
 		{
@@ -35,6 +38,11 @@ namespace Juice
 		{
 			allowsInteraction = true;
 			raycasters = GetComponentsInChildren<GraphicRaycaster>();
+
+			if (Target)
+			{
+				Target.ViewModelChanged += OnTargetComponentViewModelChanged;
+			}
 		}
 
 		public void SetViewModel(IViewModel viewModel)
@@ -60,6 +68,11 @@ namespace Juice
 			}
 		}
 
+		protected virtual void OnViewModelChanged(IViewModel lastViewModel, IViewModel newViewModel)
+		{
+			ViewModelChanged?.Invoke(this, (T)lastViewModel, (T)newViewModel);
+		}
+
 		private void SetAllowsInteraction(bool value)
 		{
 			allowsInteraction = value;
@@ -68,6 +81,11 @@ namespace Juice
 			{
 				current.enabled = value;
 			}
+		}
+
+		private void OnTargetComponentViewModelChanged(ViewModelComponent source, IViewModel lastViewModel, IViewModel newViewModel)
+		{
+			OnViewModelChanged(lastViewModel, newViewModel);
 		}
 	}
 }

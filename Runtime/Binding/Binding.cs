@@ -17,7 +17,7 @@ namespace Juice
 			this.bindingInfo = bindingInfo;
 			this.context = context;
 		}
-		
+
 		public void Bind()
 		{
 			if (bindingInfo is ConstantBindingInfo constant && constant.UseConstant)
@@ -29,7 +29,7 @@ namespace Juice
 				BindProperty();
 			}
 		}
-		
+
 		public void Unbind()
 		{
 			UnbindProperty();
@@ -48,7 +48,7 @@ namespace Juice
 
 		protected virtual void BindConstant(BindingInfo info)
 		{
-			
+
 		}
 
 		private void BindProperty()
@@ -82,11 +82,11 @@ namespace Juice
 				bindingInfo.ViewModelContainer.ViewModelChanged += ViewModelChangedHandler;
 			}
 		}
-		
+
 		private static ViewModelComponent FindViewModelComponent(Transform context, Type targetType)
 		{
 			ViewModelComponent result = null;
-			
+
 			using (IEnumerator<BindingEntry> iterator = BindingUtils.GetBindings(context, targetType).GetEnumerator())
 			{
 				if (iterator.MoveNext())
@@ -97,8 +97,8 @@ namespace Juice
 
 			return result;
 		}
-		
-		private void ViewModelChangedHandler(object sender, IViewModel viewModel)
+
+		private void ViewModelChangedHandler(object sender, IViewModel lastViewModel, IViewModel newViewModel)
 		{
 			Unbind();
 			Bind();
