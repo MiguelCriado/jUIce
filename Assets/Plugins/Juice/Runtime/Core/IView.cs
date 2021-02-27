@@ -7,7 +7,7 @@
 		event ViewEventHandler CloseRequested;
 		event ViewEventHandler ViewDestroyed;
 
-		bool AllowsInteraction { get; set; }
+		bool IsInteractable { get; set; }
 
 		void SetViewModel(IViewModel viewModel);
 	}

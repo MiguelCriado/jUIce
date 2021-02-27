@@ -1,10 +1,11 @@
 ﻿using System;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Juice
 {
-	[RequireComponent(typeof(ViewModelComponent), typeof(RectTransform))]
+	[RequireComponent(typeof(RectTransform))]
+	[RequireComponent(typeof(ViewModelComponent))]
+	[RequireComponent(typeof(InteractionBlockingTracker))]
 	public abstract class View<T> : Widget, IView, IViewModelInjector
 		where T : IViewModel
 	{
@@ -14,35 +15,27 @@ namespace Juice
 		public event ViewEventHandler ViewDestroyed;
 		public event ViewModelEventHandler ViewModelChanged;
 
-		public bool AllowsInteraction
+		public bool IsInteractable
 		{
-			get => allowsInteraction;
-			set => SetAllowsInteraction(value);
+			get => blockingTracker.IsInteractable;
+			set => blockingTracker.IsInteractable = value;
 		}
 
 		public Type InjectionType => typeof(T);
 		public ViewModelComponent Target => targetComponent;
 
-		[Header("Target ViewModel Component")]
-		[SerializeField] private ViewModelComponent targetComponent;
-
-		private bool allowsInteraction;
-		private GraphicRaycaster[] raycasters;
+		[SerializeField, HideInInspector] private ViewModelComponent targetComponent;
+		[SerializeField, HideInInspector] private InteractionBlockingTracker blockingTracker;
 
 		protected virtual void Reset()
 		{
-			targetComponent = GetComponentInChildren<ViewModelComponent>();
+			RetrieveRequiredComponents();
 		}
 
 		protected override void Awake()
 		{
-			allowsInteraction = true;
-			raycasters = GetComponentsInChildren<GraphicRaycaster>();
-
-			if (Target)
-			{
-				Target.ViewModelChanged += OnTargetComponentViewModelChanged;
-			}
+			RetrieveRequiredComponents();
+			Target.ViewModelChanged += OnTargetComponentViewModelChanged;
 		}
 
 		public void SetViewModel(IViewModel viewModel)
@@ -73,13 +66,16 @@ namespace Juice
 			ViewModelChanged?.Invoke(this, (T)lastViewModel, (T)newViewModel);
 		}
 
-		private void SetAllowsInteraction(bool value)
+		private void RetrieveRequiredComponents()
 		{
-			allowsInteraction = value;
-
-			foreach (var current in raycasters)
+			if (!targetComponent)
 			{
-				current.enabled = value;
+				targetComponent = GetComponent<ViewModelComponent>();
+			}
+
+			if (!blockingTracker)
+			{
+				blockingTracker = GetComponent<InteractionBlockingTracker>();
 			}
 		}
 
