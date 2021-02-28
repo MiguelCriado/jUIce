@@ -72,6 +72,8 @@ namespace Juice
 		protected override async Task ShowView(IPanel view, PanelShowSettings settings)
 		{
 			visiblePanels[view.GetType()] = new PanelStateEntry(view, settings);
+			PanelPriority finalPriority = settings.Priority ?? view.Priority;
+			ReparentToParaLayer(finalPriority, ((Component)view).transform);
 			view.SetViewModel(settings.ViewModel);
 
 			await view.Show(settings.ShowTransition);

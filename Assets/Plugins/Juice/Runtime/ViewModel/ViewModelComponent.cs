@@ -5,7 +5,9 @@ namespace Juice
 {
 	public class ViewModelComponent : MonoBehaviour
 	{
-		public event EventHandler<IViewModel> ViewModelChanged;
+		public delegate void ViewModelChangeEventHandler(ViewModelComponent source, IViewModel lastViewModel, IViewModel newViewModel);
+
+		public event ViewModelChangeEventHandler ViewModelChanged;
 
 		public virtual Type ExpectedType => expectedType.Type;
 
@@ -14,10 +16,11 @@ namespace Juice
 			get => viewModel;
 			set
 			{
+				IViewModel lastViewModel = viewModel;
 				viewModel?.Disable();
 				viewModel = value;
 				viewModel?.Enable();
-				OnViewModelChanged();
+				OnViewModelChanged(lastViewModel, viewModel);
 			}
 		}
 
@@ -42,9 +45,9 @@ namespace Juice
 			}
 		}
 
-		protected virtual void OnViewModelChanged()
+		protected virtual void OnViewModelChanged(IViewModel lastViewModel, IViewModel newViewModel)
 		{
-			ViewModelChanged?.Invoke(this, ViewModel);
+			ViewModelChanged?.Invoke(this, lastViewModel, newViewModel);
 		}
 
 		private void ResetId()

@@ -58,10 +58,11 @@ Your typical UiFrame will contain a set of layers that will define the order in 
 The default layer stack that jUIce can automatically build for you would be something like this:
 1. **Panel Layer** (Panels with no priority, usually HUD elements)
 2. **Window Layer** (Regular windows)
-3. **Priority Panel Layer** (Panels set to `Prioritary`)
+3. **Priority Panel Layer** (Panels set to `Prioritary`, shown on top of regular windows)
 4. **Priority Window Layer** (Popups)
-5. **Tutorial Panel Layer** (To overlay your UI with tutorial elements)
-6. **Blocker Layer** (Highest priority windows, like loading screens or connectivity issues displayers)
+5. **Overlay Panel Layer** (Panels shown on top of popups)
+6. **Tutorial Panel Layer** (To overlay your UI with tutorial elements)
+7. **Blocker Layer** (Highest priority windows, like loading screens or connectivity issues displayers)
 
 Keep in mind that this is the default hierarchy. It should be enough for most of the games but you are free to arrange it in some other order or even create your custom layers to fit your game needs.
 

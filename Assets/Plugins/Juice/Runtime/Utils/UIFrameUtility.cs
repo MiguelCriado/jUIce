@@ -36,15 +36,19 @@ namespace Juice
 			priorityWindowLayer.transform.SetParent(mainCanvas.transform, false);
 			windowLayer.SetPriorityLayer(priorityWindowLayer);
 
+			GameObject overlayPanelLayer = CreateUIObject("Overlay Panel Layer");
+			overlayPanelLayer.transform.SetParent(mainCanvas.transform, false);
+
 			GameObject tutorialPanelLayer = CreateUIObject("Tutorial Panel Layer");
 			tutorialPanelLayer.transform.SetParent(mainCanvas.transform, false);
 
 			GameObject blockerPanelLayer = CreateUIObject("Blocker Panel Layer");
 			blockerPanelLayer.transform.SetParent(mainCanvas.transform, false);
 
-			panelLayer.PriorityLayers = new PanelPriorityLayerList(new List<PanelPriorityLayerListEntry>()
+			panelLayer.PriorityLayers = new PanelPriorityLayerList(new List<PanelPriorityLayerListEntry>
 			{
 				new PanelPriorityLayerListEntry(PanelPriority.Prioritary, priorityPanelLayer.transform),
+				new PanelPriorityLayerListEntry(PanelPriority.Overlay, overlayPanelLayer.transform),
 				new PanelPriorityLayerListEntry(PanelPriority.Tutorial, tutorialPanelLayer.transform),
 				new PanelPriorityLayerListEntry(PanelPriority.Blocker, blockerPanelLayer.transform)
 			});
@@ -82,8 +86,7 @@ namespace Juice
 
 			CanvasScaler canvasScaler = gameObject.AddComponent<CanvasScaler>();
 			canvasScaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-			canvasScaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
-			canvasScaler.matchWidthOrHeight = 1;
+			canvasScaler.screenMatchMode = CanvasScaler.ScreenMatchMode.Expand;
 			canvasScaler.referenceResolution = new Vector2(1920, 1080);
 
 			gameObject.AddComponent<GraphicRaycaster>();

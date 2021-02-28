@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Juice.Utils;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Juice
 {
@@ -33,7 +33,7 @@ namespace Juice
 		private Canvas mainCanvas;
 		private PanelLayer panelLayer;
 		private WindowLayer windowLayer;
-		private GraphicRaycaster graphicRaycaster;
+		private InteractionBlockingTracker mainBlockingTracker;
 
 		private readonly Dictionary<Type, IView> registeredViews = new Dictionary<Type, IView>();
 		private readonly HashSet<object> blockInteractionRequesters = new HashSet<object>();
@@ -78,11 +78,14 @@ namespace Juice
 				else
 				{
 					windowLayer.Initialize(this);
-					windowLayer.CurrentWindowChanged += CurrentWindowChanged;
+					windowLayer.CurrentWindowChanged += OnCurrentWindowChanged;
 				}
 			}
 
-			graphicRaycaster = MainCanvas.GetComponent<GraphicRaycaster>();
+			if (MainCanvas)
+			{
+				mainBlockingTracker = MainCanvas.GetOrAddComponent<InteractionBlockingTracker>();
+			}
 		}
 
 		public UiFrameState GetCurrentState()
@@ -209,6 +212,11 @@ namespace Juice
 			}
 		}
 
+		protected virtual void OnCurrentWindowChanged(IWindow oldWindow, IWindow newWindow, bool fromBack)
+		{
+			CurrentWindowChanged?.Invoke(oldWindow, newWindow, fromBack);
+		}
+
 		private bool IsViewValid(IView view)
 		{
 			Component viewAsComponent = view as Component;
@@ -316,27 +324,27 @@ namespace Juice
 
 		private void BlockInteraction()
 		{
-			if (graphicRaycaster)
+			if (mainBlockingTracker)
 			{
-				graphicRaycaster.enabled = false;
+				mainBlockingTracker.IsInteractable = false;
 			}
 
 			foreach (var current in registeredViews)
 			{
-				current.Value.AllowsInteraction = false;
+				current.Value.IsInteractable = false;
 			}
 		}
 
 		private void UnblockInteraction()
 		{
-			if (graphicRaycaster)
+			if (mainBlockingTracker)
 			{
-				graphicRaycaster.enabled = true;
+				mainBlockingTracker.IsInteractable = true;
 			}
 
 			foreach (var current in registeredViews)
 			{
-				current.Value.AllowsInteraction = true;
+				current.Value.IsInteractable = true;
 			}
 		}
 	}

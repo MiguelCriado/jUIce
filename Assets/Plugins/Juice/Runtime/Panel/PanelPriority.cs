@@ -4,7 +4,8 @@
 	{
 		None = 0,
 		Prioritary = 1,
-		Tutorial = 2,
-		Blocker = 3,
+		Overlay = 2,
+		Tutorial = 3,
+		Blocker = 4
 	}
 }
