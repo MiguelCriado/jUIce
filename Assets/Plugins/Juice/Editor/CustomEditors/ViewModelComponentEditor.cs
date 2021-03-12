@@ -17,13 +17,13 @@ namespace Juice.Editor
 		private static readonly Type CommandType = typeof(IObservableCommand);
 		private static readonly Type GenericEventType = typeof(IObservableEvent<>);
 		private static readonly Type EventType = typeof(IObservableEvent);
-		
+
 		private ViewModelComponent viewModelComponent => target as ViewModelComponent;
 
 		private SerializedProperty expectedTypeProperty;
 		private SerializedProperty idProperty;
 		private bool showViewModelInfo;
-		
+
 		protected virtual void OnEnable()
 		{
 			expectedTypeProperty = serializedObject.FindProperty("expectedType");
@@ -60,11 +60,11 @@ namespace Juice.Editor
 			CustomEditor customEditor = GetType().GetCustomAttribute<CustomEditor>();
 			FieldInfo fieldInfo = typeof(CustomEditor)
 				.GetField("m_InspectedType",
-				BindingFlags.NonPublic 
-				| BindingFlags.Instance 
+				BindingFlags.NonPublic
+				| BindingFlags.Instance
 				| BindingFlags.GetField);
 			Type baseType = fieldInfo.GetValue(customEditor) as Type;
-			
+
 			while (type != null && type != baseType)
 			{
 				childFields.InsertRange(0, type.GetFields(
@@ -72,7 +72,7 @@ namespace Juice.Editor
 					| BindingFlags.Instance
 					| BindingFlags.Public
 					| BindingFlags.NonPublic));
-				
+
 				type = type.BaseType;
 			}
 
@@ -92,15 +92,22 @@ namespace Juice.Editor
 
 			if (shouldShowField)
 			{
+				EditorGUI.BeginChangeCheck();
+
 				EditorGUILayout.PropertyField(expectedTypeProperty);
+
+				if (EditorGUI.EndChangeCheck())
+				{
+					BindingInfoTracker.RefreshBindingInfoDrawers();
+				}
 			}
 		}
-		
+
 		protected void DrawId()
 		{
 			EditorGUI.BeginChangeCheck();
 			EditorGUILayout.PropertyField(idProperty);
-			
+
 			if (EditorGUI.EndChangeCheck())
 			{
 				BindingInfoTracker.RefreshBindingInfoDrawers();
@@ -121,18 +128,18 @@ namespace Juice.Editor
 					showViewModelInfo,
 					viewModelComponent.ExpectedType.GetPrettifiedName(),
 					true);
-				
+
 				if (showViewModelInfo)
 				{
 					GUILayout.Box("", new[]{GUILayout.ExpandWidth(true), GUILayout.Height(1)});
-					
+
 					foreach (BindingEntry entry in BindingUtils.GetAllBindings(viewModelComponent.ExpectedType, viewModelComponent))
 					{
 						string propertyType = GetPropertyTypeString(entry);
 						EditorGUILayout.LabelField(entry.PropertyName, propertyType);
 					}
 				}
-				
+
 				EditorGUI.indentLevel--;
 
 				GUILayout.EndVertical();
