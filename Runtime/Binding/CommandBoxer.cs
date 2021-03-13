@@ -1,21 +1,21 @@
 ﻿namespace Juice
 {
-	public class CommandBoxer<T, U> : IObservableCommand<T> where U : struct, T
+	public class CommandBoxer<TExposed, TBoxed> : IObservableCommand<TExposed> where TBoxed : struct, TExposed
 	{
-		public event ObservableCommandEventHandler<T> ExecuteRequested;
+		public event ObservableCommandEventHandler<TExposed> ExecuteRequested;
 
 		public IObservableVariable<bool> CanExecute => boxedCommand.CanExecute;
 
-		private readonly IObservableCommand<U> boxedCommand;
+		private readonly IObservableCommand<TBoxed> boxedCommand;
 
-		public CommandBoxer(IObservableCommand<U> boxedCommand)
+		public CommandBoxer(IObservableCommand<TBoxed> boxedCommand)
 		{
 			this.boxedCommand = boxedCommand;
 		}
 
-		public bool Execute(T parameter)
+		public bool Execute(TExposed parameter)
 		{
-			return boxedCommand.Execute((U)parameter);
+			return boxedCommand.Execute((TBoxed)parameter);
 		}
 	}
 }

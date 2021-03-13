@@ -1,18 +1,18 @@
 ﻿namespace Juice
 {
-	public class EventBoxer<T, U> : IObservableEvent<T> where U : struct, T
+	public class EventBoxer<TExposed, TBoxed> : IObservableEvent<TExposed> where TBoxed : struct, TExposed
 	{
-		public event ObservableEventDelegate<T> Raised;
+		public event ObservableEventDelegate<TExposed> Raised;
 
-		private readonly IObservableEvent<U> boxedEvent;
-		
-		public EventBoxer(IObservableEvent<U> boxedEvent)
+		private readonly IObservableEvent<TBoxed> boxedEvent;
+
+		public EventBoxer(IObservableEvent<TBoxed> boxedEvent)
 		{
 			this.boxedEvent = boxedEvent;
 			boxedEvent.Raised += BoxedEventRaisedHandler;
 		}
 
-		private void BoxedEventRaisedHandler(U value)
+		private void BoxedEventRaisedHandler(TBoxed value)
 		{
 			Raised?.Invoke(value);
 		}

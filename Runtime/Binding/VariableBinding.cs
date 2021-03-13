@@ -16,7 +16,7 @@ namespace Juice
 		{
 			exposedProperty = new ObservableVariable<T>();
 		}
-		
+
 		protected override Type GetBindingType()
 		{
 			return typeof(IReadOnlyObservableVariable<T>);
@@ -49,7 +49,7 @@ namespace Juice
 				boundProperty.Changed -= OnBoundPropertyChanged;
 				boundProperty = null;
 			}
-			
+
 			exposedProperty.Clear();
 		}
 
@@ -65,20 +65,20 @@ namespace Juice
 		private static IReadOnlyObservableVariable<T> BoxVariable(object variableToBox)
 		{
 			IReadOnlyObservableVariable<T> result = null;
-			
+
 			Type variableGenericType = variableToBox.GetType().GetGenericTypeTowardsRoot();
 
 			if (variableGenericType != null)
 			{
-				Type actualType = typeof(T);
+				Type exposedType = typeof(T);
 				Type boxedType = variableGenericType.GenericTypeArguments[0];
-				Type activationType = typeof(VariableBoxer<,>).MakeGenericType(actualType, boxedType);
+				Type activationType = typeof(VariableBoxer<,>).MakeGenericType(exposedType, boxedType);
 				result = Activator.CreateInstance(activationType, variableToBox) as IReadOnlyObservableVariable<T>;
 			}
 
 			return result;
 		}
-		
+
 		private void RaiseFirstNotification()
 		{
 			if (boundProperty.HasValue)
@@ -86,7 +86,7 @@ namespace Juice
 				OnBoundPropertyChanged(boundProperty.Value);
 			}
 		}
-		
+
 		private void OnBoundPropertyChanged(T newValue)
 		{
 			exposedProperty.Value = newValue;

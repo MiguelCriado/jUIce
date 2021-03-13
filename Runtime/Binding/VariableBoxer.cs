@@ -1,33 +1,33 @@
 ﻿namespace Juice
 {
-	public class VariableBoxer<T, U> : IReadOnlyObservableVariable<T> where U : struct, T
+	public class VariableBoxer<TExposed, TBoxed> : IReadOnlyObservableVariable<TExposed> where TBoxed : struct, TExposed
 	{
-		public event ObservableVariableEventHandler<T> Changed;
+		public event ObservableVariableEventHandler<TExposed> Changed;
 		public event ObservableVariableClearEventHandler Cleared;
 
 		public bool HasValue => boxedVariable.HasValue;
-		public T Value => boxedVariable.Value;
+		public TExposed Value => boxedVariable.Value;
 
-		private readonly IReadOnlyObservableVariable<U> boxedVariable;
+		private readonly IReadOnlyObservableVariable<TBoxed> boxedVariable;
 
-		public VariableBoxer(IReadOnlyObservableVariable<U> boxedVariable)
+		public VariableBoxer(IReadOnlyObservableVariable<TBoxed> boxedVariable)
 		{
 			this.boxedVariable = boxedVariable;
 			boxedVariable.Changed += OnBoxedVariableChanged;
 			boxedVariable.Cleared -= OnBoxedVariableCleared;
 		}
 
-		public T GetValue(T fallback)
+		public TExposed GetValue(TExposed fallback)
 		{
-			return boxedVariable.GetValue((U)fallback);
+			return boxedVariable.GetValue((TBoxed)fallback);
 		}
 
-		private void OnBoxedVariableChanged(U newValue)
+		private void OnBoxedVariableChanged(TBoxed newValue)
 		{
 			Changed?.Invoke(newValue);
 		}
 
-		private void OnBoxedVariableCleared() 
+		private void OnBoxedVariableCleared()
 		{
 			Cleared?.Invoke();
 		}
