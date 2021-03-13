@@ -16,7 +16,7 @@ namespace Juice
 		{
 			exposedProperty = new ObservableCollection<T>();
 		}
-		
+
 		protected override Type GetBindingType()
 		{
 			return typeof(IReadOnlyObservableCollection<>);
@@ -30,7 +30,7 @@ namespace Juice
 			{
 				boundProperty = BoxCollection(property);
 			}
-			
+
 			if (boundProperty != null)
 			{
 				boundProperty.Reset += OnBoundPropertyReset;
@@ -41,7 +41,7 @@ namespace Juice
 				boundProperty.ItemReplaced += OnBoundPropertyItemReplaced;
 
 				exposedProperty.Clear();
-				
+
 				foreach (var item in boundProperty)
 				{
 					exposedProperty.Add(item);
@@ -67,18 +67,18 @@ namespace Juice
 				boundProperty = null;
 			}
 		}
-		
+
 		private static IReadOnlyObservableCollection<T> BoxCollection(object collectionToBox)
 		{
 			IReadOnlyObservableCollection<T> result = null;
-			
+
 			Type collectionGenericType = collectionToBox.GetType().GetGenericTypeTowardsRoot();
 
 			if (collectionGenericType != null)
 			{
-				Type actualType = typeof(T);
+				Type exposedType = typeof(T);
 				Type boxedType = collectionGenericType.GenericTypeArguments[0];
-				Type activationType = typeof(CollectionBoxer<,>).MakeGenericType(actualType, boxedType);
+				Type activationType = typeof(CollectionBoxer<,>).MakeGenericType(exposedType, boxedType);
 				result = Activator.CreateInstance(activationType, collectionToBox) as IReadOnlyObservableCollection<T>;
 			}
 
@@ -89,27 +89,27 @@ namespace Juice
 		{
 			exposedProperty.Clear();
 		}
-		
+
 		private void OnBoundPropertyCountChanged(int oldCount, int newCount)
 		{
-			
+
 		}
-		
+
 		private void OnBoundPropertyItemAdded(int index, T value)
 		{
 			exposedProperty.Insert(index, value);
 		}
-		
+
 		private void OnBoundPropertyItemMoved(int oldIndex, int newIndex, T value)
 		{
 			exposedProperty.Move(oldIndex, newIndex);
 		}
-		
+
 		private void OnBoundPropertyItemRemoved(int index, T value)
 		{
 			exposedProperty.RemoveAt(index);
 		}
-		
+
 		private void OnBoundPropertyItemReplaced(int index, T oldValue, T newValue)
 		{
 			exposedProperty[index] = newValue;

@@ -8,7 +8,7 @@ namespace Juice
 	{
 		public override bool IsBound => boundProperty != null;
 		public IObservableCommand Property => exposedProperty;
-		
+
 		private readonly ObservableVariable<bool> canExecuteSource;
 		private readonly ObservableCommand exposedProperty;
 		private IObservableCommand boundProperty;
@@ -18,7 +18,7 @@ namespace Juice
 			canExecuteSource = new ObservableVariable<bool>(false);
 			exposedProperty = new ObservableCommand(canExecuteSource, OnExecuteRequested);
 		}
-		
+
 		protected override Type GetBindingType()
 		{
 			return typeof(IObservableCommand);
@@ -48,7 +48,7 @@ namespace Juice
 				canExecuteSource.Value = false;
 			}
 		}
-		
+
 		private void RaiseFirstNotification()
 		{
 			if (boundProperty.CanExecute.HasValue && boundProperty.CanExecute.Value == canExecuteSource.Value)
@@ -65,18 +65,18 @@ namespace Juice
 		{
 			boundProperty?.Execute();
 		}
-		
+
 		private void OnCanExecuteChanged(bool newValue)
 		{
 			canExecuteSource.Value = newValue;
 		}
 	}
-	
+
 	public class CommandBinding<T> : Binding
 	{
 		public override bool IsBound => boundProperty != null;
 		public IObservableCommand<T> Property => exposedProperty;
-		
+
 		private readonly ObservableVariable<bool> canExecuteSource;
 		private readonly ObservableCommand<T> exposedProperty;
 		private IObservableCommand<T> boundProperty;
@@ -100,7 +100,7 @@ namespace Juice
 			{
 				boundProperty = BoxCommand(property);
 			}
-			
+
 			if (boundProperty != null)
 			{
 				boundProperty.CanExecute.Changed += OnCanExecuteChanged;
@@ -125,20 +125,20 @@ namespace Juice
 		private static IObservableCommand<T> BoxCommand(object commandToBox)
 		{
 			IObservableCommand<T> result = null;
-			
+
 			Type commandGenericType = commandToBox.GetType().GetGenericTypeTowardsRoot();
 
 			if (commandGenericType != null)
 			{
-				Type actualType = typeof(T);
+				Type exposedType = typeof(T);
 				Type boxedType = commandGenericType.GenericTypeArguments[0];
-				Type activationType = typeof(CommandBoxer<,>).MakeGenericType(actualType, boxedType);
+				Type activationType = typeof(CommandBoxer<,>).MakeGenericType(exposedType, boxedType);
 				result = Activator.CreateInstance(activationType, commandToBox) as IObservableCommand<T>;
 			}
 
 			return result;
 		}
-		
+
 		private void RaiseFirstNotification()
 		{
 			if (boundProperty.CanExecute.HasValue && boundProperty.CanExecute.Value == canExecuteSource.Value)
@@ -150,12 +150,12 @@ namespace Juice
 				canExecuteSource.Value = boundProperty.CanExecute.GetValue(false);
 			}
 		}
-		
+
 		private void OnExecuteRequested(T value)
 		{
 			boundProperty?.Execute(value);
 		}
-		
+
 		private void OnCanExecuteChanged(bool newValue)
 		{
 			canExecuteSource.Value = newValue;

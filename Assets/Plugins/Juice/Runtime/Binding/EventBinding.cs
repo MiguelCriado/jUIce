@@ -10,12 +10,12 @@ namespace Juice
 
 		private readonly ObservableEvent exposedProperty;
 		private IObservableEvent boundProperty;
-		
+
 		public EventBinding(BindingInfo bindingInfo, Component context) : base(bindingInfo, context)
 		{
 			exposedProperty = new ObservableEvent();
 		}
-		
+
 		protected override Type GetBindingType()
 		{
 			return typeof(IObservableEvent);
@@ -43,13 +43,13 @@ namespace Juice
 				boundProperty = null;
 			}
 		}
-		
+
 		private void OnBoundPropertyRaised()
 		{
 			exposedProperty.Raise();
 		}
 	}
-	
+
 	public class EventBinding<T> : Binding
 	{
 		public override bool IsBound => boundProperty != null;
@@ -57,12 +57,12 @@ namespace Juice
 
 		private readonly ObservableEvent<T> exposedProperty;
 		private IObservableEvent<T> boundProperty;
-		
+
 		public EventBinding(BindingInfo bindingInfo, Component context) : base(bindingInfo, context)
 		{
 			exposedProperty = new ObservableEvent<T>();
 		}
-		
+
 		protected override Type GetBindingType()
 		{
 			return typeof(IObservableEvent<T>);
@@ -76,7 +76,7 @@ namespace Juice
 			{
 				boundProperty = BoxEvent(property);
 			}
-			
+
 			if (boundProperty != null)
 			{
 				boundProperty.Raised += OnBoundPropertyRaised;
@@ -104,12 +104,12 @@ namespace Juice
 
 			if (eventGenericType != null)
 			{
-				Type actualType = typeof(T);
+				Type exposedType = typeof(T);
 				Type boxedType = eventGenericType.GenericTypeArguments[0];
-				Type activationType = typeof(EventBoxer<,>).MakeGenericType(actualType, boxedType);
+				Type activationType = typeof(EventBoxer<,>).MakeGenericType(exposedType, boxedType);
 				result = Activator.CreateInstance(activationType, eventToBox) as IObservableEvent<T>;
 			}
-			
+
 			return result;
 		}
 
