@@ -117,7 +117,6 @@ namespace Juice.Editor
 
 		private static ViewModelComponent GetViewModelContainer(SerializedProperty bindingInfoProperty)
 		{
-			SerializedProperty containerProp = bindingInfoProperty.FindPropertyRelative(ViewModelContainerId);
 			return bindingInfoProperty.FindPropertyRelative(ViewModelContainerId).objectReferenceValue as ViewModelComponent;
 		}
 
@@ -131,9 +130,9 @@ namespace Juice.Editor
 			return bindingInfoProperty.FindPropertyRelative(PropertyNameId).stringValue;
 		}
 
-		private static string SetPropertyName(SerializedProperty bindingInfoProperty, string value)
+		private static void SetPropertyName(SerializedProperty bindingInfoProperty, string value)
 		{
-			return bindingInfoProperty.FindPropertyRelative(PropertyNameId).stringValue = value;
+			bindingInfoProperty.FindPropertyRelative(PropertyNameId).stringValue = value;
 		}
 
 		private static string GenerateBindingId(ViewModelComponent component, string propertyName)
