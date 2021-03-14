@@ -23,6 +23,20 @@ namespace Juice.Editor
 			return result;
 		}
 
+		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+		{
+			if (ShouldBeShown(property))
+			{
+				DrawProperty(position, property, label);
+			}
+			else if (drawIf.DisablingMode == DrawIfAttribute.DisablingType.ReadOnly)
+			{
+				GUI.enabled = false;
+				DrawProperty(position, property, label);
+				GUI.enabled = true;
+			}
+		}
+
 		private bool ShouldBeShown(SerializedProperty property)
 		{
 			drawIf = attribute as DrawIfAttribute;
@@ -45,20 +59,6 @@ namespace Juice.Editor
 				default:
 					Debug.LogError("Error: " + comparedField.type + " is not supported of " + path);
 					return true;
-			}
-		}
-
-		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
-		{
-			if (ShouldBeShown(property))
-			{
-				DrawProperty(position, property, label);
-			}
-			else if (drawIf.DisablingMode == DrawIfAttribute.DisablingType.ReadOnly)
-			{
-				GUI.enabled = false;
-				DrawProperty(position, property, label);
-				GUI.enabled = true;
 			}
 		}
 
