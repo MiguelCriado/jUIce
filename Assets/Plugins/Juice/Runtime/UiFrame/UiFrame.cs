@@ -192,6 +192,11 @@ namespace Juice
 			return registeredViews.ContainsKey(typeof(T));
 		}
 
+		public bool IsViewRegistered<T>(T view) where T : IView
+		{
+			return registeredViews.TryGetValue(typeof(T), out IView registeredView) && ReferenceEquals(view,  registeredView);
+		}
+
 		public void BlockInteraction(object requester)
 		{
 			blockInteractionRequesters.Add(requester);

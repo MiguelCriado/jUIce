@@ -6,7 +6,7 @@ namespace Juice.Utils
 	public static class TypeExtensions
 	{
 		private static readonly StringBuilder StringBuilder = new StringBuilder();
-	
+
 		public static bool ImplementsOrDerives(this Type type, Type baseType)
 		{
 			bool result = false;
@@ -29,7 +29,7 @@ namespace Juice.Utils
 								i++;
 							}
 						}
-							
+
 						result |= type.IsGenericType && type.GetGenericTypeDefinition() == baseType;
 					}
 					else
@@ -41,7 +41,7 @@ namespace Juice.Utils
 				{
 					result = baseType.IsAssignableFrom(type);
 				}
-					
+
 				result |= ImplementsOrDerives(type.BaseType, baseType);
 			}
 
@@ -66,7 +66,7 @@ namespace Juice.Utils
 
 			return result;
 		}
-		
+
 		public static string GetPrettifiedName(this Type t)
 		{
 			string result;
@@ -139,13 +139,15 @@ namespace Juice.Utils
 				StringBuilder.Append(name.Remove(name.Length - 2));
 				StringBuilder.Append("<");
 
-				for (int i = 0; i < t.GenericTypeArguments.Length; i++)
-				{
-					StringBuilder.Append(t.GenericTypeArguments[i].GetPrettifiedName());
+				Type[] typeParameters = t.GetGenericArguments();
 
-					if (i < t.GenericTypeArguments.Length - 1)
+				for (int i = 0; i < typeParameters.Length; i++)
+				{
+					StringBuilder.Append(typeParameters[i].GetPrettifiedName());
+
+					if (i < typeParameters.Length - 1)
 					{
-						StringBuilder.Append(",");
+						StringBuilder.Append(", ");
 					}
 				}
 

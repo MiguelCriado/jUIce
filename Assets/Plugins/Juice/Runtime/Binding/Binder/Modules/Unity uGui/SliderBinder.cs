@@ -6,42 +6,42 @@ namespace Juice
 	[RequireComponent(typeof(Slider))]
 	public class SliderBinder : MonoBehaviour, IBinder<float>
 	{
-		[SerializeField] private BindingInfo minValueBindingInfo = new BindingInfo(typeof(IReadOnlyObservableVariable<float>));
-		[SerializeField] private BindingInfo maxValueBindingInfo = new BindingInfo(typeof(IReadOnlyObservableVariable<float>));
-		[SerializeField] private BindingInfo valueBindingInfo = new BindingInfo(typeof(IReadOnlyObservableVariable<float>));
-		[SerializeField] private BindingInfo valueCommandBindingInfo = new BindingInfo(typeof(IObservableCommand<float>));
+		[SerializeField] private BindingInfo minValue = new BindingInfo(typeof(IReadOnlyObservableVariable<float>));
+		[SerializeField] private BindingInfo maxValue = new BindingInfo(typeof(IReadOnlyObservableVariable<float>));
+		[SerializeField] private BindingInfo value = new BindingInfo(typeof(IReadOnlyObservableVariable<float>));
+		[SerializeField] private BindingInfo onValueChangedCommand = new BindingInfo(typeof(IObservableCommand<float>));
 
 		private Slider slider;
 
 		private VariableBinding<float> minValueBinding;
 		private VariableBinding<float> maxValueBinding;
 		private VariableBinding<float> valueBinding;
-		private CommandBinding<float> valueCommandBinding;
+		private CommandBinding<float> valueChangedCommandBinding;
 
 		protected virtual void Reset()
 		{
-			minValueBindingInfo = new BindingInfo(typeof(IReadOnlyObservableVariable<float>));
-			maxValueBindingInfo = new BindingInfo(typeof(IReadOnlyObservableVariable<float>));
-			valueBindingInfo = new BindingInfo(typeof(IReadOnlyObservableVariable<float>));
-			valueCommandBindingInfo = new BindingInfo(typeof(IObservableCommand<float>));
+			minValue = new BindingInfo(typeof(IReadOnlyObservableVariable<float>));
+			maxValue = new BindingInfo(typeof(IReadOnlyObservableVariable<float>));
+			value = new BindingInfo(typeof(IReadOnlyObservableVariable<float>));
+			onValueChangedCommand = new BindingInfo(typeof(IObservableCommand<float>));
 		}
-		
+
 		protected virtual void Awake()
 		{
 			slider = GetComponent<Slider>();
-			slider.onValueChanged.AddListener(SliderValueChangedHandler);
+			slider.onValueChanged.AddListener(OnSliderValueChanged);
 
-			minValueBinding = new VariableBinding<float>(minValueBindingInfo, this);
-			minValueBinding.Property.Changed += MinValueChangedHandler;
-			
-			maxValueBinding = new VariableBinding<float>(maxValueBindingInfo, this);
-			maxValueBinding.Property.Changed += MaxValueChangedHandler;
-			
-			valueBinding = new VariableBinding<float>(valueBindingInfo, this);
-			valueBinding.Property.Changed += ValueChangedHandler;
-			
-			valueCommandBinding = new CommandBinding<float>(valueCommandBindingInfo, this);
-			valueCommandBinding.Property.CanExecute.Changed += ValueCommandCanExecuteChangedHandler;
+			minValueBinding = new VariableBinding<float>(minValue, this);
+			minValueBinding.Property.Changed += OnMinValueBindingChanged;
+
+			maxValueBinding = new VariableBinding<float>(maxValue, this);
+			maxValueBinding.Property.Changed += OnMaxValueBindingChanged;
+
+			valueBinding = new VariableBinding<float>(value, this);
+			valueBinding.Property.Changed += OnValueBindingChanged;
+
+			valueChangedCommandBinding = new CommandBinding<float>(onValueChangedCommand, this);
+			valueChangedCommandBinding.Property.CanExecute.Changed += OnValueChangedCommandBindingCanExecuteChanged;
 		}
 
 		protected virtual void OnEnable()
@@ -49,7 +49,7 @@ namespace Juice
 			minValueBinding.Bind();
 			maxValueBinding.Bind();
 			valueBinding.Bind();
-			valueCommandBinding.Bind();
+			valueChangedCommandBinding.Bind();
 		}
 
 		protected virtual void OnDisable()
@@ -57,30 +57,30 @@ namespace Juice
 			minValueBinding.Unbind();
 			maxValueBinding.Unbind();
 			valueBinding.Unbind();
-			valueCommandBinding.Unbind();
+			valueChangedCommandBinding.Unbind();
 		}
 
-		private void SliderValueChangedHandler(float newValue)
+		private void OnSliderValueChanged(float newValue)
 		{
-			valueCommandBinding.Property.Execute(newValue);
+			valueChangedCommandBinding.Property.Execute(newValue);
 		}
 
-		private void MinValueChangedHandler(float newValue)
+		private void OnMinValueBindingChanged(float newValue)
 		{
 			slider.minValue = newValue;
 		}
-		
-		private void MaxValueChangedHandler(float newValue)
+
+		private void OnMaxValueBindingChanged(float newValue)
 		{
 			slider.maxValue = newValue;
 		}
-		
-		private void ValueChangedHandler(float newValue)
+
+		private void OnValueBindingChanged(float newValue)
 		{
 			slider.value = newValue;
 		}
-		
-		private void ValueCommandCanExecuteChangedHandler(bool newValue)
+
+		private void OnValueChangedCommandBindingCanExecuteChanged(bool newValue)
 		{
 			slider.interactable = newValue;
 		}

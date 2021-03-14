@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
+using Juice.Utils;
 using UnityEditor;
 using UnityEngine;
 
@@ -9,27 +11,15 @@ namespace Juice.Editor
 	[CustomPropertyDrawer(typeof(SerializableType))]
 	public class SerializableTypeDrawer : PropertyDrawer
 	{
-		private class TypeEntry
-		{
-			public int Index;
-			public Type Type;
-
-			public TypeEntry(int index, Type type)
-			{
-				Index = index;
-				Type = type;
-			}
-		}
-
 		private class DrawerCache
 		{
-			public SerializableType Target;
-			public Dictionary<string, TypeEntry> TypeMap;
-			public string[] CachedOptions;
-			public int CurrentIndex;
+			public Dictionary<Type, string> TypeMapByType;
+			public Dictionary<string, Type> TypeMapByString;
+			public string CurrentSelection;
 		}
 
 		private static readonly string TypeReferenceFieldName = "typeReference";
+		private static readonly string NoneSelectionEntry = "None";
 		private static readonly Dictionary<string, DrawerCache> CacheMap = new Dictionary<string, DrawerCache>();
 
 		~SerializableTypeDrawer()
@@ -44,28 +34,11 @@ namespace Juice.Editor
 			EditorGUI.BeginProperty(position, label, property);
 
 			SetupCache(property);
-			RefreshCurrentIndex(property);
+			RefreshCurrentSelection(property);
 
 			position = DrawLabel(position, label);
 
-			// Don't make child fields be indented
-			var indent = EditorGUI.indentLevel;
-			EditorGUI.indentLevel = 0;
-
-			int index = EditorGUI.Popup(position, cache.CurrentIndex, cache.CachedOptions);
-
-			if (index != cache.CurrentIndex)
-			{
-				Undo.RecordObject(property.serializedObject.targetObject, $"{fieldInfo.Name} type changed");
-				
-				string selectedType = cache.CachedOptions[index];
-				SetType(property, cache.TypeMap[selectedType].Type);
-
-				cache.CurrentIndex = index;
-			}
-
-			// Set indent back to what it was
-			EditorGUI.indentLevel = indent;
+			DrawPopup(position, property);
 
 			EditorGUI.EndProperty();
 		}
@@ -76,54 +49,49 @@ namespace Juice.Editor
 			return position;
 		}
 
+		private void DrawPopup(Rect position, SerializedProperty property)
+		{
+			if (GUI.Button(position, cache.CurrentSelection, EditorStyles.popup))
+			{
+				SerializableTypeEditorWindow.Show(
+					position,
+					cache.TypeMapByType.Values.Prepend("None"),
+					(type) => OnTypeSelected(property, type));
+			}
+		}
+
 		private void SetupCache(SerializedProperty property)
 		{
 			string id = $"{property.serializedObject.targetObject.GetInstanceID().ToString()}{property.propertyPath}";
-			
+
 			if (CacheMap.TryGetValue(id, out cache) == false)
 			{
 				cache = new DrawerCache();
-				CacheTarget(property, cache);
 				CacheTypeCollections(cache);
 
 				CacheMap[id] = cache;
 			}
 		}
 
-		private void CacheTarget(SerializedProperty property, DrawerCache cache)
-		{
-			cache.Target = PropertyDrawerUtility.GetActualObjectForSerializedProperty<SerializableType>(fieldInfo, property);
-		}
-
 		private void CacheTypeCollections(DrawerCache cache)
 		{
-			TypeConstraintAttribute typeConstraint = fieldInfo.GetCustomAttribute<TypeConstraintAttribute>();
-			cache.TypeMap = new Dictionary<string, TypeEntry>();
-			List<string> options = new List<string>();
+			var typeConstraint = fieldInfo.GetCustomAttribute<TypeConstraintAttribute>();
+			cache.TypeMapByType = new Dictionary<Type, string>();
+			cache.TypeMapByString = new Dictionary<string, Type>();
+			var matchingGroups = new Dictionary<string, List<Type>>();
 
-			foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+			foreach (Type current in TypeCache.GetTypesDerivedFrom(typeConstraint.BaseType))
 			{
-				foreach (Type type in assembly.GetTypes())
+				if (IsMatchingType(current, typeConstraint))
 				{
-					if (IsMatchingType(type, typeConstraint))
-					{
-						string typeName = type.FullName;
-
-						if (cache.TypeMap.ContainsKey(typeName) == false)
-						{
-							cache.TypeMap.Add(typeName, new TypeEntry(options.Count, type));
-							options.Add(typeName);
-						}
-					}
+					AddTypeToCache(cache, current, matchingGroups);
 				}
 			}
-
-			cache.CachedOptions = options.ToArray();
 		}
 
 		private static bool IsMatchingType(Type type, TypeConstraintAttribute constraint)
 		{
-			return  constraint == null 
+			return constraint == null
 			        || (DoesMatchInstantiableRestriction(type, constraint)
 			            && IsAssignableFrom(constraint.BaseType, type));
 		}
@@ -166,29 +134,132 @@ namespace Juice.Editor
 			return IsAssignableToGenericType(baseType, genericType);
 		}
 
-		private void RefreshCurrentIndex(SerializedProperty property)
+		private static void AddTypeToCache(DrawerCache cache, Type current, Dictionary<string, List<Type>> matchingGroups)
 		{
-			if (cache.Target.Type != null)
-			{
-				string typeName = cache.Target.Type.FullName;
+			string typeId = current.GetPrettifiedName();
 
-				if (cache.TypeMap.TryGetValue(typeName, out TypeEntry entry))
-				{
-					cache.CurrentIndex = entry.Index;
-				}
-			}
-			else if (cache.TypeMap.Count > 0)
+			if (matchingGroups.TryGetValue(typeId, out List<Type> group))
 			{
-				TypeEntry firstEntry = cache.TypeMap[cache.CachedOptions[0]];
-				SetType(property, firstEntry.Type);
+				group.Add(current);
+				FixMatchingTypeIds(cache, group);
+			}
+			else
+			{
+				var newGroup = new List<Type> {current};
+				matchingGroups.Add(typeId, newGroup);
+				AddTypeToCache(current, typeId, cache);
 			}
 		}
 
-		private void SetType(SerializedProperty property, Type type)
+		private static void FixMatchingTypeIds(DrawerCache cache, List<Type> group)
 		{
-			SerializedProperty typeName = property.FindPropertyRelative(TypeReferenceFieldName);
-			cache.Target.Type = type;
-			typeName.stringValue = type.AssemblyQualifiedName;
+			for (int i = 0; i < group.Count; i++)
+			{
+				Type target = group[i];
+
+				for (int j = i + 1; j < group.Count; j++)
+				{
+					Type other = group[j];
+
+					string targetId = GetDistinctName(target, other);
+					AddTypeToCache(target, targetId, cache);
+
+					string otherId = GetDistinctName(other, target);
+					AddTypeToCache(other, otherId, cache);
+				}
+			}
+		}
+
+		private static string GetDistinctName(Type target, Type other)
+		{
+			string result = target?.GetPrettifiedName();
+
+			if (target != null && other != null && result == other.GetPrettifiedName())
+			{
+				string[] targetPath = target.FullName?.Split('.');
+				string[] otherPath = other.FullName?.Split('.');
+
+				if (targetPath != null && otherPath != null)
+				{
+					int targetIndex = targetPath.Length - 2;
+					int otherIndex = otherPath.Length - 2;
+
+					while (targetIndex >= 0 && otherIndex >= 0 && targetPath[targetIndex] == otherPath[otherIndex])
+					{
+						result = $"{targetPath[targetIndex]}.{result}";
+						targetIndex--;
+						otherIndex--;
+					}
+
+					if (targetIndex < 0)
+					{
+						result = $"{result} ({target.Assembly.GetName().Name})";
+					}
+					else
+					{
+						result = $"{targetPath[targetIndex]}.{result}";
+					}
+				}
+			}
+
+			return result;
+		}
+
+		private static void AddTypeToCache(Type type, string newId, DrawerCache cache)
+		{
+			if (cache.TypeMapByType.TryGetValue(type, out string currentId) == false
+			    || newId.Length > currentId.Length)
+			{
+				cache.TypeMapByType[type] = newId;
+				cache.TypeMapByString[newId] = type;
+			}
+		}
+
+		private static Type GetType(SerializedProperty property)
+		{
+			Type result = null;
+			string stringValue = property.FindPropertyRelative(TypeReferenceFieldName).stringValue;
+
+			if (string.IsNullOrEmpty(stringValue) == false)
+			{
+				result = Type.GetType(stringValue);
+			}
+
+			return result;
+		}
+
+		private static void SetType(SerializedProperty property, Type type)
+		{
+			string stringValue = type != null ? type.AssemblyQualifiedName : string.Empty;
+			property.FindPropertyRelative(TypeReferenceFieldName).stringValue = stringValue;
+		}
+
+		private void RefreshCurrentSelection(SerializedProperty property)
+		{
+			Type currentType = GetType(property);
+
+			if (currentType != null && cache.TypeMapByType.TryGetValue(currentType, out string entry))
+			{
+				cache.CurrentSelection = entry;
+			}
+			else
+			{
+				cache.CurrentSelection = NoneSelectionEntry;
+			}
+		}
+
+		private void OnTypeSelected(SerializedProperty property, string typeId)
+		{
+			if (cache.TypeMapByString.TryGetValue(typeId, out Type selectedType))
+			{
+				SetType(property, selectedType);
+			}
+			else if (typeId == NoneSelectionEntry)
+			{
+				SetType(property, null);
+			}
+
+			property.serializedObject.ApplyModifiedProperties();
 		}
 	}
 }

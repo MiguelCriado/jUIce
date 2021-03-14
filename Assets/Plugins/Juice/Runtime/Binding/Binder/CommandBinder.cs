@@ -4,8 +4,10 @@ namespace Juice
 {
 	public abstract class CommandBinder : MonoBehaviour
 	{
-		[SerializeField] private BindingInfo bindingInfo = new BindingInfo(typeof(IObservableCommand));
+		[SerializeField, Rename(nameof(BindingInfoName))]
+		private BindingInfo bindingInfo = new BindingInfo(typeof(IObservableCommand));
 
+		protected virtual string BindingInfoName { get; } = nameof(bindingInfo);
 		protected bool CanExecute => binding.Property.CanExecute.Value;
 
 		private CommandBinding binding;
@@ -14,13 +16,13 @@ namespace Juice
 		{
 			bindingInfo = new BindingInfo(typeof(IObservableCommand));
 		}
-		
+
 		protected virtual void Awake()
 		{
 			binding = new CommandBinding(bindingInfo, this);
 			binding.Property.CanExecute.Changed += OnCommandCanExecuteChanged;
 		}
-		
+
 		protected virtual void OnEnable()
 		{
 			binding.Bind();
@@ -35,33 +37,35 @@ namespace Juice
 		{
 			binding.Property.Execute();
 		}
-		
+
 		protected abstract void OnCommandCanExecuteChanged(bool newValue);
 	}
-	
+
 	public abstract class CommandBinder<T> : MonoBehaviour, IBinder<T>
 	{
-		[SerializeField] private BindingInfo commandBinding = new BindingInfo(typeof(IObservableCommand<T>));
+		[SerializeField, Rename(nameof(BindingInfoName))]
+		private BindingInfo bindingInfo = new BindingInfo(typeof(IObservableCommand<T>));
 
+		protected virtual string BindingInfoName { get; } = nameof(bindingInfo);
 		protected bool CanExecute => binding.Property.CanExecute.Value;
 
 		private CommandBinding<T> binding;
 
 		protected virtual void Reset()
 		{
-			commandBinding = new BindingInfo(typeof(IObservableCommand<T>));
+			bindingInfo = new BindingInfo(typeof(IObservableCommand<T>));
 		}
 
 		protected virtual void Awake()
 		{
-			binding = new CommandBinding<T>(commandBinding, this);
+			binding = new CommandBinding<T>(bindingInfo, this);
 			binding.Property.CanExecute.Changed += OnCommandCanExecuteChanged;
 		}
-		
+
 		protected virtual void OnEnable()
 		{
 			binding.Bind();
-			
+
 			OnCommandCanExecuteChanged(binding.Property.CanExecute.Value);
 		}
 
@@ -76,7 +80,7 @@ namespace Juice
 		{
 			binding.Property.Execute(value);
 		}
-		
+
 		protected abstract void OnCommandCanExecuteChanged(bool newValue);
 	}
 }

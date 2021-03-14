@@ -4,7 +4,10 @@ namespace Juice
 {
 	public abstract class CollectionBinder<T> : MonoBehaviour, IBinder<T>
 	{
-		[SerializeField] private BindingInfo bindingInfo = new BindingInfo(typeof(IReadOnlyObservableCollection<T>));
+		[SerializeField, Rename(nameof(BindingInfoName))]
+		private BindingInfo bindingInfo = new BindingInfo(typeof(IReadOnlyObservableCollection<T>));
+
+		protected virtual string BindingInfoName { get; } = nameof(bindingInfo);
 
 		private CollectionBinding<T> binding;
 
@@ -18,7 +21,7 @@ namespace Juice
 			binding.Property.ItemRemoved += OnCollectionItemRemoved;
 			binding.Property.ItemReplaced += OnCollectionItemReplaced;
 		}
-		
+
 		protected virtual void OnEnable()
 		{
 			binding.Bind();
@@ -28,7 +31,7 @@ namespace Juice
 		{
 			binding.Unbind();
 		}
-		
+
 		protected abstract void OnCollectionReset();
 		protected abstract void OnCollectionCountChanged(int oldCount, int newCount);
 		protected abstract void OnCollectionItemAdded(int index, T value);

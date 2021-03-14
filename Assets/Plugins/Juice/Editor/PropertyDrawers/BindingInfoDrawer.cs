@@ -37,7 +37,6 @@ namespace Juice.Editor
 
 		private class DrawerCache
 		{
-			public BindingInfo Target;
 			public Transform LastParent;
 			public Component BaseComponent;
 			public Dictionary<string, BindingEntry> BindingMap;
@@ -48,11 +47,11 @@ namespace Juice.Editor
 
 		private const string ViewModelContainerId = "viewModelContainer";
 		private const string PropertyNameId = "propertyName";
-		
+
 		private static readonly Dictionary<string, DrawerCache> CacheMap = new Dictionary<string,DrawerCache>();
 
 		private DrawerCache cache;
-		
+
 		public BindingInfoDrawer()
 		{
 			BindingInfoTracker.Register(this);
@@ -63,14 +62,14 @@ namespace Juice.Editor
 			BindingInfoTracker.Unregister(this);
 			CacheMap.Clear();
 		}
-		
+
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
 		{
-			EditorGUI.BeginProperty(position, label, property); 
-			
+			EditorGUI.BeginProperty(position, label, property);
+
 			SetupCache(property);
 			RefreshCurrentIndex(property);
-			
+
 			position = DrawLabel(position, label);
 
 			DrawContent(position, property);
@@ -103,7 +102,7 @@ namespace Juice.Editor
 
 			EditorGUI.EndDisabledGroup();
 		}
-		
+
 		private static Rect DrawLabel(Rect position, GUIContent label)
 		{
 			position = EditorGUI.PrefixLabel(position, GUIUtility.GetControlID(FocusType.Passive), label);
@@ -112,10 +111,30 @@ namespace Juice.Editor
 
 		private static void SetBinding(SerializedProperty property, ViewModelComponent viewModelComponent, string propertyName)
 		{
-			property.FindPropertyRelative(ViewModelContainerId).objectReferenceValue = viewModelComponent;
-			property.FindPropertyRelative(PropertyNameId).stringValue = propertyName;
+			SetViewModelContainer(property, viewModelComponent);
+			SetPropertyName(property, propertyName);
 		}
-		
+
+		private static ViewModelComponent GetViewModelContainer(SerializedProperty bindingInfoProperty)
+		{
+			return bindingInfoProperty.FindPropertyRelative(ViewModelContainerId).objectReferenceValue as ViewModelComponent;
+		}
+
+		private static void SetViewModelContainer(SerializedProperty bindingInfoProperty, ViewModelComponent value)
+		{
+			bindingInfoProperty.FindPropertyRelative(ViewModelContainerId).objectReferenceValue = value;
+		}
+
+		private static string GetPropertyName(SerializedProperty bindingInfoProperty)
+		{
+			return bindingInfoProperty.FindPropertyRelative(PropertyNameId).stringValue;
+		}
+
+		private static void SetPropertyName(SerializedProperty bindingInfoProperty, string value)
+		{
+			bindingInfoProperty.FindPropertyRelative(PropertyNameId).stringValue = value;
+		}
+
 		private static string GenerateBindingId(ViewModelComponent component, string propertyName)
 		{
 			return $"{component.gameObject.name}.{component.Id}/{propertyName}";
@@ -133,7 +152,7 @@ namespace Juice.Editor
 			string cacheId = $"{property.serializedObject.targetObject.GetInstanceID().ToString()}{property.propertyPath}";
 
 			CacheMap.TryGetValue(cacheId, out cache);
-			
+
 			if (cache != null && (cache.BaseComponent == null || cache.BaseComponent.transform.parent != cache.LastParent))
 			{
 				cache = null;
@@ -142,25 +161,23 @@ namespace Juice.Editor
 			if (cache == null)
 			{
 				cache = new DrawerCache();
-				CacheTarget(property, cache);
 				CacheBaseComponent(property, cache);
-				CacheBindingCollections(cache);
+				CacheBindingCollections(property, cache);
 				CacheMap[cacheId] = cache;
 			}
-		}
-
-		private void CacheTarget(SerializedProperty property, DrawerCache cache)
-		{
-			cache.Target = PropertyDrawerUtility.GetActualObjectForSerializedProperty<BindingInfo>(fieldInfo, property);
 		}
 
 		private void CacheBaseComponent(SerializedProperty property, DrawerCache cache)
 		{
 			cache.BaseComponent = property.serializedObject.targetObject as Component;
-			cache.LastParent = cache.BaseComponent.transform.parent;
+
+			if (cache.BaseComponent)
+			{
+				cache.LastParent = cache.BaseComponent.transform.parent;
+			}
 		}
 
-		private void CacheBindingCollections(DrawerCache cache)
+		private void CacheBindingCollections(SerializedProperty property, DrawerCache cache)
 		{
 			cache.BindingMap = new Dictionary<string, BindingEntry>();
 			List<string> optionIds = new List<string>();
@@ -168,7 +185,7 @@ namespace Juice.Editor
 			optionIds.Add("None");
 			options.Add("None");
 
-			foreach (Juice.BindingEntry current in BindingUtils.GetBindings(cache.BaseComponent.transform, cache.Target.Type))
+			foreach (Juice.BindingEntry current in BindingUtils.GetBindings(cache.BaseComponent.transform, ResolveTarget(property).Type))
 			{
 				if (current.ViewModelComponent != cache.BaseComponent)
 				{
@@ -185,18 +202,22 @@ namespace Juice.Editor
 					options.Add(GenerateOptionString(id, entry));
 				}
 			}
-			
+
 			cache.CachedOptionIds = optionIds.ToArray();
 			cache.CachedOptions = options.ToArray();
 		}
 
+		private BindingInfo ResolveTarget(SerializedProperty property)
+		{
+			return PropertyDrawerUtility.GetActualObjectForSerializedProperty<BindingInfo>(fieldInfo, property);
+		}
+
 		private void RefreshCurrentIndex(SerializedProperty property)
 		{
-			if (cache.Target.ViewModelContainer != null && string.IsNullOrEmpty(cache.Target.PropertyName) == false)
+			if (GetViewModelContainer(property) && string.IsNullOrEmpty(GetPropertyName(property)) == false)
 			{
-				BindingInfo target = cache.Target;
-				string bindingId = GenerateBindingId(target.ViewModelContainer, target.PropertyName);
-				
+				string bindingId = GenerateBindingId(GetViewModelContainer(property), GetPropertyName(property));
+
 				if (cache.BindingMap.TryGetValue(bindingId, out BindingEntry entry))
 				{
 					cache.CurrentIndex = entry.Index;
@@ -204,7 +225,7 @@ namespace Juice.Editor
 			}
 			else if (cache.BindingMap.Count > 0)
 			{
-				SetBinding(property, null, cache.Target.PropertyName);
+				SetBinding(property, null, GetPropertyName(property));
 				cache.CurrentIndex = 0;
 			}
 		}

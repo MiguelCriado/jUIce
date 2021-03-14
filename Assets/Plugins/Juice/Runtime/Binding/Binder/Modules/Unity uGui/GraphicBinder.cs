@@ -5,8 +5,10 @@ namespace Juice
 {
 	public class GraphicBinder : VariableBinder<Color>
 	{
+		protected override string BindingInfoName { get; } = "Color";
+
 		private Graphic graphic;
-		
+
 		protected override void Awake()
 		{
 			base.Awake();

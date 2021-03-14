@@ -6,18 +6,20 @@ namespace Juice
 	[RequireComponent(typeof(Text))]
 	public class TextBinder : VariableBinder<object>
 	{
-		private Text text;
-		
+		protected override string BindingInfoName { get; } = "Text";
+
+		private Text textComponent;
+
 		protected override void Awake()
 		{
 			base.Awake();
-			
-			text = GetComponent<Text>();
+
+			textComponent = GetComponent<Text>();
 		}
 
 		protected override void Refresh(object value)
 		{
-			text.text = value != null ? value.ToString() : string.Empty;
+			textComponent.text = value != null ? value.ToString() : string.Empty;
 		}
 	}
 }
