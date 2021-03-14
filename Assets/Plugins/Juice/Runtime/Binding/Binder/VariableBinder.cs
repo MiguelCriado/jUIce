@@ -4,7 +4,10 @@ namespace Juice
 {
 	public abstract class VariableBinder<T> : MonoBehaviour, IBinder<T>
 	{
-		[SerializeField] private BindingInfo bindingInfo = new BindingInfo(typeof(IReadOnlyObservableVariable<T>));
+		[SerializeField, Rename(nameof(BindingInfoName))]
+		private BindingInfo bindingInfo = new BindingInfo(typeof(IReadOnlyObservableVariable<T>));
+
+		protected virtual string BindingInfoName { get; } = nameof(bindingInfo);
 
 		private VariableBinding<T> binding;
 
@@ -12,7 +15,7 @@ namespace Juice
 		{
 			bindingInfo = new BindingInfo(typeof(IReadOnlyObservableVariable<T>));
 		}
-		
+
 		protected virtual void Awake()
 		{
 			binding = new VariableBinding<T>(bindingInfo, this);
@@ -30,7 +33,7 @@ namespace Juice
 		}
 
 		protected abstract void Refresh(T value);
-		
+
 		private void BoundPropertyChangedHandler(T newValue)
 		{
 			Refresh(newValue);
