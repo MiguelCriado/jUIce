@@ -13,8 +13,10 @@ namespace Juice
 		[SerializeField] private Transform itemsContainer;
 		[SerializeField] private bool poolItems = true;
 
+		protected override string BindingInfoName { get; } = "Collection";
+
 		private Transform Container => itemsContainer ? itemsContainer : transform;
-		
+
 		private PrefabPicker<CollectionItemViewModelComponent> prefabPicker;
 		private List<CollectionItemViewModelComponent> currentItems;
 		private ObjectPool pool;
@@ -82,11 +84,11 @@ namespace Juice
 				InsertItem(index, newValue);
 			}
 		}
-		
+
 		protected virtual CollectionItemViewModelComponent SpawnItem(CollectionItemViewModelComponent prefab, Transform itemParent)
 		{
 			CollectionItemViewModelComponent result;
-			
+
 			if (pool)
 			{
 				result = pool.Spawn(prefab);

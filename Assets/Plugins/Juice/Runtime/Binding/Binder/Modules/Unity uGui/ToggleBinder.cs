@@ -6,38 +6,40 @@ namespace Juice
 	[RequireComponent(typeof(Toggle))]
 	public class ToggleBinder : VariableBinder<bool>
 	{
-		[SerializeField] private BindingInfo commandBindingInfo = new BindingInfo(typeof(IObservableCommand<bool>));
+		[SerializeField] private BindingInfo onValueChangedCommand = new BindingInfo(typeof(IObservableCommand<bool>));
+
+		protected override string BindingInfoName { get; } = "Is On";
 
 		private Toggle toggle;
-		private CommandBinding<bool> commandBinding;
+		private CommandBinding<bool> onValueChangedCommandBinding;
 
 		protected override void Awake()
 		{
 			base.Awake();
 
 			toggle = GetComponent<Toggle>();
-			
-			commandBinding = new CommandBinding<bool>(commandBindingInfo, this);
-			commandBinding.Property.CanExecute.Changed += CanExecuteChangedHandler;
+
+			onValueChangedCommandBinding = new CommandBinding<bool>(onValueChangedCommand, this);
+			onValueChangedCommandBinding.Property.CanExecute.Changed += OnCanExecuteChanged;
 		}
 
 		protected override void OnEnable()
 		{
 			base.OnEnable();
-			
-			toggle.onValueChanged.AddListener(ToggleValueChangedHandler);
-			
-			commandBinding.Bind();
-			ToggleValueChangedHandler(toggle.isOn);
+
+			toggle.onValueChanged.AddListener(OnToggleValueChanged);
+
+			onValueChangedCommandBinding.Bind();
+			OnToggleValueChanged(toggle.isOn);
 		}
 
 		protected override void OnDisable()
 		{
 			base.OnDisable();
-			
-			toggle.onValueChanged.RemoveListener(ToggleValueChangedHandler);
-			
-			commandBinding.Unbind();
+
+			toggle.onValueChanged.RemoveListener(OnToggleValueChanged);
+
+			onValueChangedCommandBinding.Unbind();
 		}
 
 		protected override void Refresh(bool value)
@@ -45,12 +47,12 @@ namespace Juice
 			toggle.isOn = value;
 		}
 
-		private void ToggleValueChangedHandler(bool newValue)
+		private void OnToggleValueChanged(bool newValue)
 		{
-			commandBinding.Property.Execute(newValue);
+			onValueChangedCommandBinding.Property.Execute(newValue);
 		}
-		
-		private void CanExecuteChangedHandler(bool newValue)
+
+		private void OnCanExecuteChanged(bool newValue)
 		{
 			toggle.interactable = newValue;
 		}

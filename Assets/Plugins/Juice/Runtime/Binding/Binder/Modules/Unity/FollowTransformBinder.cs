@@ -4,10 +4,10 @@ namespace Juice
 {
 	public class FollowTransformBinder : ConstantBinder<Transform>
 	{
-		[SerializeField] private TransformConstantBindingInfo bindingInfo;
+		[SerializeField] private TransformConstantBindingInfo transformToFollow;
 		[SerializeField] private Vector2ConstantBindingInfo offset;
 
-		protected override ConstantBindingInfo<Transform> BindingInfo => bindingInfo;
+		protected override ConstantBindingInfo<Transform> BindingInfo => transformToFollow;
 
 		private UiFrame UIFrame => GetUIFrameCache();
 
@@ -20,7 +20,7 @@ namespace Juice
 		protected override void Awake()
 		{
 			base.Awake();
-			
+
 			offsetBinding = new VariableBinding<Vector2>(offset, this);
 			offsetBinding.Property.Changed += OnOffsetBindingChanged;
 		}
@@ -30,14 +30,14 @@ namespace Juice
 			base.OnEnable();
 
 			offsetBinding.Bind();
-			
+
 			CacheFields();
 		}
 
 		protected override void OnDisable()
 		{
 			base.OnDisable();
-			
+
 			offsetBinding.Unbind();
 		}
 
@@ -50,7 +50,7 @@ namespace Juice
 				((RectTransform) transform).anchoredPosition = localPoint + offsetBinding.Property.Value;
 			}
 		}
-		
+
 		protected override void Refresh(Transform value)
 		{
 			target = value;
@@ -60,7 +60,7 @@ namespace Juice
 		{
 
 		}
-		
+
 		private void CacheFields()
 		{
 			mainCamera = Camera.main;

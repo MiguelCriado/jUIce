@@ -9,7 +9,7 @@ namespace Juice
 		[SerializeField] private BindingInfo minValue = new BindingInfo(typeof(IReadOnlyObservableVariable<float>));
 		[SerializeField] private BindingInfo maxValue = new BindingInfo(typeof(IReadOnlyObservableVariable<float>));
 		[SerializeField] private BindingInfo value = new BindingInfo(typeof(IReadOnlyObservableVariable<float>));
-		[SerializeField] private BindingInfo valueChangedCommand = new BindingInfo(typeof(IObservableCommand<float>));
+		[SerializeField] private BindingInfo onValueChangedCommand = new BindingInfo(typeof(IObservableCommand<float>));
 
 		private Slider slider;
 
@@ -23,7 +23,7 @@ namespace Juice
 			minValue = new BindingInfo(typeof(IReadOnlyObservableVariable<float>));
 			maxValue = new BindingInfo(typeof(IReadOnlyObservableVariable<float>));
 			value = new BindingInfo(typeof(IReadOnlyObservableVariable<float>));
-			valueChangedCommand = new BindingInfo(typeof(IObservableCommand<float>));
+			onValueChangedCommand = new BindingInfo(typeof(IObservableCommand<float>));
 		}
 
 		protected virtual void Awake()
@@ -40,7 +40,7 @@ namespace Juice
 			valueBinding = new VariableBinding<float>(value, this);
 			valueBinding.Property.Changed += OnValueBindingChanged;
 
-			valueChangedCommandBinding = new CommandBinding<float>(valueChangedCommand, this);
+			valueChangedCommandBinding = new CommandBinding<float>(onValueChangedCommand, this);
 			valueChangedCommandBinding.Property.CanExecute.Changed += OnValueChangedCommandBindingCanExecuteChanged;
 		}
 

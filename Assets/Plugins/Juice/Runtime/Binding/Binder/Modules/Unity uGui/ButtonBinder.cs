@@ -6,6 +6,8 @@ namespace Juice
 	[RequireComponent(typeof(Button))]
 	public class ButtonBinder : CommandBinder
 	{
+		protected override string BindingInfoName { get; } = "OnClick Command";
+
 		private Button button;
 
 		protected override void Awake()
@@ -18,14 +20,14 @@ namespace Juice
 		protected override void OnEnable()
 		{
 			base.OnEnable();
-			
+
 			button.onClick.AddListener(OnButtonClicked);
 		}
 
 		protected override void OnDisable()
 		{
 			base.OnDisable();
-			
+
 			button.onClick.RemoveListener(OnButtonClicked);
 		}
 
