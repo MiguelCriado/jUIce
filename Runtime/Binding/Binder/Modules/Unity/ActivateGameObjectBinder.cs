@@ -6,6 +6,8 @@ namespace Juice
 	{
 		[SerializeField] private GameObject target;
 
+		protected override string BindingInfoName { get; } = "Set Active";
+
 		protected override void Refresh(bool value)
 		{
 			if (target)

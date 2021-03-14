@@ -6,6 +6,8 @@ namespace Juice
 	[RequireComponent(typeof(Image))]
 	public class ImageBinder : VariableBinder<Sprite>
 	{
+		protected override string BindingInfoName { get; } = "Source Image";
+
 		private Image image;
 
 		protected override void Awake()
