@@ -3,7 +3,7 @@
 	public enum MathOperationType
 	{
 		Addition,
-		Substraction,
+		Subtraction,
 		Multiplication,
 		Division,
 		Power
