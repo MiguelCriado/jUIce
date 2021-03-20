@@ -1,5 +1,9 @@
-﻿using UnityEngine;
+﻿using Juice.Utils;
+using UnityEngine;
 using UnityEngine.UI;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Juice
 {
@@ -59,6 +63,15 @@ namespace Juice
 			valueBinding.Unbind();
 			valueChangedCommandBinding.Unbind();
 		}
+
+#if UNITY_EDITOR
+		[MenuItem("CONTEXT/Slider/Add Binder")]
+		private static void AddBinder(MenuCommand command)
+		{
+			Slider context = (Slider) command.context;
+			context.GetOrAddComponent<SliderBinder>();
+		}
+#endif
 
 		private void OnSliderValueChanged(float newValue)
 		{

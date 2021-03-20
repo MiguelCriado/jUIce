@@ -1,5 +1,9 @@
-﻿using UnityEngine;
+﻿using Juice.Utils;
 using TMPro;
+using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Juice
 {
@@ -48,6 +52,15 @@ namespace Juice
 		{
 			inputField.interactable = newValue;
 		}
+
+#if UNITY_EDITOR
+		[MenuItem("CONTEXT/TMP_InputField/Add Binder")]
+		private static void AddBinder(MenuCommand command)
+		{
+			TMP_InputField context = (TMP_InputField) command.context;
+			context.GetOrAddComponent<TextMeshProInputFieldBinder>();
+		}
+#endif
 
 		private void OnTextBindingPropertyChanged(object newValue)
 		{

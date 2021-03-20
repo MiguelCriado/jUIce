@@ -1,5 +1,9 @@
+using Juice.Utils;
 using UnityEngine;
 using UnityEngine.UI;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Juice
 {
@@ -22,6 +26,15 @@ namespace Juice
 		{
 			dropdown.interactable = newValue;
 		}
+
+#if UNITY_EDITOR
+		[MenuItem("CONTEXT/Dropdown/Add Binder")]
+		private static void AddBinder(MenuCommand command)
+		{
+			Dropdown context = (Dropdown) command.context;
+			context.GetOrAddComponent<DropdownBinder>();
+		}
+#endif
 
 		private void OnValueChanged(int newValue)
 		{

@@ -1,5 +1,9 @@
+using Juice.Utils;
 using UnityEngine;
 using UnityEngine.UI;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Juice
 {
@@ -34,6 +38,15 @@ namespace Juice
 
 			textureBinding.Unbind();
 		}
+
+#if UNITY_EDITOR
+		[MenuItem("CONTEXT/RawImage/Add Binder")]
+		private static void AddBinder(MenuCommand command)
+		{
+			RawImage context = (RawImage) command.context;
+			context.GetOrAddComponent<RawImageBinder>();
+		}
+#endif
 
 		private void OnTextureChanged(Texture newValue)
 		{

@@ -1,5 +1,9 @@
+using Juice.Utils;
 using UnityEngine;
 using UnityEngine.UI;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Juice
 {
@@ -64,6 +68,15 @@ namespace Juice
 		{
 			scrollbar.interactable = newValue;
 		}
+
+#if UNITY_EDITOR
+		[MenuItem("CONTEXT/Scrollbar/Add Binder")]
+		private static void AddBinder(MenuCommand command)
+		{
+			Scrollbar context = (Scrollbar) command.context;
+			context.GetOrAddComponent<ScrollbarBinder>();
+		}
+#endif
 
 		private void OnScrollbarValueChanged(float newValue)
 		{

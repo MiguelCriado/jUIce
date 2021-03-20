@@ -1,4 +1,8 @@
+using Juice.Utils;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Juice
 {
@@ -77,6 +81,15 @@ namespace Juice
 			pivotBinding.Unbind();
 			sizeDeltaBinding.Unbind();
 		}
+
+#if UNITY_EDITOR
+		[MenuItem("CONTEXT/RectTransform/Add Binder")]
+		private static void AddBinder(MenuCommand command)
+		{
+			RectTransform context = (RectTransform) command.context;
+			context.GetOrAddComponent<RectTransformBinder>();
+		}
+#endif
 
 		private void OnAnchoredPositionChanged(Vector2 newValue)
 		{

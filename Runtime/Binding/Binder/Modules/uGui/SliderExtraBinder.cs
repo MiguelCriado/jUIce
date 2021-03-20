@@ -1,5 +1,9 @@
+using Juice.Utils;
 using UnityEngine;
 using UnityEngine.UI;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Juice
 {
@@ -35,6 +39,15 @@ namespace Juice
 			directionBinding.Bind();
 			wholeNumbersBinding.Unbind();
 		}
+
+#if UNITY_EDITOR
+		[MenuItem("CONTEXT/Slider/Add Extra Binder")]
+		private static void AddBinder(MenuCommand command)
+		{
+			Slider context = (Slider) command.context;
+			context.GetOrAddComponent<SliderExtraBinder>();
+		}
+#endif
 
 		private void OnDirectionChanged(Slider.Direction newValue)
 		{

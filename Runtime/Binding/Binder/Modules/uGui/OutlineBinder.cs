@@ -1,5 +1,9 @@
+using Juice.Utils;
 using UnityEngine;
 using UnityEngine.UI;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Juice
 {
@@ -42,6 +46,15 @@ namespace Juice
 			effectColorBinding.Unbind();
 			useGraphicAlphaBinding.Unbind();
 		}
+
+#if UNITY_EDITOR
+		[MenuItem("CONTEXT/Outline/Add Binder")]
+		private static void AddBinder(MenuCommand command)
+		{
+			Outline context = (Outline) command.context;
+			context.GetOrAddComponent<OutlineBinder>();
+		}
+#endif
 
 		private void OnEffectColorChanged(Color newValue)
 		{

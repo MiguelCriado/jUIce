@@ -1,4 +1,8 @@
+using Juice.Utils;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Juice
 {
@@ -34,6 +38,15 @@ namespace Juice
 			positionBinding.Unbind();
 			rotationBinding.Unbind();
 		}
+
+#if UNITY_EDITOR
+		[MenuItem("CONTEXT/Transform/Add Binder")]
+		private static void AddBinder(MenuCommand command)
+		{
+			Transform context = (Transform) command.context;
+			context.GetOrAddComponent<TransformBinder>();
+		}
+#endif
 
 		private void OnPositionChanged(Vector3 newValue)
 		{
