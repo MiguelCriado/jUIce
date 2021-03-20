@@ -1,5 +1,9 @@
-﻿using UnityEngine;
+﻿using Juice.Utils;
+using UnityEngine;
 using UnityEngine.UI;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Juice
 {
@@ -11,24 +15,17 @@ namespace Juice
 
 		protected override string BindingInfoName { get; } = "OnValueChanged Command";
 
-		private VariableBinding<object> textBinding;
 		private InputField inputField;
-
-		protected override void Reset()
-		{
-			base.Reset();
-
-			text = new BindingInfo(typeof(IReadOnlyObservableVariable<object>));
-		}
+		private VariableBinding<object> textBinding;
 
 		protected override void Awake()
 		{
 			base.Awake();
 
+			inputField = GetComponent<InputField>();
+
 			textBinding = new VariableBinding<object>(text, this);
 			textBinding.Property.Changed += OnTextBindingPropertyChanged;
-
-			inputField = GetComponent<InputField>();
 		}
 
 		protected override void OnEnable()
@@ -55,6 +52,15 @@ namespace Juice
 		{
 			inputField.interactable = newValue;
 		}
+
+#if UNITY_EDITOR
+		[MenuItem("CONTEXT/InputField/Add Binder")]
+		private static void AddBinder(MenuCommand command)
+		{
+			InputField context = (InputField) command.context;
+			context.GetOrAddComponent<InputFieldBinder>();
+		}
+#endif
 
 		private void OnTextBindingPropertyChanged(object newValue)
 		{

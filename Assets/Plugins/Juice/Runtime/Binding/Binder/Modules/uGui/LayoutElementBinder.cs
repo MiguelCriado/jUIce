@@ -1,5 +1,9 @@
+using Juice.Utils;
 using UnityEngine;
 using UnityEngine.UI;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Juice
 {
@@ -78,6 +82,15 @@ namespace Juice
 			flexibleHeightBinding.Unbind();
 			layoutPriorityBinding.Unbind();
 		}
+
+#if UNITY_EDITOR
+		[MenuItem("CONTEXT/LayoutElement/Add Binder")]
+		private static void AddBinder(MenuCommand command)
+		{
+			LayoutElement context = (LayoutElement) command.context;
+			context.GetOrAddComponent<LayoutElementBinder>();
+		}
+#endif
 
 		private void OnIgnoreLayoutChanged(bool newValue)
 		{

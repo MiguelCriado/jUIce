@@ -1,5 +1,9 @@
-﻿using UnityEngine;
+﻿using Juice.Utils;
+using UnityEngine;
 using UnityEngine.UI;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Juice
 {
@@ -48,6 +52,15 @@ namespace Juice
 			materialBinding.Unbind();
 			raycastTargetBinding.Unbind();
 		}
+
+#if UNITY_EDITOR
+		[MenuItem("CONTEXT/Graphic/Add Binder")]
+		private static void AddBinder(MenuCommand command)
+		{
+			Graphic context = (Graphic) command.context;
+			context.GetOrAddComponent<GraphicBinder>();
+		}
+#endif
 
 		private void OnColorChanged(Color newValue)
 		{

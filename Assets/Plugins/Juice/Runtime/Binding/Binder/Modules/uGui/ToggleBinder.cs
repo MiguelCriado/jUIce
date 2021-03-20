@@ -1,5 +1,9 @@
-﻿using UnityEngine;
+﻿using Juice.Utils;
+using UnityEngine;
 using UnityEngine.UI;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Juice
 {
@@ -46,6 +50,15 @@ namespace Juice
 		{
 			toggle.isOn = value;
 		}
+
+#if UNITY_EDITOR
+		[MenuItem("CONTEXT/Toggle/Add Binder")]
+		private static void AddBinder(MenuCommand command)
+		{
+			Toggle context = (Toggle) command.context;
+			context.GetOrAddComponent<ToggleBinder>();
+		}
+#endif
 
 		private void OnToggleValueChanged(bool newValue)
 		{
