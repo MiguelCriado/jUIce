@@ -143,6 +143,7 @@ namespace Juice
 			base.ProcessViewRegister(view);
 
 			view.CloseRequested += OnCloseRequestedByWindow;
+			view.SetLayer(this);
 		}
 
 		protected override void ProcessViewUnregister(IWindow view)
@@ -150,6 +151,7 @@ namespace Juice
 			base.ProcessViewUnregister(view);
 
 			view.CloseRequested -= OnCloseRequestedByWindow;
+			view.SetLayer(null);
 		}
 
 		protected override async Task ShowView(IWindow view, WindowShowSettings settings)

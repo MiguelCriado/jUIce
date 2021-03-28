@@ -6,5 +6,7 @@
 		bool IsPopup { get; }
 		bool CloseOnShadowClick { get; }
 		WindowPriority WindowPriority { get; }
+
+		void SetLayer(WindowLayer layer);
 	}
 }
