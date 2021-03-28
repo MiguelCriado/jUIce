@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace Juice.Utils
@@ -48,7 +49,7 @@ namespace Juice.Utils
 			return result;
 		}
 
-		public static Type GetGenericTypeTowardsRoot(this Type type)
+		public static Type GetGenericClassTowardsRoot(this Type type)
 		{
 			Type result = null;
 
@@ -60,11 +61,38 @@ namespace Juice.Utils
 				}
 				else
 				{
-					result = GetGenericTypeTowardsRoot(type.BaseType);
+					result = GetGenericClassTowardsRoot(type.BaseType);
 				}
 			}
 
 			return result;
+		}
+
+		public static IEnumerable<Type> GetGenericInterfacesTowardsRoot(this Type type)
+		{
+			if (type != null)
+			{
+				if (type.IsInterface && type.IsGenericType)
+				{
+					yield return type;
+				}
+
+				foreach (Type current in type.GetInterfaces())
+				{
+					if (current.IsGenericType)
+					{
+						yield return current;
+					}
+				}
+
+				if (type.BaseType != null)
+				{
+					foreach (Type current in type.BaseType.GetGenericInterfacesTowardsRoot())
+					{
+						yield return current;
+					}
+				}
+			}
 		}
 
 		public static string GetPrettifiedName(this Type t)

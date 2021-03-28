@@ -126,7 +126,7 @@ namespace Juice
 		{
 			IObservableCommand<T> result = null;
 
-			Type commandGenericType = commandToBox.GetType().GetGenericTypeTowardsRoot();
+			Type commandGenericType = commandToBox.GetType().GetGenericClassTowardsRoot();
 
 			if (commandGenericType != null)
 			{

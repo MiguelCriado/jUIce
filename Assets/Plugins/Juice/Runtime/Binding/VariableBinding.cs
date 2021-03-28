@@ -66,7 +66,7 @@ namespace Juice
 		{
 			IReadOnlyObservableVariable<T> result = null;
 
-			Type variableGenericType = variableToBox.GetType().GetGenericTypeTowardsRoot();
+			Type variableGenericType = variableToBox.GetType().GetGenericClassTowardsRoot();
 
 			if (variableGenericType != null)
 			{

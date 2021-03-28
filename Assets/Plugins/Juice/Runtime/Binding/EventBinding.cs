@@ -100,7 +100,7 @@ namespace Juice
 		{
 			IObservableEvent<T> result = null;
 
-			Type eventGenericType = eventToBox.GetType().GetGenericTypeTowardsRoot();
+			Type eventGenericType = eventToBox.GetType().GetGenericClassTowardsRoot();
 
 			if (eventGenericType != null)
 			{
