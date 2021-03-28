@@ -1,8 +1,19 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Juice
 {
+	[Serializable]
+	public class WidgetEvents
+	{
+		public UnityEvent OnShowing = new UnityEvent();
+		public UnityEvent OnShown = new UnityEvent();
+		public UnityEvent OnHiding = new UnityEvent();
+		public UnityEvent OnHidden = new UnityEvent();
+	}
+
 	[RequireComponent(typeof(RectTransform))]
 	public class Widget : MonoBehaviour, ITransitionable
 	{
@@ -26,8 +37,9 @@ namespace Juice
 		}
 
 		[Header("Transitions")]
-		[SerializeField] private ComponentTransition showTransition;
-		[SerializeField] private ComponentTransition hideTransition;
+		[SerializeField] private ComponentTransition showTransition = default;
+		[SerializeField] private ComponentTransition hideTransition = default;
+		[SerializeField] private WidgetEvents transitionEvents = new WidgetEvents();
 
 		private readonly TransitionHandler transitionHandler = new TransitionHandler();
 		private RectTransform rectTransform;
@@ -41,25 +53,59 @@ namespace Juice
 		public virtual async Task Show(ITransition overrideTransition = null)
 		{
 			Initialize();
-			Showing?.Invoke(this);
+			OnShowing();
 
 			ITransition transition = overrideTransition ?? ShowTransition;
 
 			await transitionHandler.Show(rectTransform, transition);
 
-			Shown?.Invoke(this);
+			OnShown();
 		}
 
 		public virtual async Task Hide(ITransition overrideTransition = null)
 		{
 			Initialize();
-			Hiding?.Invoke(this);
+			OnHiding();
 
 			ITransition transition = overrideTransition ?? HideTransition;
 
 			await transitionHandler.Hide(rectTransform, transition);
 
+			OnHidden();
+		}
+
+		public void ShowWidget()
+		{
+			Show().RunAndForget();
+		}
+
+		public void HideWidget()
+		{
+			Hide().RunAndForget();
+		}
+
+		protected virtual void OnShowing()
+		{
+			Showing?.Invoke(this);
+			transitionEvents.OnShowing.Invoke();
+		}
+
+		protected virtual void OnShown()
+		{
+			Shown?.Invoke(this);
+			transitionEvents.OnShown.Invoke();
+		}
+
+		protected virtual void OnHiding()
+		{
+			Hiding?.Invoke(this);
+			transitionEvents.OnHiding.Invoke();
+		}
+
+		protected virtual void OnHidden()
+		{
 			Hidden?.Invoke(this);
+			transitionEvents.OnHidden.Invoke();
 		}
 
 		private void Initialize()
@@ -67,7 +113,6 @@ namespace Juice
 			if (isInitialized == false)
 			{
 				rectTransform = GetComponent<RectTransform>();
-
 				isInitialized = true;
 			}
 		}
