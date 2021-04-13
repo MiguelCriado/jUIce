@@ -36,7 +36,7 @@ namespace Juice
 
 			if (bindingInfo.ViewModelContainer)
 			{
-				bindingInfo.ViewModelContainer.ViewModelChanged -= ViewModelChangedHandler;
+				bindingInfo.ViewModelContainer.ViewModelChanged -= OnViewModelChanged;
 			}
 		}
 
@@ -79,7 +79,7 @@ namespace Juice
 					}
 				}
 
-				bindingInfo.ViewModelContainer.ViewModelChanged += ViewModelChangedHandler;
+				bindingInfo.ViewModelContainer.ViewModelChanged += OnViewModelChanged;
 			}
 		}
 
@@ -98,7 +98,7 @@ namespace Juice
 			return result;
 		}
 
-		private void ViewModelChangedHandler(object sender, IViewModel lastViewModel, IViewModel newViewModel)
+		private void OnViewModelChanged(object sender, IViewModel lastViewModel, IViewModel newViewModel)
 		{
 			Unbind();
 			Bind();

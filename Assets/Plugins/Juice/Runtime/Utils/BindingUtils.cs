@@ -47,7 +47,7 @@ namespace Juice
 				{
 					genericTypeToCheck = null;
 					typeToCheck = null;
-					Type genericType = value.GetGenericTypeTowardsRoot();
+					Type genericType = value.GetGenericClassTowardsRoot();
 
 					if (genericType != null)
 					{
@@ -93,7 +93,7 @@ namespace Juice
 				{
 					if (genericTypeToCheck != null)
 					{
-						Type genericType = type.GetGenericTypeTowardsRoot();
+						Type genericType = type.GetGenericClassTowardsRoot();
 
 						if (genericType != null && genericType.GenericTypeArguments.Length > 0)
 						{
@@ -119,7 +119,7 @@ namespace Juice
 
 			public bool NeedsToBeBoxed(Type type)
 			{
-				Type genericType = type.GetGenericTypeTowardsRoot();
+				Type genericType = type.GetGenericClassTowardsRoot();
 
 				return typeToCheck != null
 				       && targetType.IsGenericType
