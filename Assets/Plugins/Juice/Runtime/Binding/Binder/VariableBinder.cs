@@ -19,7 +19,7 @@ namespace Juice
 		protected virtual void Awake()
 		{
 			binding = new VariableBinding<T>(bindingInfo, this);
-			binding.Property.Changed += BoundPropertyChangedHandler;
+			binding.Property.Changed += OnBoundPropertyChanged;
 		}
 
 		protected virtual void OnEnable()
@@ -34,7 +34,7 @@ namespace Juice
 
 		protected abstract void Refresh(T value);
 
-		private void BoundPropertyChangedHandler(T newValue)
+		private void OnBoundPropertyChanged(T newValue)
 		{
 			Refresh(newValue);
 		}
