@@ -68,8 +68,6 @@ namespace Juice.Editor
 					WindowStyle.Draw(windowRect.rect, true, true, true, true);
 				}
 
-				GUIStyle toolBarStyle = new GUIStyle(EditorStyles.toolbar);
-
 				using (new EditorGUILayout.HorizontalScope(EditorStyles.toolbar))
 				{
 					searchTerm = EditorGUILayout.TextField(searchTerm, EditorStyles.toolbarSearchField);

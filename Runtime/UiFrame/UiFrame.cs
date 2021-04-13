@@ -194,7 +194,7 @@ namespace Juice
 
 		public bool IsViewRegistered<T>(T view) where T : IView
 		{
-			return registeredViews.TryGetValue(typeof(T), out IView registeredView) && ReferenceEquals(view,  registeredView);
+			return registeredViews.TryGetValue(view.GetType(), out IView registeredView) && ReferenceEquals(view,  registeredView);
 		}
 
 		public void BlockInteraction(object requester)
