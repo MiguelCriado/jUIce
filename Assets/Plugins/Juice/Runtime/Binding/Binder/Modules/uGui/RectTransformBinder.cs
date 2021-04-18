@@ -7,7 +7,7 @@ using UnityEditor;
 namespace Juice
 {
 	[RequireComponent(typeof(RectTransform))]
-	public class RectTransformBinder : MonoBehaviour, IBinder<Vector2>
+	public class RectTransformBinder : ComponentBinder
 	{
 		[SerializeField] private BindingInfo anchoredPosition = new BindingInfo(typeof(IReadOnlyObservableVariable<Vector2>));
 		[SerializeField] private BindingInfo anchoredPosition3D = new BindingInfo(typeof(IReadOnlyObservableVariable<Vector3>));
@@ -20,66 +20,20 @@ namespace Juice
 
 		private RectTransform rectTransform;
 
-		private VariableBinding<Vector2> anchoredPositionBinding;
-		private VariableBinding<Vector3> anchoredPosition3DBinding;
-		private VariableBinding<Vector2> anchorMaxBinding;
-		private VariableBinding<Vector2> anchorMinBinding;
-		private VariableBinding<Vector2> offsetMaxBinding;
-		private VariableBinding<Vector2> offsetMinBinding;
-		private VariableBinding<Vector2> pivotBinding;
-		private VariableBinding<Vector2> sizeDeltaBinding;
-
-		protected virtual void Awake()
+		protected override void Awake()
 		{
+			base.Awake();
+
 			rectTransform = GetComponent<RectTransform>();
 
-			anchoredPositionBinding = new VariableBinding<Vector2>(anchoredPosition, this);
-			anchoredPositionBinding.Property.Changed += OnAnchoredPositionChanged;
-
-			anchoredPosition3DBinding = new VariableBinding<Vector3>(anchoredPosition3D, this);
-			anchoredPosition3DBinding.Property.Changed += OnAnchoredPosition3DChanged;
-
-			anchorMaxBinding = new VariableBinding<Vector2>(anchorMax, this);
-			anchorMaxBinding.Property.Changed += OnAnchorMaxChanged;
-
-			anchorMinBinding = new VariableBinding<Vector2>(anchorMin, this);
-			anchorMinBinding.Property.Changed += OnAnchorMinChanged;
-
-			offsetMaxBinding = new VariableBinding<Vector2>(offsetMax, this);
-			offsetMaxBinding.Property.Changed += OnOffsetMaxChanged;
-
-			offsetMinBinding = new VariableBinding<Vector2>(offsetMin, this);
-			offsetMinBinding.Property.Changed += OnOffsetMinChanged;
-
-			pivotBinding = new VariableBinding<Vector2>(pivot, this);
-			pivotBinding.Property.Changed += OnPivotChanged;
-
-			sizeDeltaBinding = new VariableBinding<Vector2>(sizeDelta, this);
-			sizeDeltaBinding.Property.Changed += OnSizeDeltaChanged;
-		}
-
-		protected virtual void OnEnable()
-		{
-			anchoredPositionBinding.Bind();
-			anchoredPosition3DBinding.Bind();
-			anchorMaxBinding.Bind();
-			anchorMinBinding.Bind();
-			offsetMaxBinding.Bind();
-			offsetMinBinding.Bind();
-			pivotBinding.Bind();
-			sizeDeltaBinding.Bind();
-		}
-
-		protected virtual void OnDisable()
-		{
-			anchoredPositionBinding.Unbind();
-			anchoredPosition3DBinding.Unbind();
-			anchorMaxBinding.Unbind();
-			anchorMinBinding.Unbind();
-			offsetMaxBinding.Unbind();
-			offsetMinBinding.Unbind();
-			pivotBinding.Unbind();
-			sizeDeltaBinding.Unbind();
+			RegisterVariable<Vector2>(anchoredPosition).OnChanged(OnAnchoredPositionChanged);
+			RegisterVariable<Vector3>(anchoredPosition3D).OnChanged(OnAnchoredPosition3DChanged);
+			RegisterVariable<Vector2>(anchorMax).OnChanged(OnAnchorMaxChanged);
+			RegisterVariable<Vector2>(anchorMin).OnChanged(OnAnchorMinChanged);
+			RegisterVariable<Vector2>(offsetMax).OnChanged(OnOffsetMaxChanged);
+			RegisterVariable<Vector2>(offsetMin).OnChanged(OnOffsetMinChanged);
+			RegisterVariable<Vector2>(pivot).OnChanged(OnPivotChanged);
+			RegisterVariable<Vector2>(sizeDelta).OnChanged(OnSizeDeltaChanged);
 		}
 
 #if UNITY_EDITOR

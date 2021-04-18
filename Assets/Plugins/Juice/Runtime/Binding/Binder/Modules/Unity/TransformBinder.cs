@@ -6,38 +6,23 @@ using UnityEditor;
 
 namespace Juice
 {
-	public class TransformBinder : MonoBehaviour, IBinder<Vector3>
+	public class TransformBinder : ComponentBinder
 	{
 		[SerializeField] private BindingInfo position = new BindingInfo(typeof(IReadOnlyObservableVariable<Vector3>));
 		[SerializeField] private BindingInfo rotation = new BindingInfo(typeof(IReadOnlyObservableVariable<Quaternion>));
 
 		private Transform transformCache;
 
-		private VariableBinding<Vector3> positionBinding;
-		private VariableBinding<Quaternion> rotationBinding;
-
-		protected virtual void Awake()
+		protected override void Awake()
 		{
+			base.Awake();
+
 			transformCache = transform;
 
-			positionBinding = new VariableBinding<Vector3>(position, this);
-			positionBinding.Property.Changed += OnPositionChanged;
-
-			rotationBinding = new VariableBinding<Quaternion>(rotation, this);
-			rotationBinding.Property.Changed += OnRotationChanged;
+			RegisterVariable<Vector3>(position).OnChanged(OnPositionChanged);
+			RegisterVariable<Quaternion>(rotation).OnChanged(OnRotationChanged);
 		}
 
-		protected virtual void OnEnable()
-		{
-			positionBinding.Bind();
-			rotationBinding.Bind();
-		}
-
-		protected virtual void OnDisable()
-		{
-			positionBinding.Unbind();
-			rotationBinding.Unbind();
-		}
 
 #if UNITY_EDITOR
 		[MenuItem("CONTEXT/Transform/Add Binder")]

@@ -2,34 +2,24 @@
 
 namespace Juice
 {
-	public abstract class CollectionBinder<T> : MonoBehaviour, IBinder<T>
+	public abstract class CollectionBinder<T> : ComponentBinder
 	{
 		[SerializeField, Rename(nameof(BindingInfoName))]
 		private BindingInfo bindingInfo = new BindingInfo(typeof(IReadOnlyObservableCollection<T>));
 
 		protected virtual string BindingInfoName { get; } = nameof(bindingInfo);
 
-		private CollectionBinding<T> binding;
-
-		protected virtual void Awake()
+		protected override void Awake()
 		{
-			binding = new CollectionBinding<T>(bindingInfo, this);
-			binding.Property.Reset += OnCollectionReset;
-			binding.Property.CountChanged += OnCollectionCountChanged;
-			binding.Property.ItemAdded += OnCollectionItemAdded;
-			binding.Property.ItemMoved += OnCollectionItemMoved;
-			binding.Property.ItemRemoved += OnCollectionItemRemoved;
-			binding.Property.ItemReplaced += OnCollectionItemReplaced;
-		}
+			base.Awake();
 
-		protected virtual void OnEnable()
-		{
-			binding.Bind();
-		}
-
-		protected virtual void OnDisable()
-		{
-			binding.Unbind();
+			RegisterCollection<T>(bindingInfo)
+				.OnReset(OnCollectionReset)
+				.OnCountChanged(OnCollectionCountChanged)
+				.OnItemAdded(OnCollectionItemAdded)
+				.OnItemMoved(OnCollectionItemMoved)
+				.OnItemRemoved(OnCollectionItemRemoved)
+				.OnItemReplaced(OnCollectionItemReplaced);
 		}
 
 		protected abstract void OnCollectionReset();

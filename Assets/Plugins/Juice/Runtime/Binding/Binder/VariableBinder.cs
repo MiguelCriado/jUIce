@@ -2,34 +2,18 @@
 
 namespace Juice
 {
-	public abstract class VariableBinder<T> : MonoBehaviour, IBinder<T>
+	public abstract class VariableBinder<T> : ComponentBinder
 	{
 		[SerializeField, Rename(nameof(BindingInfoName))]
 		private BindingInfo bindingInfo = new BindingInfo(typeof(IReadOnlyObservableVariable<T>));
 
 		protected virtual string BindingInfoName { get; } = nameof(bindingInfo);
 
-		private VariableBinding<T> binding;
-
-		protected virtual void Reset()
+		protected override void Awake()
 		{
-			bindingInfo = new BindingInfo(typeof(IReadOnlyObservableVariable<T>));
-		}
+			base.Awake();
 
-		protected virtual void Awake()
-		{
-			binding = new VariableBinding<T>(bindingInfo, this);
-			binding.Property.Changed += OnBoundPropertyChanged;
-		}
-
-		protected virtual void OnEnable()
-		{
-			binding.Bind();
-		}
-
-		protected virtual void OnDisable()
-		{
-			binding.Unbind();
+			RegisterVariable<T>(bindingInfo).OnChanged(OnBoundPropertyChanged);
 		}
 
 		protected abstract void Refresh(T value);

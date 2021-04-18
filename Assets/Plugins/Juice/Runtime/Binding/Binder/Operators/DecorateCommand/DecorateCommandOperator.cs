@@ -12,31 +12,37 @@ namespace Juice
 		private ObservableCommand exposedCommand;
 		private CommandBinding<T> commandBinding;
 		private VariableBinding<T> decorationBinding;
-		
-		protected virtual void Awake()
+
+		protected override void Awake()
 		{
+			base.Awake();
+
 			exposedCommand = new ObservableCommand();
 			exposedCommand.ExecuteRequested += OnExposedCommandExecuteRequested;
 			ViewModel = new CommandViewModel(exposedCommand);
-			
+
 			commandBinding = new CommandBinding<T>(commandBindingInfo, this);
 			commandBinding.Property.CanExecute.Changed += OnCommandCanExecuteChanged;
-			
+
 			decorationBinding = new VariableBinding<T>(DecorationBindingInfo, this);
 		}
 
-		protected virtual void OnEnable()
+		protected override void OnEnable()
 		{
+			base.OnEnable();
+
 			commandBinding.Bind();
 			decorationBinding.Bind();
-			
+
 			OnCommandCanExecuteChanged(commandBinding.Property.CanExecute.Value);
 		}
 
-		protected virtual void OnDisable()
+		protected override void OnDisable()
 		{
+			base.OnDisable();
+
 			OnCommandCanExecuteChanged(false);
-			
+
 			commandBinding.Unbind();
 			decorationBinding.Unbind();
 		}
@@ -45,12 +51,12 @@ namespace Juice
 		{
 			return typeof(CommandViewModel);
 		}
-		
+
 		private void OnExposedCommandExecuteRequested()
 		{
 			commandBinding.Property.Execute(decorationBinding.Property.GetValue(default));
 		}
-		
+
 		private void OnCommandCanExecuteChanged(bool newValue)
 		{
 			exposedCommand.CanExecute.Value = newValue;

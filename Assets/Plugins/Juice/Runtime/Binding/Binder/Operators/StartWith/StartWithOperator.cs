@@ -6,25 +6,26 @@ namespace Juice
 	public abstract class StartWithOperator<T> : Operator
 	{
 		protected abstract ConstantBindingInfo<T> InitialValue { get; }
-			
+
 		[SerializeField] private BindingInfo source = new BindingInfo(typeof(IReadOnlyObservableVariable<T>));
 
-		private VariableBinding<T> sourceBinding;
 		private VariableBinding<T> initialBinding;
 		private ObservableVariable<T> exposedProperty;
 
-		private void Awake()
+		protected override void Awake()
 		{
-			sourceBinding = new VariableBinding<T>(source, this);
+			base.Awake();
+
+			RegisterVariable<T>(source)
+				.OnChanged(OnBoundPropertyChanged)
+				.OnCleared(OnBoundPropertyCleared);
+
 			initialBinding = new VariableBinding<T>(InitialValue, this);
 			exposedProperty = new ObservableVariable<T>();
 			ViewModel = new OperatorVariableViewModel<T>(exposedProperty);
-			
-			sourceBinding.Property.Changed += OnBoundPropertyChanged;
-			sourceBinding.Property.Cleared += OnBoundPropertyCleared;
 		}
 
-		private void OnEnable()
+		protected override void OnEnable()
 		{
 			initialBinding.Bind();
 
@@ -32,13 +33,14 @@ namespace Juice
 			{
 				exposedProperty.Value = initialBinding.Property.Value;
 			}
-			
-			sourceBinding.Bind();
+
+			base.OnEnable();
 		}
 
-		private void OnDisable()
+		protected override void OnDisable()
 		{
-			sourceBinding.Unbind();
+			base.OnDisable();
+
 			initialBinding.Unbind();
 		}
 

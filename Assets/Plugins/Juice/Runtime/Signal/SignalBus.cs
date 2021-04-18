@@ -22,7 +22,7 @@ namespace Juice
 
 		private static SignalBus defaultInstance;
 
-		private Dictionary<Type, Delegate> subscriptions;
+		private readonly Dictionary<Type, Delegate> subscriptions;
 
 		public SignalBus()
 		{
