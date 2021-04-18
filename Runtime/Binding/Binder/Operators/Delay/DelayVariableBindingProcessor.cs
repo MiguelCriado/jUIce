@@ -6,9 +6,9 @@ namespace Juice
 {
 	public class DelayVariableBindingProcessor<T> : VariableBindingProcessor<T, T>
 	{
-		private Queue<ActionCommand> actionQueue;
-		private float delay;
-		
+		private readonly Queue<ActionCommand> actionQueue;
+		private readonly float delay;
+
 		public DelayVariableBindingProcessor(BindingInfo bindingInfo, Component context, float delay)
 			: base(bindingInfo, context)
 		{
@@ -38,7 +38,7 @@ namespace Juice
 		{
 			return value;
 		}
-		
+
 		private void Update()
 		{
 			while (actionQueue.Count > 0 && Time.realtimeSinceStartup >= actionQueue.Peek().DueTime)
@@ -46,7 +46,7 @@ namespace Juice
 				actionQueue.Dequeue().Execute();
 			}
 		}
-		
+
 		private void EnqueueAction(Action action)
 		{
 			actionQueue.Enqueue(new ActionCommand(action, Time.realtimeSinceStartup + delay));

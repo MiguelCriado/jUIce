@@ -13,7 +13,6 @@ namespace Juice
 		[SerializeField] private BindingInfo sourceImage = new BindingInfo(typeof(IReadOnlyObservableVariable<Sprite>));
 
 		private Image imageComponent;
-		private VariableBinding<Sprite> sourceImageBinding;
 
 		protected override void Awake()
 		{
@@ -21,22 +20,7 @@ namespace Juice
 
 			imageComponent = GetComponent<Image>();
 
-			sourceImageBinding = new VariableBinding<Sprite>(sourceImage, this);
-			sourceImageBinding.Property.Changed += OnSourceImageChanged;
-		}
-
-		protected override void OnEnable()
-		{
-			base.OnEnable();
-
-			sourceImageBinding.Bind();
-		}
-
-		protected override void OnDisable()
-		{
-			base.OnDisable();
-
-			sourceImageBinding.Unbind();
+			RegisterVariable<Sprite>(sourceImage).OnChanged(OnSourceImageChanged);
 		}
 
 #if UNITY_EDITOR

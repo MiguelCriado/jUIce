@@ -11,8 +11,10 @@ namespace Juice
 		private OperatorVariableViewModel<bool> viewModel;
 		private ObservableVariable<bool> exposedVariable;
 
-		protected virtual void Awake()
+		protected override void Awake()
 		{
+			base.Awake();
+
 			exposedVariable = new ObservableVariable<bool>();
 			ViewModel = new OperatorVariableViewModel<bool>(exposedVariable);
 
@@ -21,13 +23,17 @@ namespace Juice
 			variableBinding.Property.Cleared += OnVariableCleared;
 		}
 
-		protected virtual void OnEnable()
+		protected override void OnEnable()
 		{
+			base.OnEnable();
+
 			variableBinding.Bind();
 		}
 
-		protected virtual void OnDisable()
+		protected override void OnDisable()
 		{
+			base.OnDisable();
+
 			variableBinding.Unbind();
 
 			exposedVariable.Value = false;

@@ -13,7 +13,6 @@ namespace Juice
 		[SerializeField] private BindingInfo texture = new BindingInfo(typeof(IReadOnlyObservableVariable<Texture>));
 
 		private RawImage rawImageComponent;
-		private VariableBinding<Texture> textureBinding;
 
 		protected override void Awake()
 		{
@@ -21,22 +20,7 @@ namespace Juice
 
 			rawImageComponent = GetComponent<RawImage>();
 
-			textureBinding = new VariableBinding<Texture>(texture, this);
-			textureBinding.Property.Changed += OnTextureChanged;
-		}
-
-		protected override void OnEnable()
-		{
-			base.OnEnable();
-
-			textureBinding.Bind();
-		}
-
-		protected override void OnDisable()
-		{
-			base.OnDisable();
-
-			textureBinding.Unbind();
+			RegisterVariable<Texture>(texture).OnChanged(OnTextureChanged);
 		}
 
 #if UNITY_EDITOR

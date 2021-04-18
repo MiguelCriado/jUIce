@@ -8,6 +8,8 @@ namespace Juice
 	{
 		public override bool IsBound => boundProperty != null;
 
+		public IObservableEvent Property => exposedProperty;
+
 		private readonly ObservableEvent exposedProperty;
 		private IObservableEvent boundProperty;
 
