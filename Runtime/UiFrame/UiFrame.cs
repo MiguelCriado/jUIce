@@ -10,6 +10,7 @@ namespace Juice
 	public class UiFrame : MonoBehaviour
 	{
 		public event WindowLayer.WindowChangeHandler CurrentWindowChanged;
+		public event InteractionBlockingTracker.StateChangeEventHandler IsInteractableChanged;
 
 		public Canvas MainCanvas
 		{
@@ -27,6 +28,7 @@ namespace Juice
 		public Camera UICamera => MainCanvas.worldCamera;
 		public IEnumerable<IWindow> CurrentWindowPath => windowLayer.CurrentPath;
 		public IWindow CurrentWindow => windowLayer.CurrentWindow;
+		public bool IsInteractable => mainBlockingTracker.IsInteractable;
 
 		[SerializeField] private bool initializeOnAwake = true;
 
@@ -82,10 +84,9 @@ namespace Juice
 				}
 			}
 
-			if (MainCanvas)
-			{
-				mainBlockingTracker = MainCanvas.GetOrAddComponent<InteractionBlockingTracker>();
-			}
+			GameObject blockingTrackerTarget = MainCanvas ? MainCanvas.gameObject : gameObject;
+			mainBlockingTracker = blockingTrackerTarget.GetOrAddComponent<InteractionBlockingTracker>();
+			mainBlockingTracker.IsInteractableChanged += OnIsInteractableChanged;
 		}
 
 		public UiFrameState GetCurrentState()
@@ -220,6 +221,11 @@ namespace Juice
 		protected virtual void OnCurrentWindowChanged(IWindow oldWindow, IWindow newWindow, bool fromBack)
 		{
 			CurrentWindowChanged?.Invoke(oldWindow, newWindow, fromBack);
+		}
+
+		protected virtual void OnIsInteractableChanged(bool isInteractable)
+		{
+			IsInteractableChanged?.Invoke(isInteractable);
 		}
 
 		private bool IsViewValid(IView view)
