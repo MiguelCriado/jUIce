@@ -6,24 +6,23 @@ namespace Juice
 {
 	public class BindableViewModelComponent : ViewModelComponent, IViewModelInjector
 	{
-		public Type InjectionType => viewModelType.Type;
-		public override Type ExpectedType => viewModelType.Type;
+		public Type InjectionType => expectedViewModelType.Type;
+		public override Type ExpectedType => expectedViewModelType.Type;
 		public ViewModelComponent Target => this;
-
-		[TypeConstraint(typeof(IBindableViewModel<>), true)]
-		[SerializeField] protected SerializableType viewModelType = new SerializableType();
+		
+		[TypeConstraint(typeof(BindableViewModel<>), true)]
+		[SerializeField] protected SerializableType expectedViewModelType = new SerializableType();
 		[SerializeField] private BindingInfo bindingInfo;
 
 		private VariableBinding<object> binding;
-		private IBindableViewModel<object> bindableViewModel;
 
 		protected override void OnValidate()
 		{
 			base.OnValidate();
 
-			if (viewModelType != null && viewModelType.Type != null)
+			if (expectedViewModelType != null && expectedViewModelType.Type != null)
 			{
-				var genericType = FindGenericType();
+				Type genericType = expectedViewModelType.Type.GetGenericTypeTowardsRoot();
 				Type dataType = genericType.GenericTypeArguments[0];
 				Type bindingType = typeof(IReadOnlyObservableVariable<>).MakeGenericType(dataType);
 
@@ -38,7 +37,7 @@ namespace Juice
 		protected virtual void Awake()
 		{
 			binding = new VariableBinding<object>(bindingInfo, this);
-			binding.Property.Changed += OnValueChanged;
+			binding.Property.Changed += SetData;
 		}
 
 		protected virtual void OnEnable()
@@ -49,43 +48,14 @@ namespace Juice
 		protected virtual void OnDisable()
 		{
 			binding.Unbind();
-			bindableViewModel?.SetData(null);
 		}
 
-		private Type FindGenericType()
-		{
-			Type result = null;
-
-			using (var enumerator = viewModelType.Type.GetGenericInterfacesTowardsRoot().GetEnumerator())
-			{
-				while (result == null && enumerator.MoveNext())
-				{
-					Type[] args = enumerator.Current?.GetGenericArguments();
-
-					if (args != null
-					    && args.Length == 1
-					    && typeof(IBindableViewModel<>).MakeGenericType(args).IsAssignableFrom(enumerator.Current))
-					{
-						result = enumerator.Current;
-					}
-				}
-			}
-
-			return result;
-		}
-
-		private void OnValueChanged(object data)
+		public void SetData(object data)
 		{
 			if (ExpectedType != null)
 			{
-				if (bindableViewModel == null)
-				{
-					object viewModel = Activator.CreateInstance(ExpectedType);
-					bindableViewModel = (IBindableViewModel<object>)viewModel;
-					ViewModel = bindableViewModel;
-				}
-
-				bindableViewModel.SetData(data);
+				object viewModel = Activator.CreateInstance(ExpectedType, data);
+				ViewModel = (IViewModel)viewModel;
 			}
 			else
 			{
