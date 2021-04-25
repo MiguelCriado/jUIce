@@ -23,6 +23,7 @@ namespace Juice
 
 		public Type InjectionType => typeof(T);
 		public ViewModelComponent Target => targetComponent;
+		public T ViewModel => (T)(Target ? Target.ViewModel : default);
 
 		[SerializeField, HideInInspector] private ViewModelComponent targetComponent;
 		[SerializeField, HideInInspector] private InteractionBlockingTracker blockingTracker;
