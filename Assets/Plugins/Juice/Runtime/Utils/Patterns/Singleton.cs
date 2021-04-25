@@ -12,13 +12,13 @@ namespace Juice.Utils
 			{
 				lock (lockObject)
 				{
-					if (instance)
+					if (!instance)
 					{
 						instance = FindObjectOfType<T>();
 
-						if (instance)
+						if (!instance)
 						{
-							GameObject go = new GameObject($"[jUIce] {nameof(T)}");
+							GameObject go = new GameObject($"[jUIce] {typeof(T).Name}");
 							instance = go.AddComponent<T>();
 							DontDestroyOnLoad(go);
 						}
@@ -31,7 +31,7 @@ namespace Juice.Utils
 
 		private static T instance;
 
-		protected virtual void Awake()
+		protected virtual void Start()
 		{
 			if (instance != this)
 			{
