@@ -7,20 +7,7 @@ namespace Juice
 
 	public class SignalBus
 	{
-		public static SignalBus Default
-		{
-			get
-			{
-				if (defaultInstance == null)
-				{
-					defaultInstance = new SignalBus();
-				}
-
-				return defaultInstance;
-			}
-		}
-
-		private static SignalBus defaultInstance;
+		public static SignalBus Default => SingleSignalBus.Instance.DefaultSignalBus;
 
 		private readonly Dictionary<Type, Delegate> subscriptions;
 
