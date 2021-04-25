@@ -72,7 +72,7 @@ namespace Juice
 		{
 			IReadOnlyObservableCollection<T> result = null;
 
-			Type collectionGenericType = collectionToBox.GetType().GetGenericClassTowardsRoot();
+			Type collectionGenericType = collectionToBox.GetType().GetGenericTypeTowardsRoot();
 
 			if (collectionGenericType != null)
 			{
