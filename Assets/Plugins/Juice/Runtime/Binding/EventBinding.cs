@@ -8,6 +8,8 @@ namespace Juice
 	{
 		public override bool IsBound => boundProperty != null;
 
+		public IObservableEvent Property => exposedProperty;
+
 		private readonly ObservableEvent exposedProperty;
 		private IObservableEvent boundProperty;
 
@@ -100,7 +102,7 @@ namespace Juice
 		{
 			IObservableEvent<T> result = null;
 
-			Type eventGenericType = eventToBox.GetType().GetGenericClassTowardsRoot();
+			Type eventGenericType = eventToBox.GetType().GetGenericTypeTowardsRoot();
 
 			if (eventGenericType != null)
 			{

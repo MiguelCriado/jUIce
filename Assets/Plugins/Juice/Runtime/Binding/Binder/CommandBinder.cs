@@ -1,84 +1,60 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Juice
 {
-	public abstract class CommandBinder : MonoBehaviour
+	public abstract class CommandBinder : ComponentBinder
 	{
+		private event Action ExecuteRequested;
+
 		[SerializeField, Rename(nameof(BindingInfoName))]
 		private BindingInfo bindingInfo = new BindingInfo(typeof(IObservableCommand));
 
 		protected virtual string BindingInfoName { get; } = nameof(bindingInfo);
-		protected bool CanExecute => binding.Property.CanExecute.Value;
 
-		private CommandBinding binding;
-
-		protected virtual void Reset()
+		protected override void Awake()
 		{
-			bindingInfo = new BindingInfo(typeof(IObservableCommand));
-		}
+			base.Awake();
 
-		protected virtual void Awake()
-		{
-			binding = new CommandBinding(bindingInfo, this);
-			binding.Property.CanExecute.Changed += OnCommandCanExecuteChanged;
-		}
-
-		protected virtual void OnEnable()
-		{
-			binding.Bind();
-		}
-
-		protected virtual void OnDisable()
-		{
-			binding.Unbind();
+			RegisterCommand(bindingInfo)
+				.AddExecuteTrigger(handler => ExecuteRequested += handler)
+				.OnCanExecuteChanged(OnCommandCanExecuteChanged);
 		}
 
 		protected void ExecuteCommand()
 		{
-			binding.Property.Execute();
+			ExecuteRequested?.Invoke();
 		}
 
 		protected abstract void OnCommandCanExecuteChanged(bool newValue);
 	}
 
-	public abstract class CommandBinder<T> : MonoBehaviour, IBinder<T>
+	public abstract class CommandBinder<T> : ComponentBinder
 	{
+		private event Action<T> ExecuteRequested;
+
 		[SerializeField, Rename(nameof(BindingInfoName))]
 		private BindingInfo bindingInfo = new BindingInfo(typeof(IObservableCommand<T>));
 
 		protected virtual string BindingInfoName { get; } = nameof(bindingInfo);
-		protected bool CanExecute => binding.Property.CanExecute.Value;
-
-		private CommandBinding<T> binding;
 
 		protected virtual void Reset()
 		{
 			bindingInfo = new BindingInfo(typeof(IObservableCommand<T>));
 		}
 
-		protected virtual void Awake()
+		protected override void Awake()
 		{
-			binding = new CommandBinding<T>(bindingInfo, this);
-			binding.Property.CanExecute.Changed += OnCommandCanExecuteChanged;
-		}
+			base.Awake();
 
-		protected virtual void OnEnable()
-		{
-			binding.Bind();
-
-			OnCommandCanExecuteChanged(binding.Property.CanExecute.Value);
-		}
-
-		protected virtual void OnDisable()
-		{
-			OnCommandCanExecuteChanged(false);
-
-			binding.Unbind();
+			RegisterCommand<T>(bindingInfo)
+				.AddExecuteTrigger(handler => ExecuteRequested += handler)
+				.OnCanExecuteChanged(OnCommandCanExecuteChanged);
 		}
 
 		protected void ExecuteCommand(T value)
 		{
-			binding.Property.Execute(value);
+			ExecuteRequested?.Invoke(value);
 		}
 
 		protected abstract void OnCommandCanExecuteChanged(bool newValue);

@@ -1,14 +1,9 @@
-﻿using System;
+using UnityEngine;
 
 namespace Juice
 {
-	public abstract class Operator : ViewModelComponent, IViewModelInjector
+	public class ComponentBinder : MonoBehaviour
 	{
-		public Type InjectionType => GetInjectionType();
-		public ViewModelComponent Target => this;
-
-		protected abstract Type GetInjectionType();
-
 		private BindingTracker bindingTracker;
 
 		protected virtual void Awake()

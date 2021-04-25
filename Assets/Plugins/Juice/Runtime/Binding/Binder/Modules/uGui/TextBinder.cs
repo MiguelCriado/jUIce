@@ -13,7 +13,6 @@ namespace Juice
 		[SerializeField] private BindingInfo text = new BindingInfo(typeof(IReadOnlyObservableVariable<object>));
 
 		private Text textComponent;
-		private VariableBinding<object> textBinding;
 
 		protected override void Awake()
 		{
@@ -21,22 +20,7 @@ namespace Juice
 
 			textComponent = GetComponent<Text>();
 
-			textBinding = new VariableBinding<object>(text, this);
-			textBinding.Property.Changed += OnTextChanged;
-		}
-
-		protected override void OnEnable()
-		{
-			base.OnEnable();
-
-			textBinding.Bind();
-		}
-
-		protected override void OnDisable()
-		{
-			base.OnDisable();
-
-			textBinding.Unbind();
+			RegisterVariable<object>(text).OnChanged(OnTextChanged);
 		}
 
 #if UNITY_EDITOR
@@ -51,7 +35,6 @@ namespace Juice
 		private void OnTextChanged(object newValue)
 		{
 			textComponent.text = newValue != null ? newValue.ToString() : string.Empty;
-
 		}
 	}
 }

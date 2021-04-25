@@ -16,7 +16,6 @@ namespace Juice
 		protected override string BindingInfoName { get; } = "OnValueChanged Command";
 
 		private InputField inputField;
-		private VariableBinding<object> textBinding;
 
 		protected override void Awake()
 		{
@@ -24,15 +23,12 @@ namespace Juice
 
 			inputField = GetComponent<InputField>();
 
-			textBinding = new VariableBinding<object>(text, this);
-			textBinding.Property.Changed += OnTextBindingPropertyChanged;
+			RegisterVariable<object>(text).OnChanged(OnTextBindingPropertyChanged);
 		}
 
 		protected override void OnEnable()
 		{
 			base.OnEnable();
-
-			textBinding.Bind();
 
 			inputField.onValueChanged.AddListener(OnInputFieldValueChanged);
 			inputField.onEndEdit.AddListener(OnInputFieldEditionEnded);
@@ -41,8 +37,6 @@ namespace Juice
 		protected override void OnDisable()
 		{
 			base.OnDisable();
-
-			textBinding.Unbind();
 
 			inputField.onValueChanged.RemoveListener(OnInputFieldValueChanged);
 			inputField.onEndEdit.RemoveListener(OnInputFieldEditionEnded);

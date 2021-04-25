@@ -1,27 +1,14 @@
-﻿using UnityEngine;
-
-namespace Juice
+﻿namespace Juice
 {
-	public abstract class ConstantBinder<T> : MonoBehaviour, IBinder<T>
+	public abstract class ConstantBinder<T> : ComponentBinder
 	{
 		protected abstract ConstantBindingInfo<T> BindingInfo { get; }
 
-		private VariableBinding<T> binding;
-
-		protected virtual void Awake()
+		protected override void Awake()
 		{
-			binding = new VariableBinding<T>(BindingInfo, this);
-			binding.Property.Changed += OnBoundPropertyChanged;
-		}
+			base.Awake();
 
-		protected virtual void OnEnable()
-		{
-			binding.Bind();
-		}
-
-		protected virtual void OnDisable()
-		{
-			binding.Unbind();
+			RegisterVariable<T>(BindingInfo).OnChanged(OnBoundPropertyChanged);
 		}
 
 		protected abstract void Refresh(T value);

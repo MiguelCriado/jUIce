@@ -8,7 +8,7 @@ using UnityEditor;
 namespace Juice
 {
 	[RequireComponent(typeof(LayoutElement))]
-	public class LayoutElementBinder : MonoBehaviour, IBinder<bool>
+	public class LayoutElementBinder : ComponentBinder
 	{
 		[SerializeField] private BindingInfo ignoreLayout = new BindingInfo(typeof(IReadOnlyObservableVariable<bool>));
 		[SerializeField] private BindingInfo minWidth = new BindingInfo(typeof(IReadOnlyObservableVariable<float>));
@@ -21,66 +21,20 @@ namespace Juice
 
 		private LayoutElement layoutElement;
 
-		private VariableBinding<bool> ignoreLayoutBinding;
-		private VariableBinding<float> minWidthBinding;
-		private VariableBinding<float> minHeightBinding;
-		private VariableBinding<float> preferredWidthBinding;
-		private VariableBinding<float> preferredHeightBinding;
-		private VariableBinding<float> flexibleWidthBinding;
-		private VariableBinding<float> flexibleHeightBinding;
-		private VariableBinding<int> layoutPriorityBinding;
-
-		protected virtual void Awake()
+		protected override void Awake()
 		{
+			base.Awake();
+
 			layoutElement = GetComponent<LayoutElement>();
 
-			ignoreLayoutBinding = new VariableBinding<bool>(ignoreLayout, this);
-			ignoreLayoutBinding.Property.Changed += OnIgnoreLayoutChanged;
-
-			minWidthBinding = new VariableBinding<float>(minWidth, this);
-			minWidthBinding.Property.Changed += OnMinWidthChanged;
-
-			minHeightBinding = new VariableBinding<float>(minHeight, this);
-			minHeightBinding.Property.Changed += OnMinHeightChanged;
-
-			preferredWidthBinding = new VariableBinding<float>(preferredWidth, this);
-			preferredWidthBinding.Property.Changed += OnPreferredWidthChanged;
-
-			preferredHeightBinding = new VariableBinding<float>(preferredHeight, this);
-			preferredHeightBinding.Property.Changed += OnPreferredHeightChanged;
-
-			flexibleWidthBinding = new VariableBinding<float>(flexibleWidth, this);
-			flexibleWidthBinding.Property.Changed += OnFlexibleWidthChanged;
-
-			flexibleHeightBinding = new VariableBinding<float>(flexibleHeight, this);
-			flexibleHeightBinding.Property.Changed += OnFlexibleHeightChanged;
-
-			layoutPriorityBinding = new VariableBinding<int>(layoutPriority, this);
-			layoutPriorityBinding.Property.Changed += OnLayoutPriorityChanged;
-		}
-
-		protected virtual void OnEnable()
-		{
-			ignoreLayoutBinding.Bind();
-			minWidthBinding.Bind();
-			minHeightBinding.Bind();
-			preferredWidthBinding.Bind();
-			preferredHeightBinding.Bind();
-			flexibleWidthBinding.Bind();
-			flexibleHeightBinding.Bind();
-			layoutPriorityBinding.Bind();
-		}
-
-		protected virtual void OnDisable()
-		{
-			ignoreLayoutBinding.Unbind();
-			minWidthBinding.Unbind();
-			minHeightBinding.Unbind();
-			preferredWidthBinding.Unbind();
-			preferredHeightBinding.Unbind();
-			flexibleWidthBinding.Unbind();
-			flexibleHeightBinding.Unbind();
-			layoutPriorityBinding.Unbind();
+			RegisterVariable<bool>(ignoreLayout).OnChanged(OnIgnoreLayoutChanged);
+			RegisterVariable<float>(minWidth).OnChanged(OnMinWidthChanged);
+			RegisterVariable<float>(minHeight).OnChanged(OnMinHeightChanged);
+			RegisterVariable<float>(preferredWidth).OnChanged(OnPreferredWidthChanged);
+			RegisterVariable<float>(preferredHeight).OnChanged(OnPreferredHeightChanged);
+			RegisterVariable<float>(flexibleWidth).OnChanged(OnFlexibleWidthChanged);
+			RegisterVariable<float>(flexibleHeight).OnChanged(OnFlexibleHeightChanged);
+			RegisterVariable<int>(layoutPriority).OnChanged(OnLayoutPriorityChanged);
 		}
 
 #if UNITY_EDITOR

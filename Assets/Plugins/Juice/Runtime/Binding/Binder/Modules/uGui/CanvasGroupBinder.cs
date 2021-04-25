@@ -7,7 +7,7 @@ using UnityEditor;
 namespace Juice
 {
 	[RequireComponent(typeof(CanvasGroup))]
-	public class CanvasGroupBinder : MonoBehaviour, IBinder<float>
+	public class CanvasGroupBinder : ComponentBinder
 	{
 		[SerializeField] private BindingInfo alpha = new BindingInfo(typeof(IReadOnlyObservableVariable<float>));
 		[SerializeField] private BindingInfo interactable = new BindingInfo(typeof(IReadOnlyObservableVariable<bool>));
@@ -16,42 +16,16 @@ namespace Juice
 
 		private CanvasGroup canvasGroup;
 
-		private VariableBinding<float> alphaBinding;
-		private VariableBinding<bool> interactableBinding;
-		private VariableBinding<bool> blocksRaycastsBinding;
-		private VariableBinding<bool> ignoreParentGroupsBinding;
-
-		protected virtual void Awake()
+		protected override void Awake()
 		{
+			base.Awake();
+
 			canvasGroup = GetComponent<CanvasGroup>();
 
-			alphaBinding = new VariableBinding<float>(alpha, this);
-			alphaBinding.Property.Changed += OnAlphaChanged;
-
-			interactableBinding = new VariableBinding<bool>(interactable, this);
-			interactableBinding.Property.Changed += OnInteractableChanged;
-
-			blocksRaycastsBinding = new VariableBinding<bool>(blocksRaycasts, this);
-			blocksRaycastsBinding.Property.Changed += OnBlocksRaycastsChanged;
-
-			ignoreParentGroupsBinding = new VariableBinding<bool>(ignoreParentGroups, this);
-			ignoreParentGroupsBinding.Property.Changed += OnIgnoreParentGroupsChanged;
-		}
-
-		protected virtual void OnEnable()
-		{
-			alphaBinding.Bind();
-			interactableBinding.Bind();
-			blocksRaycastsBinding.Bind();
-			ignoreParentGroupsBinding.Bind();
-		}
-
-		protected virtual void OnDisable()
-		{
-			alphaBinding.Unbind();
-			interactableBinding.Unbind();
-			blocksRaycastsBinding.Unbind();
-			ignoreParentGroupsBinding.Unbind();
+			RegisterVariable<float>(alpha).OnChanged(OnAlphaChanged);
+			RegisterVariable<bool>(interactable).OnChanged(OnInteractableChanged);
+			RegisterVariable<bool>(blocksRaycasts).OnChanged(OnBlocksRaycastsChanged);
+			RegisterVariable<bool>(ignoreParentGroups).OnChanged(OnIgnoreParentGroupsChanged);
 		}
 
 #if UNITY_EDITOR

@@ -19,11 +19,6 @@ namespace Juice
 
 		private Scrollbar scrollbar;
 
-		private VariableBinding<Scrollbar.Direction> directionBinding;
-		private VariableBinding<float> valueBinding;
-		private VariableBinding<float> sizeBinding;
-		private VariableBinding<int> numberOfStepsBinding;
-
 		protected override void Awake()
 		{
 			base.Awake();
@@ -31,37 +26,10 @@ namespace Juice
 			scrollbar = GetComponent<Scrollbar>();
 			scrollbar.onValueChanged.AddListener(OnScrollbarValueChanged);
 
-			directionBinding = new VariableBinding<Scrollbar.Direction>(direction, this);
-			directionBinding.Property.Changed += OnDirectionChanged;
-
-			valueBinding = new VariableBinding<float>(value, this);
-			valueBinding.Property.Changed += OnValueChanged;
-
-			sizeBinding = new VariableBinding<float>(size, this);
-			sizeBinding.Property.Changed += OnSizeChanged;
-
-			numberOfStepsBinding = new VariableBinding<int>(numberOfSteps, this);
-			numberOfStepsBinding.Property.Changed += OnNumberOfStepsChanged;
-		}
-
-		protected override void OnEnable()
-		{
-			base.OnEnable();
-
-			directionBinding.Bind();
-			valueBinding.Bind();
-			sizeBinding.Bind();
-			numberOfStepsBinding.Bind();
-		}
-
-		protected override void OnDisable()
-		{
-			base.OnDisable();
-
-			directionBinding.Unbind();
-			valueBinding.Unbind();
-			sizeBinding.Unbind();
-			numberOfStepsBinding.Unbind();
+			RegisterVariable<Scrollbar.Direction>(direction).OnChanged(OnDirectionChanged);
+			RegisterVariable<float>(value).OnChanged(OnValueChanged);
+			RegisterVariable<float>(size).OnChanged(OnSizeChanged);
+			RegisterVariable<int>(numberOfSteps).OnChanged(OnNumberOfStepsChanged);
 		}
 
 		protected override void OnCommandCanExecuteChanged(bool newValue)

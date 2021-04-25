@@ -6,7 +6,7 @@ namespace Juice
 {
 	public class PrefabPicker<T> where T : ViewModelComponent
 	{
-		private static readonly Type ExpectedViewModelType = typeof(IBindableViewModel<>);
+		private static readonly Type ExpectedViewModelType = typeof(BindableViewModel<>);
 
 		private List<T> prefabs;
 		private readonly Dictionary<Type, T> prefabResolutionCache;

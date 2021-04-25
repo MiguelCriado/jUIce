@@ -1,15 +1,15 @@
 ﻿namespace Juice
 {
-	public delegate void ObservableEventDelegate();
-	public delegate void ObservableEventDelegate<in T>(T eventData);
+	public delegate void ObservableEventHandler();
+	public delegate void ObservableEventHandler<in T>(T eventData);
 	
 	public interface IObservableEvent
 	{
-		event ObservableEventDelegate Raised;
+		event ObservableEventHandler Raised;
 	}
 
 	public interface IObservableEvent<T>
 	{
-		event ObservableEventDelegate<T> Raised;
+		event ObservableEventHandler<T> Raised;
 	}
 }

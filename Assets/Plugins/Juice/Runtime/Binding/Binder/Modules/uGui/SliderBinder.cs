@@ -8,7 +8,7 @@ using UnityEditor;
 namespace Juice
 {
 	[RequireComponent(typeof(Slider))]
-	public class SliderBinder : MonoBehaviour, IBinder<float>
+	public class SliderBinder : ComponentBinder
 	{
 		[SerializeField] private BindingInfo minValue = new BindingInfo(typeof(IReadOnlyObservableVariable<float>));
 		[SerializeField] private BindingInfo maxValue = new BindingInfo(typeof(IReadOnlyObservableVariable<float>));
@@ -16,11 +16,6 @@ namespace Juice
 		[SerializeField] private BindingInfo onValueChangedCommand = new BindingInfo(typeof(IObservableCommand<float>));
 
 		private Slider slider;
-
-		private VariableBinding<float> minValueBinding;
-		private VariableBinding<float> maxValueBinding;
-		private VariableBinding<float> valueBinding;
-		private CommandBinding<float> valueChangedCommandBinding;
 
 		protected virtual void Reset()
 		{
@@ -30,39 +25,20 @@ namespace Juice
 			onValueChangedCommand = new BindingInfo(typeof(IObservableCommand<float>));
 		}
 
-		protected virtual void Awake()
+		protected override void Awake()
 		{
+			base.Awake();
+
 			slider = GetComponent<Slider>();
-			slider.onValueChanged.AddListener(OnSliderValueChanged);
 
-			minValueBinding = new VariableBinding<float>(minValue, this);
-			minValueBinding.Property.Changed += OnMinValueBindingChanged;
-
-			maxValueBinding = new VariableBinding<float>(maxValue, this);
-			maxValueBinding.Property.Changed += OnMaxValueBindingChanged;
-
-			valueBinding = new VariableBinding<float>(value, this);
-			valueBinding.Property.Changed += OnValueBindingChanged;
-
-			valueChangedCommandBinding = new CommandBinding<float>(onValueChangedCommand, this);
-			valueChangedCommandBinding.Property.CanExecute.Changed += OnValueChangedCommandBindingCanExecuteChanged;
+			RegisterVariable<float>(minValue).OnChanged(OnMinValueChanged);
+			RegisterVariable<float>(maxValue).OnChanged(OnMaxValueChanged);
+			RegisterVariable<float>(value).OnChanged(OnValueChanged);
+			RegisterCommand<float>(onValueChangedCommand)
+				.AddExecuteTrigger(slider.onValueChanged)
+				.OnCanExecuteChanged(OnCanExecuteChanged);
 		}
 
-		protected virtual void OnEnable()
-		{
-			minValueBinding.Bind();
-			maxValueBinding.Bind();
-			valueBinding.Bind();
-			valueChangedCommandBinding.Bind();
-		}
-
-		protected virtual void OnDisable()
-		{
-			minValueBinding.Unbind();
-			maxValueBinding.Unbind();
-			valueBinding.Unbind();
-			valueChangedCommandBinding.Unbind();
-		}
 
 #if UNITY_EDITOR
 		[MenuItem("CONTEXT/Slider/Add Binder")]
@@ -73,27 +49,22 @@ namespace Juice
 		}
 #endif
 
-		private void OnSliderValueChanged(float newValue)
-		{
-			valueChangedCommandBinding.Property.Execute(newValue);
-		}
-
-		private void OnMinValueBindingChanged(float newValue)
+		private void OnMinValueChanged(float newValue)
 		{
 			slider.minValue = newValue;
 		}
 
-		private void OnMaxValueBindingChanged(float newValue)
+		private void OnMaxValueChanged(float newValue)
 		{
 			slider.maxValue = newValue;
 		}
 
-		private void OnValueBindingChanged(float newValue)
+		private void OnValueChanged(float newValue)
 		{
 			slider.value = newValue;
 		}
 
-		private void OnValueChangedCommandBindingCanExecuteChanged(bool newValue)
+		private void OnCanExecuteChanged(bool newValue)
 		{
 			slider.interactable = newValue;
 		}

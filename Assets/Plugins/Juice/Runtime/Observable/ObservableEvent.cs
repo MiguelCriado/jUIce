@@ -2,7 +2,7 @@
 {
 	public class ObservableEvent : IObservableEvent
 	{
-		public event ObservableEventDelegate Raised;
+		public event ObservableEventHandler Raised;
 
 		public void Raise()
 		{
@@ -17,7 +17,7 @@
 
 	public class ObservableEvent<T> : IObservableEvent<T>
 	{
-		public event ObservableEventDelegate<T> Raised;
+		public event ObservableEventHandler<T> Raised;
 
 		public void Raise(T value)
 		{
