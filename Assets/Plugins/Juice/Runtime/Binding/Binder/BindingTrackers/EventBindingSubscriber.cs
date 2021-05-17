@@ -14,6 +14,11 @@ namespace Juice
 			binding.Property.Raised += callback;
 			return this;
 		}
+
+		public EventBinding GetBinding()
+		{
+			return binding;
+		}
 	}
 
 	public class EventBindingSubscriber<T>
@@ -29,6 +34,11 @@ namespace Juice
 		{
 			binding.Property.Raised += callback;
 			return this;
+		}
+
+		public EventBinding<T> GetBinding()
+		{
+			return binding;
 		}
 	}
 }

@@ -44,5 +44,10 @@ namespace Juice
 			binding.Property.Reset += callback;
 			return this;
 		}
+
+		public CollectionBinding<T> GetBinding()
+		{
+			return binding;
+		}
 	}
 }

@@ -20,5 +20,10 @@ namespace Juice
 			binding.Property.Cleared += callback;
 			return this;
 		}
+
+		public VariableBinding<T> GetBinding()
+		{
+			return binding;
+		}
 	}
 }

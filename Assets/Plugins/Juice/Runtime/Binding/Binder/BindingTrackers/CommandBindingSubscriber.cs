@@ -29,6 +29,11 @@ namespace Juice
 			binding.Property.CanExecute.Changed += callback;
 			return this;
 		}
+
+		public CommandBinding GetBinding()
+		{
+			return binding;
+		}
 	}
 
 	public class CommandBindingSubscriber<T>
@@ -56,6 +61,11 @@ namespace Juice
 		{
 			binding.Property.CanExecute.Changed += callback;
 			return this;
+		}
+
+		public CommandBinding<T> GetBinding()
+		{
+			return binding;
 		}
 	}
 }
