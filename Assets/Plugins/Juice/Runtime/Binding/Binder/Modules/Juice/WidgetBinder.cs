@@ -1,44 +1,47 @@
-﻿using Juice.Utils;
+﻿using System.Collections.Generic;
+using Juice.Utils;
 using UnityEngine;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 namespace Juice
 {
-	[RequireComponent(typeof(Widget))]
 	public class WidgetBinder : VariableBinder<bool>
 	{
 		protected override string BindingInfoName { get; } = "Show";
 
-		private Widget widget;
-
-		protected override void Awake()
-		{
-			base.Awake();
-
-			widget = GetComponent<Widget>();
-		}
+		[SerializeField] private List<Widget> targets;
 
 		protected override void Refresh(bool value)
 		{
 			if (value)
 			{
-				widget.Show().RunAndForget();
+				ShowTargets();
 			}
 			else
 			{
-				widget.Hide().RunAndForget();
+				HideTargets();
 			}
 		}
 
-#if UNITY_EDITOR
-		[MenuItem("CONTEXT/Widget/Add Binder")]
-		private static void AddBinder(MenuCommand command)
+		private void ShowTargets()
 		{
-			Widget context = (Widget) command.context;
-			context.GetOrAddComponent<WidgetBinder>();
+			foreach (Widget current in targets)
+			{
+				if (current)
+				{
+					current.Show().RunAndForget();
+				}
+			}
 		}
-#endif
+
+		private void HideTargets()
+		{
+			foreach (Widget current in targets)
+			{
+				if (current)
+				{
+					current.Hide().RunAndForget();
+				}
+			}
+		}
 	}
 }
