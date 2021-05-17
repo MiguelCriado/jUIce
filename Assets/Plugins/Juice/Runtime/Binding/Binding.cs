@@ -53,7 +53,7 @@ namespace Juice
 
 		private void BindProperty()
 		{
-			if (!bindingInfo.ViewModelContainer && string.IsNullOrEmpty(bindingInfo.PropertyName) == false)
+			if (HasToBeDynamicallyBound())
 			{
 				Type bindingType = GetBindingType();
 				bindingInfo.ViewModelContainer = FindViewModelComponent(context.transform, bindingType);
@@ -81,6 +81,11 @@ namespace Juice
 
 				bindingInfo.ViewModelContainer.ViewModelChanged += OnViewModelChanged;
 			}
+		}
+
+		private bool HasToBeDynamicallyBound()
+		{
+			return bindingInfo.ForceDynamicBinding || !bindingInfo.ViewModelContainer && string.IsNullOrEmpty(bindingInfo.PropertyName) == false;
 		}
 
 		private static ViewModelComponent FindViewModelComponent(Transform context, Type targetType)

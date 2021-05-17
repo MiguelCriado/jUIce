@@ -47,6 +47,10 @@ namespace Juice.Editor
 
 		private const string ViewModelContainerId = "viewModelContainer";
 		private const string PropertyNameId = "propertyName";
+		private const string ForceDynamicBindingId = "forceDynamicBinding";
+
+		private static readonly float MoreMenuWidth = EditorGUIUtility.singleLineHeight;
+		private static readonly float DynamicBindingIndicatorWidth = EditorGUIUtility.singleLineHeight;
 
 		private static readonly Dictionary<string, DrawerCache> CacheMap = new Dictionary<string,DrawerCache>();
 
@@ -91,13 +95,18 @@ namespace Juice.Editor
 		{
 			EditorGUI.BeginDisabledGroup(Application.isPlaying);
 
-			if (cache.CachedOptionIds.Length > 1)
+			if (IsMouseHovering(position))
 			{
-				DrawPicker(position, property);
+				position = DrawMoreMenuButton(position, property);
+			}
+
+			if (cache.CachedOptionIds.Length <= 1 || GetForceDynamicBinding(property))
+			{
+				DrawPropertyNameField(position, property);
 			}
 			else
 			{
-				DrawPropertyNameField(position, property);
+				DrawPicker(position, property);
 			}
 
 			EditorGUI.EndDisabledGroup();
@@ -106,6 +115,40 @@ namespace Juice.Editor
 		private static Rect DrawLabel(Rect position, GUIContent label)
 		{
 			position = EditorGUI.PrefixLabel(position, GUIUtility.GetControlID(FocusType.Passive), label);
+			return position;
+		}
+
+		private static bool IsMouseHovering(Rect position)
+		{
+			return position.Contains(Event.current.mousePosition);
+		}
+
+		private static Rect DrawMoreMenuButton(Rect position, SerializedProperty property)
+		{
+			Rect moreButtonRect = new Rect(
+				position.xMax - MoreMenuWidth,
+				position.y,
+				MoreMenuWidth,
+				position.height);
+
+			if (EditorGUI.DropdownButton(moreButtonRect, EditorGUIUtility.IconContent("_Menu"), FocusType.Passive, "iconButton"))
+			{
+				var menu = new GenericMenu();
+
+				menu.AddItem(
+					new GUIContent("Force dynamic binding", JuiceEditorGuiUtility.Icons.Unlink),
+					GetForceDynamicBinding(property),
+					() =>
+					{
+						bool currentValue = GetForceDynamicBinding(property);
+						SetForceDynamicBinding(property, !currentValue);
+						property.serializedObject.ApplyModifiedProperties();
+					});
+
+				menu.DropDown(moreButtonRect);
+			}
+
+			position.width -= moreButtonRect.width + EditorGUIUtility.standardVerticalSpacing;
 			return position;
 		}
 
@@ -135,6 +178,16 @@ namespace Juice.Editor
 			bindingInfoProperty.FindPropertyRelative(PropertyNameId).stringValue = value;
 		}
 
+		private static bool GetForceDynamicBinding(SerializedProperty bindingInfoProperty)
+		{
+			return bindingInfoProperty.FindPropertyRelative(ForceDynamicBindingId).boolValue;
+		}
+
+		private static void SetForceDynamicBinding(SerializedProperty bindingInfoProperty, bool value)
+		{
+			bindingInfoProperty.FindPropertyRelative(ForceDynamicBindingId).boolValue = value;
+		}
+
 		private static string GenerateBindingId(ViewModelComponent component, string propertyName)
 		{
 			return $"{component.gameObject.name}.{component.Id}/{propertyName}";
@@ -153,7 +206,7 @@ namespace Juice.Editor
 
 			CacheMap.TryGetValue(cacheId, out cache);
 
-			if (cache != null && (cache.BaseComponent == null || cache.BaseComponent.transform.parent != cache.LastParent))
+			if (cache != null && (cache.BaseComponent || cache.BaseComponent.transform.parent != cache.LastParent))
 			{
 				cache = null;
 			}
@@ -253,6 +306,19 @@ namespace Juice.Editor
 
 		private static void DrawPropertyNameField(Rect position, SerializedProperty property)
 		{
+			Rect indicatorRect = new Rect(position.x, position.y, DynamicBindingIndicatorWidth, position.height);
+
+			Rect iconRect = indicatorRect;
+			iconRect.x += 3;
+			iconRect.y += 3;
+			iconRect.width -= 6;
+			iconRect.height -= 6;
+
+			EditorGUI.LabelField(iconRect, JuiceEditorGuiUtility.ContentIcons.Unlink);
+
+			position.x += indicatorRect.width;
+			position.width -= indicatorRect.width;
+
 			EditorGUI.PropertyField(position, property.FindPropertyRelative(PropertyNameId), GUIContent.none);
 		}
 	}
