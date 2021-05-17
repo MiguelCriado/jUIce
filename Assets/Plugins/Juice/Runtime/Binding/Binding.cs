@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Juice.Plugins.Juice.Runtime.Utils;
 using UnityEngine;
 
 namespace Juice
@@ -56,7 +57,7 @@ namespace Juice
 			if (HasToBeDynamicallyBound())
 			{
 				Type bindingType = GetBindingType();
-				bindingInfo.ViewModelContainer = FindViewModelComponent(context.transform, bindingType);
+				bindingInfo.ViewModelContainer = FindViewModelComponent(context.transform, bindingType, bindingInfo.PropertyName);
 			}
 
 			if (bindingInfo.ViewModelContainer)
@@ -64,9 +65,9 @@ namespace Juice
 				if (bindingInfo.ViewModelContainer.ViewModel != null)
 				{
 					IViewModel viewModel = bindingInfo.ViewModelContainer.ViewModel;
-					string propertyName = bindingInfo.PropertyName;
+					BindingPath path = new BindingPath(bindingInfo.PropertyName);
 					Type viewModelType = viewModel.GetType();
-					PropertyInfo propertyInfo = viewModelType.GetProperty(propertyName);
+					PropertyInfo propertyInfo = viewModelType.GetProperty(path.PropertyName);
 					object value = propertyInfo?.GetValue(viewModel);
 
 					if (value != null)
@@ -75,7 +76,7 @@ namespace Juice
 					}
 					else
 					{
-						Debug.LogError($"Property \"{bindingInfo.PropertyName}\" not found in {viewModel.GetType()} class.", context);
+						Debug.LogError($"Property \"{path.PropertyName}\" not found in {viewModel.GetType()} class.", context);
 					}
 				}
 
@@ -83,24 +84,34 @@ namespace Juice
 			}
 		}
 
-		private bool HasToBeDynamicallyBound()
-		{
-			return bindingInfo.ForceDynamicBinding || !bindingInfo.ViewModelContainer && string.IsNullOrEmpty(bindingInfo.PropertyName) == false;
-		}
-
-		private static ViewModelComponent FindViewModelComponent(Transform context, Type targetType)
+		private static ViewModelComponent FindViewModelComponent(Transform context, Type targetType, string propertyPath)
 		{
 			ViewModelComponent result = null;
 
+			BindingPath path = new BindingPath(propertyPath);
+
 			using (IEnumerator<BindingEntry> iterator = BindingUtils.GetBindings(context, targetType).GetEnumerator())
 			{
-				if (iterator.MoveNext())
+				while (!result && iterator.MoveNext())
 				{
-					result = iterator.Current.ViewModelComponent;
+					BindingEntry current = iterator.Current;
+
+					bool match = string.IsNullOrEmpty(path.ComponentId) || path.ComponentId == current.Path.ComponentId;
+					match &= path.PropertyName == current.Path.PropertyName;
+
+					if (match)
+					{
+						result = iterator.Current.ViewModelComponent;
+					}
 				}
 			}
 
 			return result;
+		}
+
+		private bool HasToBeDynamicallyBound()
+		{
+			return bindingInfo.ForceDynamicBinding || !bindingInfo.ViewModelContainer && string.IsNullOrEmpty(bindingInfo.PropertyName) == false;
 		}
 
 		private void OnViewModelChanged(object sender, IViewModel lastViewModel, IViewModel newViewModel)
