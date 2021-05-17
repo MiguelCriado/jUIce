@@ -17,8 +17,7 @@ namespace Juice
 		public UnityEvent OnFocusLost = new UnityEvent();
 	}
 
-	public abstract class Window<T> : View<T>, IWindow
-		where T : IViewModel
+	public abstract class Window<T> : View<T>, IWindow where T : IViewModel
 	{
 		public delegate void FocusEventHandler(IWindow window);
 

@@ -1,22 +1,22 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Juice
 {
-	public class ViewModelComponent : MonoBehaviour
+	public abstract class ViewModelComponent<T> : MonoBehaviour, IViewModelProvider<T> where T : IViewModel
 	{
-		public delegate void ViewModelChangeEventHandler(ViewModelComponent source, IViewModel lastViewModel, IViewModel newViewModel);
-
-		public event ViewModelChangeEventHandler ViewModelChanged;
+		public event ViewModelChangeEventHandler<T> ViewModelChanged;
 
 		public virtual Type ExpectedType => expectedType.Type;
 
-		public IViewModel ViewModel
+		public T ViewModel
 		{
 			get => viewModel;
 			set
 			{
-				IViewModel lastViewModel = viewModel;
+				T lastViewModel = viewModel;
 				viewModel?.Disable();
 				viewModel = value;
 				viewModel?.Enable();
@@ -30,7 +30,7 @@ namespace Juice
 		[SerializeField, HideInInspector] protected SerializableType expectedType;
 		[SerializeField, DisableAtRuntime] private string id;
 
-		private IViewModel viewModel;
+		private T viewModel;
 
 		protected virtual void Reset()
 		{
@@ -45,7 +45,7 @@ namespace Juice
 			}
 		}
 
-		protected virtual void OnViewModelChanged(IViewModel lastViewModel, IViewModel newViewModel)
+		protected virtual void OnViewModelChanged(T lastViewModel, T newViewModel)
 		{
 			ViewModelChanged?.Invoke(this, lastViewModel, newViewModel);
 		}
@@ -69,36 +69,30 @@ namespace Juice
 
 		private bool IsIdAvailable(string candidate)
 		{
-			ViewModelComponent[] components = GetComponentsInChildren<ViewModelComponent>(true);
+			IEnumerable<ViewModelComponent<IViewModel>> components =
+				GetComponentsInChildren<Component>(true)
+					.Concat(GetComponentsInParent<Component>())
+					.Where(x => x is ViewModelComponent<IViewModel>)
+					.Cast<ViewModelComponent<IViewModel>>();
 			bool result = IsIdAvailable(candidate, components);
-			components = GetComponentsInParent<ViewModelComponent>();
-			result &= IsIdAvailable(candidate, components);
 			return result;
 		}
 
-		private bool IsIdAvailable(string candidate, ViewModelComponent[] components)
+		private bool IsIdAvailable(string candidate, IEnumerable<ViewModelComponent<IViewModel>> components)
 		{
-			bool result = true;
-			int i = 0;
+			var existingId = components.FirstOrDefault(x => x != this && string.Equals(candidate, x.id));
 
-			while (result == true && i < components.Length)
+			if (existingId)
 			{
-				ViewModelComponent current = components[i];
-
-				if (current != this)
-				{
-					result &= string.Equals(candidate, current.Id) == false;
-
-					if (result == false)
-					{
-						Debug.LogError($"Id \"{candidate}\" already taken by {current.name}", current);
-					}
-				}
-
-				i++;
+				Debug.LogError($"Id \"{candidate}\" already taken by {existingId.name}", existingId);
 			}
 
-			return result;
+			return !existingId;
 		}
+	}
+
+	public class ViewModelComponent : ViewModelComponent<IViewModel>
+	{
+
 	}
 }

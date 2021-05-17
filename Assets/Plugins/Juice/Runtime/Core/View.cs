@@ -6,14 +6,11 @@ namespace Juice
 	[RequireComponent(typeof(RectTransform))]
 	[RequireComponent(typeof(ViewModelComponent))]
 	[RequireComponent(typeof(InteractionBlockingTracker))]
-	public abstract class View<T> : Widget, IView, IViewModelInjector
-		where T : IViewModel
+	public abstract class View<T> : Widget, IView, IViewModelInjector, IViewModelProvider<T> where T : IViewModel
 	{
-		public delegate void ViewModelEventHandler(View<T> source, T lastViewModel, T newViewModel);
-
 		public event ViewEventHandler CloseRequested;
 		public event ViewEventHandler ViewDestroyed;
-		public event ViewModelEventHandler ViewModelChanged;
+		public event ViewModelChangeEventHandler<T> ViewModelChanged;
 
 		public bool IsInteractable
 		{
@@ -62,9 +59,9 @@ namespace Juice
 			}
 		}
 
-		protected virtual void OnViewModelChanged(IViewModel lastViewModel, IViewModel newViewModel)
+		protected virtual void OnViewModelChanged(T lastViewModel, T newViewModel)
 		{
-			ViewModelChanged?.Invoke(this, (T)lastViewModel, (T)newViewModel);
+			ViewModelChanged?.Invoke(this, lastViewModel, newViewModel);
 		}
 
 		private void RetrieveRequiredComponents()
@@ -80,9 +77,9 @@ namespace Juice
 			}
 		}
 
-		private void OnTargetComponentViewModelChanged(ViewModelComponent source, IViewModel lastViewModel, IViewModel newViewModel)
+		private void OnTargetComponentViewModelChanged(IViewModelProvider<IViewModel> source, IViewModel lastViewModel, IViewModel newViewModel)
 		{
-			OnViewModelChanged(lastViewModel, newViewModel);
+			OnViewModelChanged((T)lastViewModel, (T)newViewModel);
 		}
 	}
 }
