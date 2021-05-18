@@ -17,7 +17,7 @@ namespace Juice
 		public string PropertyName => propertyName;
 		public bool ForceDynamicBinding => forceDynamicBinding;
 
-		private SerializableType type;
+		[SerializeField] private SerializableType type;
 		[SerializeField] private ViewModelComponent viewModelContainer;
 		[SerializeField] private string propertyName;
 		[SerializeField] private bool forceDynamicBinding;

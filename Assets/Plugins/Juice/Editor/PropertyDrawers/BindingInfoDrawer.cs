@@ -285,22 +285,33 @@ namespace Juice.Editor
 
 		private void DrawPicker(Rect position, SerializedProperty property)
 		{
-			int index = EditorGUI.Popup(position, cache.CurrentIndex, cache.CachedOptions);
+			GUIContent content = new GUIContent(cache.CachedOptions[cache.CurrentIndex]);
 
-			if (index != cache.CurrentIndex)
+			if (EditorGUI.DropdownButton(position, content, FocusType.Passive))
 			{
-				if (index > 0)
-				{
-					string bindingId = cache.CachedOptionIds[index];
-					BindingEntry entry = cache.BindingMap[bindingId];
-					SetBinding(property, entry.Component, entry.PropertyName);
-				}
-				else
-				{
-					SetBinding(property, null, "");
-				}
+				EditorUtility.DisplayCustomMenu(
+					position,
+					EditorGUIUtility.TrTempContent(cache.CachedOptions),
+					cache.CurrentIndex,
+					(data, options, selected) =>
+					{
+						if (selected != cache.CurrentIndex)
+						{
+							if (selected > 0)
+							{
+								string bindingId = cache.CachedOptionIds[selected];
+								BindingEntry entry = cache.BindingMap[bindingId];
+								SetBinding(property, entry.Component, entry.PropertyName);
+							}
+							else
+							{
+								SetBinding(property, null, "");
+							}
 
-				cache.CurrentIndex = index;
+							property.serializedObject.ApplyModifiedProperties();
+						}
+					},
+					null);
 			}
 		}
 
