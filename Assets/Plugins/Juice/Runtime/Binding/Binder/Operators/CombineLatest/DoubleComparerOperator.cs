@@ -3,11 +3,8 @@ using UnityEngine;
 
 namespace Juice
 {
-	public class DoubleComparerOperator : ViewModelComponent, IViewModelInjector
+	public class DoubleComparerOperator : Operator
 	{
-		public Type InjectionType => typeof(OperatorVariableViewModel<bool>);
-		public ViewModelComponent Target => this;
-
 		[SerializeField] private BindingInfo operandA = new BindingInfo(typeof(IReadOnlyObservableVariable<double>));
 		[SerializeField] private MathComparisonType operation;
 		[SerializeField] private DoubleConstantBindingInfo operandB = new DoubleConstantBindingInfo();
@@ -20,33 +17,28 @@ namespace Juice
 		private VariableBinding<double> operandABinding;
 		private VariableBinding<double> operandBBinding;
 
-		protected virtual void Awake()
+		protected override void Awake()
 		{
+			base.Awake();
+
 			result = new ObservableVariable<bool>();
-			viewModel = new OperatorVariableViewModel<bool>(result);
-			ViewModel = viewModel;
+			ViewModel = new OperatorVariableViewModel<bool>(result);
 
-			operandABinding = new VariableBinding<double>(operandA, this);
-			operandABinding.Property.Changed += OperandChangedHandler;
-			operandBBinding = new VariableBinding<double>(operandB, this);
-			operandBBinding.Property.Changed += OperandChangedHandler;
+			operandABinding = RegisterVariable<double>(operandA).OnChanged(OnOperandChanged).GetBinding();
+			operandBBinding = RegisterVariable<double>(operandB).OnChanged(OnOperandChanged).GetBinding();
 		}
 
-		protected virtual void OnEnable()
+		protected override Type GetInjectionType()
 		{
-			operandABinding.Bind();
-			operandBBinding.Bind();
+			return typeof(OperatorVariableViewModel<bool>);
 		}
 
-		protected virtual void OnDisable()
+		private void OnOperandChanged(double newValue)
 		{
-			operandABinding.Unbind();
-			operandBBinding.Unbind();
-		}
-
-		private void OperandChangedHandler(double newValue)
-		{
-			result.Value = Evaluate();
+			if (operandABinding.IsBound && operandBBinding.IsBound)
+			{
+				result.Value = Evaluate();
+			}
 		}
 
 		private bool Evaluate()

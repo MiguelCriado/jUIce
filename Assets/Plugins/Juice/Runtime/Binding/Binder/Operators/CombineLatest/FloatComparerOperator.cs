@@ -3,11 +3,8 @@ using UnityEngine;
 
 namespace Juice
 {
-	public class FloatComparerOperator : ViewModelComponent, IViewModelInjector
+	public class FloatComparerOperator : Operator
 	{
-		public Type InjectionType => typeof(OperatorVariableViewModel<bool>);
-		public ViewModelComponent Target => this;
-
 		[SerializeField] private BindingInfo operandA = new BindingInfo(typeof(IReadOnlyObservableVariable<float>));
 		[SerializeField] private MathComparisonType operation;
 		[SerializeField] private FloatConstantBindingInfo operandB = new FloatConstantBindingInfo();
@@ -20,33 +17,28 @@ namespace Juice
 		private VariableBinding<float> operandABinding;
 		private VariableBinding<float> operandBBinding;
 
-		protected virtual void Awake()
+		protected override void Awake()
 		{
+			base.Awake();
+
 			result = new ObservableVariable<bool>();
-			viewModel = new OperatorVariableViewModel<bool>(result);
-			ViewModel = viewModel;
+			ViewModel = new OperatorVariableViewModel<bool>(result);
 
-			operandABinding = new VariableBinding<float>(operandA, this);
-			operandABinding.Property.Changed += OperandChangedHandler;
-			operandBBinding = new VariableBinding<float>(operandB, this);
-			operandBBinding.Property.Changed += OperandChangedHandler;
+			operandABinding = RegisterVariable<float>(operandA).OnChanged(OnOperandChanged).GetBinding();
+			operandBBinding = RegisterVariable<float>(operandB).OnChanged(OnOperandChanged).GetBinding();
 		}
 
-		protected virtual void OnEnable()
+		protected override Type GetInjectionType()
 		{
-			operandABinding.Bind();
-			operandBBinding.Bind();
+			return typeof(OperatorVariableViewModel<bool>);
 		}
 
-		protected virtual void OnDisable()
+		private void OnOperandChanged(float newValue)
 		{
-			operandABinding.Unbind();
-			operandBBinding.Unbind();
-		}
-
-		private void OperandChangedHandler(float newValue)
-		{
-			result.Value = Evaluate();
+			if (operandABinding.IsBound && operandBBinding.IsBound)
+			{
+				result.Value = Evaluate();
+			}
 		}
 
 		private bool Evaluate()

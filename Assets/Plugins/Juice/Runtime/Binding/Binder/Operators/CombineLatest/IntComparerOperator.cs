@@ -3,11 +3,8 @@ using UnityEngine;
 
 namespace Juice
 {
-	public class IntComparerOperator : ViewModelComponent, IViewModelInjector
+	public class IntComparerOperator : Operator
 	{
-		public Type InjectionType => typeof(OperatorVariableViewModel<bool>);
-		public ViewModelComponent Target => this;
-
 		[SerializeField] private BindingInfo operandA = new BindingInfo(typeof(IReadOnlyObservableVariable<int>));
 		[SerializeField] private MathComparisonType operation;
 		[SerializeField] private IntConstantBindingInfo operandB = new IntConstantBindingInfo();
@@ -20,33 +17,29 @@ namespace Juice
 		private VariableBinding<int> operandABinding;
 		private VariableBinding<int> operandBBinding;
 
-		protected virtual void Awake()
+		protected override void Awake()
 		{
+			base.Awake();
+
 			result = new ObservableVariable<bool>();
 			viewModel = new OperatorVariableViewModel<bool>(result);
 			ViewModel = viewModel;
 
-			operandABinding = new VariableBinding<int>(operandA, this);
-			operandABinding.Property.Changed += OperandChangedHandler;
-			operandBBinding = new VariableBinding<int>(operandB, this);
-			operandBBinding.Property.Changed += OperandChangedHandler;
+			operandABinding = RegisterVariable<int>(operandA).OnChanged(OnOperandChanged).GetBinding();
+			operandBBinding = RegisterVariable<int>(operandB).OnChanged(OnOperandChanged).GetBinding();
 		}
 
-		protected virtual void OnEnable()
+		protected override Type GetInjectionType()
 		{
-			operandABinding.Bind();
-			operandBBinding.Bind();
+			return typeof(OperatorVariableViewModel<bool>);
 		}
 
-		protected virtual void OnDisable()
+		private void OnOperandChanged(int newValue)
 		{
-			operandABinding.Unbind();
-			operandBBinding.Unbind();
-		}
-
-		private void OperandChangedHandler(int newValue)
-		{
-			result.Value = Evaluate();
+			if (operandABinding.IsBound && operandBBinding.IsBound)
+			{
+				result.Value = Evaluate();
+			}
 		}
 
 		private bool Evaluate()
