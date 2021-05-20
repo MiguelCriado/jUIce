@@ -91,8 +91,7 @@ namespace Juice
 
 			if (pool)
 			{
-				result = pool.Spawn(prefab);
-				result.transform.SetParent(itemParent);
+				result = pool.Spawn(prefab, itemParent, false);
 			}
 			else
 			{
