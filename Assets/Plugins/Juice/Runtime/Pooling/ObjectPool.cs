@@ -43,16 +43,26 @@ namespace Juice.Pooling
 			CreatePool(original.gameObject, initialSize);
 		}
 
-		public GameObject Spawn(GameObject original)
+		public GameObject Spawn(GameObject original, Transform parent, bool worldPositionStays = true)
 		{
 			GameObject result = null;
 
 			if (cachedPools.TryGetValue(original.gameObject, out PoolData pool))
 			{
-				result = pool.Spawn();
+				result = pool.Spawn(parent, worldPositionStays);
 			}
 
 			return result;
+		}
+
+		public GameObject Spawn(GameObject original)
+		{
+			return Spawn(original, transform);
+		}
+
+		public T Spawn<T>(T original, Transform parent, bool worldPositionStays = true) where T : Component
+		{
+			return Spawn(original.gameObject, parent, worldPositionStays).GetComponent<T>();
 		}
 
 		public T Spawn<T>(T original) where T : Component

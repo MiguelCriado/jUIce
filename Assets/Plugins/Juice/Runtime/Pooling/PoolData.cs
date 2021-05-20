@@ -24,7 +24,7 @@ namespace Juice.Pooling
 			CreatePool();
 		}
 
-		public GameObject Spawn()
+		public GameObject Spawn(Transform parent, bool worldPositionStays)
 		{
 			GameObject result = null;
 
@@ -37,11 +37,7 @@ namespace Juice.Pooling
 			{
 				enumerator.MoveNext();
 				PoolItem item = enumerator.Current;
-
-#if UNITY_EDITOR
-				item.transform.SetParent(null);
-#endif
-
+				item.transform.SetParent(parent, worldPositionStays);
 				Items.Remove(item);
 				item.gameObject.SetActive(true);
 				item.OnSpawn();
@@ -62,9 +58,7 @@ namespace Juice.Pooling
 						Items.Add(item);
 						item.OnRecycle();
 						item.gameObject.SetActive(false);
-#if UNITY_EDITOR
 						item.transform.SetParent(Pool.transform);
-#endif
 					}
 				}
 				else
@@ -105,11 +99,7 @@ namespace Juice.Pooling
 
 		private void AddNewItem()
 		{
-			Transform parent = null;
-#if UNITY_EDITOR
-			parent = Pool.transform;
-#endif
-			GameObject newObject = Object.Instantiate(Original, parent);
+			GameObject newObject = Object.Instantiate(Original, Pool.transform);
 			PoolItem newItem = newObject.GetOrAddComponent<PoolItem>();
 			newItem.Original = Original;
 			newItem.Pool = Pool;
