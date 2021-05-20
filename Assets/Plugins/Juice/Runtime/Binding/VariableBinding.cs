@@ -57,8 +57,8 @@ namespace Juice
 		{
 			if (info is ConstantBindingInfo<T> constantInfo)
 			{
-				boundProperty = new ObservableVariable<T>(constantInfo.Constant);
-				RaiseFirstNotification();
+				boundProperty = exposedProperty;
+				exposedProperty.Value = constantInfo.Constant;
 			}
 		}
 

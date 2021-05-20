@@ -8,11 +8,13 @@ namespace Juice.Editor
 	{
 		private static readonly string UseConstantName = "useConstant";
 		private static readonly string ConstantName = "constant";
-		
+
 		protected override void DrawContent(Rect position, SerializedProperty property)
 		{
+			EditorGUI.BeginDisabledGroup(Application.isPlaying);
+
 			position = DrawConstantToggle(position, property);
-			
+
 			SerializedProperty useConstantProp = property.FindPropertyRelative(UseConstantName);
 
 			if (useConstantProp.boolValue)
@@ -23,6 +25,8 @@ namespace Juice.Editor
 			{
 				DrawBindingInfo(position, property);
 			}
+
+			EditorGUI.EndDisabledGroup();
 		}
 
 		private Rect DrawConstantToggle(Rect position, SerializedProperty property)
@@ -32,7 +36,7 @@ namespace Juice.Editor
 
 			SerializedProperty useConstantProp = property.FindPropertyRelative(UseConstantName);
 			string buttonLabel = useConstantProp.boolValue ? "C" : "V";
-			
+
 			if (GUI.Button(toggleRect, buttonLabel))
 			{
 				useConstantProp.boolValue = !useConstantProp.boolValue;
