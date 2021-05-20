@@ -12,16 +12,7 @@ namespace Juice.Pooling
 
 		private void Awake()
 		{
-			poolables = new List<IPoolable>();
-			IPoolable[] potentialPoolables = GetComponentsInChildren<IPoolable>();
-
-			foreach (IPoolable next in potentialPoolables)
-			{
-				if (!ReferenceEquals(next, this))
-				{
-					poolables.Add(next);
-				}
-			}
+			EnsureInitialState();
 		}
 
 		public void Recycle()
@@ -31,17 +22,38 @@ namespace Juice.Pooling
 
 		public void OnSpawn()
 		{
-			foreach (IPoolable poolable in poolables)
+			EnsureInitialState();
+
+			foreach (IPoolable current in poolables)
 			{
-				poolable.OnSpawn();
+				current.OnSpawn();
 			}
 		}
 
 		public void OnRecycle()
 		{
-			foreach (IPoolable poolable in poolables)
+			EnsureInitialState();
+
+			foreach (IPoolable current in poolables)
 			{
-				poolable.OnRecycle();
+				current.OnRecycle();
+			}
+		}
+
+		private void EnsureInitialState()
+		{
+			if (poolables == null)
+			{
+				poolables = new List<IPoolable>();
+				IPoolable[] potentialPoolables = GetComponentsInChildren<IPoolable>();
+
+				foreach (IPoolable next in potentialPoolables)
+				{
+					if (!ReferenceEquals(next, this))
+					{
+						poolables.Add(next);
+					}
+				}
 			}
 		}
 	}
