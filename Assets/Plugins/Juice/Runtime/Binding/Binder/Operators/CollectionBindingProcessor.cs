@@ -14,11 +14,11 @@ namespace Juice
 			processedCollection = new ObservableCollection<TTo>();
 			ViewModel = new OperatorCollectionViewModel<TTo>(processedCollection);
 			collectionBinding = new CollectionBinding<TFrom>(bindingInfo, context);
-			collectionBinding.Property.Reset += BoundCollectionResetHandler;
-			collectionBinding.Property.ItemAdded += BoundCollectionItemAddedHandler;
-			collectionBinding.Property.ItemReplaced += BoundCollectionItemReplacedHandler;
-			collectionBinding.Property.ItemRemoved += BoundCollectionItemRemovedHandler;
-			collectionBinding.Property.ItemMoved += BoundCollectionItemMovedHandler;
+			collectionBinding.Property.Reset += OnBoundCollectionReset;
+			collectionBinding.Property.ItemAdded += OnBoundCollectionItemAdded;
+			collectionBinding.Property.ItemReplaced += OnBoundCollectionItemReplaced;
+			collectionBinding.Property.ItemRemoved += OnBoundCollectionItemRemoved;
+			collectionBinding.Property.ItemMoved += OnBoundCollectionItemMoved;
 		}
 
 		public virtual void Bind()
@@ -32,28 +32,28 @@ namespace Juice
 		}
 
 		protected abstract TTo ProcessValue(TFrom newValue, TFrom oldValue, bool isNewItem);
-		
-		protected virtual void BoundCollectionResetHandler()
+
+		protected virtual void OnBoundCollectionReset()
 		{
 			processedCollection.Clear();
 		}
-		
-		protected virtual void BoundCollectionItemAddedHandler(int index, TFrom value)
+
+		protected virtual void OnBoundCollectionItemAdded(int index, TFrom value)
 		{
 			processedCollection.Insert(index, ProcessValue(value, default, true));
 		}
-		
-		protected virtual void BoundCollectionItemReplacedHandler(int index, TFrom oldValue, TFrom newValue)
+
+		protected virtual void OnBoundCollectionItemReplaced(int index, TFrom oldValue, TFrom newValue)
 		{
 			processedCollection[index] = ProcessValue(newValue, oldValue, false);
 		}
-		
-		protected virtual void BoundCollectionItemRemovedHandler(int index, TFrom value)
+
+		protected virtual void OnBoundCollectionItemRemoved(int index, TFrom value)
 		{
 			processedCollection.RemoveAt(index);
 		}
-		
-		protected virtual void BoundCollectionItemMovedHandler(int oldIndex, int newIndex, TFrom value)
+
+		protected virtual void OnBoundCollectionItemMoved(int oldIndex, int newIndex, TFrom value)
 		{
 			processedCollection.Move(oldIndex, newIndex);
 		}

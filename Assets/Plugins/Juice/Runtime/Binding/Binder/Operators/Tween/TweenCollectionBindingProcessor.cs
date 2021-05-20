@@ -22,7 +22,7 @@ namespace Juice
 			return newValue;
 		}
 
-		protected override void BoundCollectionItemReplacedHandler(int index, T oldValue, T newValue)
+		protected override void OnBoundCollectionItemReplaced(int index, T oldValue, T newValue)
 		{
 			lastTweener?.Kill();
 			lastTweener = tweenBuilder(() => processedCollection[index], x => processedCollection[index] = x, newValue);

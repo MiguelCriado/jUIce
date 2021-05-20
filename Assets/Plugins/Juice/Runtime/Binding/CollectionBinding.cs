@@ -34,18 +34,12 @@ namespace Juice
 			if (boundProperty != null)
 			{
 				boundProperty.Reset += OnBoundPropertyReset;
-				boundProperty.CountChanged += OnBoundPropertyCountChanged;
 				boundProperty.ItemAdded += OnBoundPropertyItemAdded;
 				boundProperty.ItemMoved += OnBoundPropertyItemMoved;
 				boundProperty.ItemRemoved += OnBoundPropertyItemRemoved;
 				boundProperty.ItemReplaced += OnBoundPropertyItemReplaced;
 
-				exposedProperty.Clear();
-
-				foreach (var item in boundProperty)
-				{
-					exposedProperty.Add(item);
-				}
+				exposedProperty.Set(boundProperty);
 			}
 			else
 			{
@@ -58,7 +52,6 @@ namespace Juice
 			if (boundProperty != null)
 			{
 				boundProperty.Reset -= OnBoundPropertyReset;
-				boundProperty.CountChanged -= OnBoundPropertyCountChanged;
 				boundProperty.ItemAdded -= OnBoundPropertyItemAdded;
 				boundProperty.ItemMoved -= OnBoundPropertyItemMoved;
 				boundProperty.ItemRemoved -= OnBoundPropertyItemRemoved;
@@ -88,11 +81,6 @@ namespace Juice
 		private void OnBoundPropertyReset()
 		{
 			exposedProperty.Clear();
-		}
-
-		private void OnBoundPropertyCountChanged(int oldCount, int newCount)
-		{
-
 		}
 
 		private void OnBoundPropertyItemAdded(int index, T value)

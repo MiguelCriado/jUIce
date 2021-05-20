@@ -11,6 +11,7 @@ namespace Juice
 		public event CollectionMoveEventHandler<TExposed> ItemMoved;
 		public event CollectionReplaceEventHandler<TExposed> ItemReplaced;
 		public event CollectionResetEventHandler Reset;
+		public event CollectionChangeEventHandler Changed;
 
 		public int Count => boxedCollection.Count;
 		public TExposed this[int index] => boxedCollection[index];
@@ -20,42 +21,48 @@ namespace Juice
 		public CollectionBoxer(IReadOnlyObservableCollection<TBoxed> boxedCollection)
 		{
 			this.boxedCollection = boxedCollection;
-			boxedCollection.ItemAdded += BoxedCollectionItemAddedHandler;
-			boxedCollection.CountChanged += BoxedCollectionCountChangedHandler;
-			boxedCollection.ItemRemoved += BoxedCollectionItemRemovedHandler;
-			boxedCollection.ItemMoved += BoxedCollectionItemMovedHandler;
-			boxedCollection.ItemReplaced += BoxedCollectionItemReplacedHandler;
-			boxedCollection.Reset += BoxedCollectionResetHandler;
+			boxedCollection.ItemAdded += OnItemAdded;
+			boxedCollection.CountChanged += OnCountChanged;
+			boxedCollection.ItemRemoved += OnItemRemoved;
+			boxedCollection.ItemMoved += OnItemMoved;
+			boxedCollection.ItemReplaced += OnItemReplaced;
+			boxedCollection.Reset += OnReset;
+			boxedCollection.Changed += OnChanged;
 		}
 
-		private void BoxedCollectionItemAddedHandler(int index, TBoxed value)
+		private void OnItemAdded(int index, TBoxed value)
 		{
 			ItemAdded?.Invoke(index, value);
 		}
 
-		private void BoxedCollectionCountChangedHandler(int oldCount, int newCount)
+		private void OnCountChanged(int oldCount, int newCount)
 		{
 			CountChanged?.Invoke(oldCount, newCount);
 		}
 
-		private void BoxedCollectionItemRemovedHandler(int index, TBoxed value)
+		private void OnItemRemoved(int index, TBoxed value)
 		{
 			ItemRemoved?.Invoke(index, value);
 		}
 
-		private void BoxedCollectionItemMovedHandler(int oldIndex, int newIndex, TBoxed value)
+		private void OnItemMoved(int oldIndex, int newIndex, TBoxed value)
 		{
 			ItemMoved?.Invoke(oldIndex, newIndex, value);
 		}
 
-		private void BoxedCollectionItemReplacedHandler(int index, TBoxed oldValue, TBoxed newValue)
+		private void OnItemReplaced(int index, TBoxed oldValue, TBoxed newValue)
 		{
 			ItemReplaced?.Invoke(index, oldValue, newValue);
 		}
 
-		private void BoxedCollectionResetHandler()
+		private void OnReset()
 		{
 			Reset?.Invoke();
+		}
+
+		private void OnChanged()
+		{
+			Changed?.Invoke();
 		}
 
 		public IEnumerator<TExposed> GetEnumerator()

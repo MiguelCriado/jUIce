@@ -24,13 +24,13 @@ namespace Juice
 			return scanFunction(newValue, oldValue);
 		}
 
-		protected override void BoundCollectionItemAddedHandler(int index, T value)
+		protected override void OnBoundCollectionItemAdded(int index, T value)
 		{
 			T processedValue = ProcessValue(value, initialAccumulatedValueGetter(), true);
 			processedCollection.Insert(index, processedValue);
 		}
 
-		protected override void BoundCollectionItemReplacedHandler(int index, T oldValue, T newValue)
+		protected override void OnBoundCollectionItemReplaced(int index, T oldValue, T newValue)
 		{
 			T processedValue = ProcessValue(newValue, oldValue, false);
 			processedCollection[index] = processedValue;

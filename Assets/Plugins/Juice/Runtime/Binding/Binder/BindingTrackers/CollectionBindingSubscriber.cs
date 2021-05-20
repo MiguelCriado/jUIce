@@ -45,6 +45,12 @@ namespace Juice
 			return this;
 		}
 
+		public CollectionBindingSubscriber<T> OnChanged(CollectionChangeEventHandler callback)
+		{
+			binding.Property.Changed += callback;
+			return this;
+		}
+
 		public CollectionBinding<T> GetBinding()
 		{
 			return binding;

@@ -29,29 +29,29 @@ namespace Juice
 			base.Unbind();
 		}
 
-		protected override void BoundCollectionResetHandler()
+		protected override void OnBoundCollectionReset()
 		{
-			EnqueueAction(() => base.BoundCollectionResetHandler());
+			EnqueueAction(() => base.OnBoundCollectionReset());
 		}
 
-		protected override void BoundCollectionItemAddedHandler(int index, T value)
+		protected override void OnBoundCollectionItemAdded(int index, T value)
 		{
-			EnqueueAction(() => base.BoundCollectionItemAddedHandler(index, value));
+			EnqueueAction(() => base.OnBoundCollectionItemAdded(index, value));
 		}
 
-		protected override void BoundCollectionItemMovedHandler(int oldIndex, int newIndex, T value)
+		protected override void OnBoundCollectionItemMoved(int oldIndex, int newIndex, T value)
 		{
-			EnqueueAction(() => base.BoundCollectionItemMovedHandler(oldIndex, newIndex, value));
+			EnqueueAction(() => base.OnBoundCollectionItemMoved(oldIndex, newIndex, value));
 		}
 
-		protected override void BoundCollectionItemRemovedHandler(int index, T value)
+		protected override void OnBoundCollectionItemRemoved(int index, T value)
 		{
-			EnqueueAction(() => base.BoundCollectionItemRemovedHandler(index, value));
+			EnqueueAction(() => base.OnBoundCollectionItemRemoved(index, value));
 		}
 
-		protected override void BoundCollectionItemReplacedHandler(int index, T oldValue, T newValue)
+		protected override void OnBoundCollectionItemReplaced(int index, T oldValue, T newValue)
 		{
-			EnqueueAction(() => base.BoundCollectionItemReplacedHandler(index, oldValue, newValue));
+			EnqueueAction(() => base.OnBoundCollectionItemReplaced(index, oldValue, newValue));
 		}
 
 		protected override T ProcessValue(T newValue, T oldValue, bool isNewItem)
