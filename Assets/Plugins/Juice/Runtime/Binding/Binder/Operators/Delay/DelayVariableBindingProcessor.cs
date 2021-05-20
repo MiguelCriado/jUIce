@@ -29,9 +29,9 @@ namespace Juice
 			base.Unbind();
 		}
 
-		protected override void BoundVariableChangedHandler(T newValue)
+		protected override void OnBoundVariableChanged(T newValue)
 		{
-			EnqueueAction(() => base.BoundVariableChangedHandler(newValue));
+			EnqueueAction(() => base.OnBoundVariableChanged(newValue));
 		}
 
 		protected override T ProcessValue(T value)

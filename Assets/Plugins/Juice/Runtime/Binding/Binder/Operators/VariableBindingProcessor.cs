@@ -14,7 +14,7 @@ namespace Juice
 			processedVariable = new ObservableVariable<TTo>();
 			ViewModel = new OperatorVariableViewModel<TTo>(processedVariable);
 			variableBinding = new VariableBinding<TFrom>(bindingInfo, context);
-			variableBinding.Property.Changed += BoundVariableChangedHandler;
+			variableBinding.Property.Changed += OnBoundVariableChanged;
 		}
 
 		public virtual void Bind()
@@ -28,8 +28,8 @@ namespace Juice
 		}
 
 		protected abstract TTo ProcessValue(TFrom value);
-		
-		protected virtual void BoundVariableChangedHandler(TFrom newValue)
+
+		protected virtual void OnBoundVariableChanged(TFrom newValue)
 		{
 			processedVariable.Value = ProcessValue(newValue);
 		}

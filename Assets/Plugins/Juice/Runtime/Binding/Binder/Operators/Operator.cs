@@ -31,6 +31,18 @@ namespace Juice
 			return bindingTracker.RegisterVariable<T>(bindingInfo);
 		}
 
+		protected OperatorVariableViewModel<T> ExposeVariable<T>(BindingInfo bindingInfo)
+		{
+			var variable = new ObservableVariable<T>();
+			OperatorVariableViewModel<T> result = new OperatorVariableViewModel<T>(variable);
+
+			RegisterVariable<T>(bindingInfo)
+				.OnChanged(value => variable.Value = value)
+				.OnCleared(variable.Clear);
+
+			return result;
+		}
+
 		protected CollectionBindingSubscriber<T> RegisterCollection<T>(BindingInfo bindingInfo)
 		{
 			return bindingTracker.RegisterCollection<T>(bindingInfo);

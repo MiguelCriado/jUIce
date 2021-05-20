@@ -21,13 +21,13 @@ namespace Juice
 			base.Bind();
 		}
 
-		protected override void BoundVariableChangedHandler(T newValue)
+		protected override void OnBoundVariableChanged(T newValue)
 		{
 			valueReceivedCount++;
 			
 			if (valueReceivedCount >= skipAmount)
 			{
-				base.BoundVariableChangedHandler(newValue);
+				base.OnBoundVariableChanged(newValue);
 			}
 		}
 

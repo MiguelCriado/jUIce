@@ -15,10 +15,11 @@ namespace Juice
 	public abstract class ProcessorOperator<TFrom, TTo> : Operator
 	{
 		protected virtual BindingType[] AllowedTypes => null; // All types allowed
+		protected virtual string FromBindingName { get; } = nameof(fromBinding);
 
 		[AllowedBindingTypes(nameof(AllowedTypes))]
 		[SerializeField, DisableAtRuntime] private BindingType bindingType;
-		[SerializeField] private BindingInfo fromBinding = new BindingInfo(typeof(IReadOnlyObservableVariable<TFrom>));
+		[SerializeField, Rename(nameof(FromBindingName))] private BindingInfo fromBinding = new BindingInfo(typeof(IReadOnlyObservableVariable<TFrom>));
 
 		private IBindingProcessor bindingProcessor;
 

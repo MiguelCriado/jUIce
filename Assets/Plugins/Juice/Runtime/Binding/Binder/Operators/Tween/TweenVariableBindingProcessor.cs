@@ -17,7 +17,7 @@ namespace Juice
 			this.tweenBuilder = tweenBuilder;
 		}
 
-		protected override void BoundVariableChangedHandler(T newValue)
+		protected override void OnBoundVariableChanged(T newValue)
 		{
 			lastTweener?.Kill();
 			lastTweener = tweenBuilder(() => processedVariable.Value, x => processedVariable.Value = x, newValue);
