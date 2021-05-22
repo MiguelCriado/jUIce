@@ -28,7 +28,7 @@ namespace Juice
 
 			if (boundProperty == null)
 			{
-				boundProperty = BoxCollection(property);
+				boundProperty = BoxCollection(property, context);
 			}
 
 			if (boundProperty != null)
@@ -61,7 +61,7 @@ namespace Juice
 			}
 		}
 
-		private static IReadOnlyObservableCollection<T> BoxCollection(object collectionToBox)
+		private static IReadOnlyObservableCollection<T> BoxCollection(object collectionToBox, Component context)
 		{
 			IReadOnlyObservableCollection<T> result = null;
 
@@ -69,10 +69,21 @@ namespace Juice
 
 			if (collectionGenericType != null)
 			{
-				Type exposedType = typeof(T);
-				Type boxedType = collectionGenericType.GenericTypeArguments[0];
-				Type activationType = typeof(CollectionBoxer<,>).MakeGenericType(exposedType, boxedType);
-				result = Activator.CreateInstance(activationType, collectionToBox) as IReadOnlyObservableCollection<T>;
+				try
+				{
+					Type exposedType = typeof(T);
+					Type boxedType = collectionGenericType.GenericTypeArguments[0];
+					Type activationType = typeof(CollectionBoxer<,>).MakeGenericType(exposedType, boxedType);
+					result = Activator.CreateInstance(activationType, collectionToBox) as IReadOnlyObservableCollection<T>;
+				}
+				catch (ExecutionEngineException e)
+				{
+					Debug.LogError($"AOT code not generated to box {typeof(IReadOnlyObservableCollection<T>).GetPrettifiedName()}. " +
+					               $"You must force the compiler to generate a CollectionBoxer by using " +
+					               $"\"{nameof(JuiceAotHelper)}.{nameof(JuiceAotHelper.EnsureType)}<{typeof(T).GetPrettifiedName()}>();\" " +
+					               $"anywhere in your code.\n" +
+					               $"Context: {GetContextPath(context)}", context);
+				}
 			}
 
 			return result;

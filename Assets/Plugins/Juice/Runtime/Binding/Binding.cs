@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using Juice.Plugins.Juice.Runtime.Utils;
+using Juice.Plugins.Juice.Runtime.Utils.ExtensionMethods;
 using UnityEngine;
 
 namespace Juice
@@ -50,6 +51,11 @@ namespace Juice
 		protected virtual void BindConstant(BindingInfo info)
 		{
 
+		}
+
+		protected static string GetContextPath(Component context)
+		{
+			return $"{context.transform.PathToString()}@{context.GetType().Name}";
 		}
 
 		private void BindProperty()

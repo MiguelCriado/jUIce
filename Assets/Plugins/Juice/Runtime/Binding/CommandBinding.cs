@@ -98,7 +98,7 @@ namespace Juice
 
 			if (boundProperty == null)
 			{
-				boundProperty = BoxCommand(property);
+				boundProperty = BoxCommand(property, context);
 			}
 
 			if (boundProperty != null)
@@ -122,7 +122,7 @@ namespace Juice
 			}
 		}
 
-		private static IObservableCommand<T> BoxCommand(object commandToBox)
+		private static IObservableCommand<T> BoxCommand(object commandToBox, Component context)
 		{
 			IObservableCommand<T> result = null;
 
@@ -130,10 +130,21 @@ namespace Juice
 
 			if (commandGenericType != null)
 			{
-				Type exposedType = typeof(T);
-				Type boxedType = commandGenericType.GenericTypeArguments[0];
-				Type activationType = typeof(CommandBoxer<,>).MakeGenericType(exposedType, boxedType);
-				result = Activator.CreateInstance(activationType, commandToBox) as IObservableCommand<T>;
+				try
+				{
+					Type exposedType = typeof(T);
+					Type boxedType = commandGenericType.GenericTypeArguments[0];
+					Type activationType = typeof(CommandBoxer<,>).MakeGenericType(exposedType, boxedType);
+					result = Activator.CreateInstance(activationType, commandToBox) as IObservableCommand<T>;
+				}
+				catch (ExecutionEngineException e)
+				{
+					Debug.LogError($"AOT code not generated to box {typeof(IObservableCommand<T>).GetPrettifiedName()}. " +
+					               $"You must force the compiler to generate a CommandBoxer by using " +
+					               $"\"{nameof(JuiceAotHelper)}.{nameof(JuiceAotHelper.EnsureType)}<{typeof(T).GetPrettifiedName()}>();\" " +
+					               $"anywhere in your code.\n" +
+					               $"Context: {GetContextPath(context)}", context);
+				}
 			}
 
 			return result;

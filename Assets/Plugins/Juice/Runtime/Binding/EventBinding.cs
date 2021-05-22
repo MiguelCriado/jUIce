@@ -76,7 +76,7 @@ namespace Juice
 
 			if (boundProperty == null)
 			{
-				boundProperty = BoxEvent(property);
+				boundProperty = BoxEvent(property, context);
 			}
 
 			if (boundProperty != null)
@@ -98,7 +98,7 @@ namespace Juice
 			}
 		}
 
-		private static IObservableEvent<T> BoxEvent(object eventToBox)
+		private static IObservableEvent<T> BoxEvent(object eventToBox, Component context)
 		{
 			IObservableEvent<T> result = null;
 
@@ -106,10 +106,21 @@ namespace Juice
 
 			if (eventGenericType != null)
 			{
-				Type exposedType = typeof(T);
-				Type boxedType = eventGenericType.GenericTypeArguments[0];
-				Type activationType = typeof(EventBoxer<,>).MakeGenericType(exposedType, boxedType);
-				result = Activator.CreateInstance(activationType, eventToBox) as IObservableEvent<T>;
+				try
+				{
+					Type exposedType = typeof(T);
+					Type boxedType = eventGenericType.GenericTypeArguments[0];
+					Type activationType = typeof(EventBoxer<,>).MakeGenericType(exposedType, boxedType);
+					result = Activator.CreateInstance(activationType, eventToBox) as IObservableEvent<T>;
+				}
+				catch (ExecutionEngineException e)
+				{
+					Debug.LogError($"AOT code not generated to box {typeof(IObservableEvent<T>).GetPrettifiedName()}. " +
+					               $"You must force the compiler to generate an EventBoxer by using " +
+					               $"\"{nameof(JuiceAotHelper)}.{nameof(JuiceAotHelper.EnsureType)}<{typeof(T).GetPrettifiedName()}>();\" " +
+					               $"anywhere in your code.\n" +
+					               $"Context: {GetContextPath(context)}", context);
+				}
 			}
 
 			return result;

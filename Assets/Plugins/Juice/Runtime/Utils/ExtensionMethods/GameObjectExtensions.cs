@@ -8,7 +8,7 @@ namespace Juice.Utils
 		{
 			T result = gameObject.GetComponent<T>();
 
-			if (result == null)
+			if (!result)
 			{
 				result = gameObject.AddComponent<T>();
 			}

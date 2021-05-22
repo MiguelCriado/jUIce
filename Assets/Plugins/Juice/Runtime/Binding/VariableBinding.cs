@@ -28,7 +28,7 @@ namespace Juice
 
 			if (boundProperty == null && BindingUtils.NeedsToBeBoxed(property.GetType(), typeof(IReadOnlyObservableVariable<T>)))
 			{
-				boundProperty = BoxVariable(property);
+				boundProperty = BoxVariable(property, context);
 			}
 
 			if (boundProperty != null)
@@ -62,7 +62,7 @@ namespace Juice
 			}
 		}
 
-		private static IReadOnlyObservableVariable<T> BoxVariable(object variableToBox)
+		private static IReadOnlyObservableVariable<T> BoxVariable(object variableToBox, Component context)
 		{
 			IReadOnlyObservableVariable<T> result = null;
 
@@ -70,10 +70,21 @@ namespace Juice
 
 			if (variableGenericType != null)
 			{
-				Type exposedType = typeof(T);
-				Type boxedType = variableGenericType.GenericTypeArguments[0];
-				Type activationType = typeof(VariableBoxer<,>).MakeGenericType(exposedType, boxedType);
-				result = Activator.CreateInstance(activationType, variableToBox) as IReadOnlyObservableVariable<T>;
+				try
+				{
+					Type exposedType = typeof(T);
+					Type boxedType = variableGenericType.GenericTypeArguments[0];
+					Type activationType = typeof(VariableBoxer<,>).MakeGenericType(exposedType, boxedType);
+					result = Activator.CreateInstance(activationType, variableToBox) as IReadOnlyObservableVariable<T>;
+				}
+				catch (ExecutionEngineException e)
+				{
+					Debug.LogError($"AOT code not generated to box {typeof(IReadOnlyObservableVariable<T>).GetPrettifiedName()}. " +
+					               $"You must force the compiler to generate a VariableBoxer by using " +
+					               $"\"{nameof(JuiceAotHelper)}.{nameof(JuiceAotHelper.EnsureType)}<{typeof(T).GetPrettifiedName()}>();\" " +
+					               $"anywhere in your code.\n" +
+					               $"Context: {GetContextPath(context)}", context);
+				}
 			}
 
 			return result;
