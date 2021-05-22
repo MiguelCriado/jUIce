@@ -39,8 +39,10 @@ namespace Juice
 
 		private WindowLayer currentLayer;
 
-		protected virtual void OnDestroy()
+		protected override void OnDestroy()
 		{
+			base.OnDestroy();
+
 			if (currentLayer)
 			{
 				currentLayer.CurrentWindowChanged -= OnLayerWindowChanged;

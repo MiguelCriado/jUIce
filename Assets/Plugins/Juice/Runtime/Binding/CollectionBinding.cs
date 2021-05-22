@@ -77,7 +77,9 @@ namespace Juice
 					Type activationType = typeof(CollectionBoxer<,>).MakeGenericType(exposedType, boxedType);
 					result = Activator.CreateInstance(activationType, collectionToBox) as IReadOnlyObservableCollection<T>;
 				}
-				catch (ExecutionEngineException e)
+#pragma warning disable 618
+				catch (ExecutionEngineException)
+#pragma warning restore 618
 				{
 					Debug.LogError($"AOT code not generated to box {typeof(IReadOnlyObservableCollection<T>).GetPrettifiedName()}. " +
 					               $"You must force the compiler to generate a CollectionBoxer by using " +

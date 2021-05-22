@@ -290,7 +290,14 @@ namespace Juice
 
 		private void OnCloseRequestedByWindow(IView controller)
 		{
-			uiFrame.CloseCurrentWindow().Execute();
+			if (uiFrame.CurrentWindow == controller)
+			{
+				uiFrame.CloseCurrentWindow().Execute();
+			}
+			else
+			{
+				Debug.LogError($"You're trying to close a different window ({controller.GetType().Name}) than the current one.");
+			}
 		}
 
 		private void OnPopupsBackgroundClicked()

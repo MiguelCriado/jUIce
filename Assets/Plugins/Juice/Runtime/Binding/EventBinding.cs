@@ -113,7 +113,9 @@ namespace Juice
 					Type activationType = typeof(EventBoxer<,>).MakeGenericType(exposedType, boxedType);
 					result = Activator.CreateInstance(activationType, eventToBox) as IObservableEvent<T>;
 				}
-				catch (ExecutionEngineException e)
+#pragma warning disable 618
+				catch (ExecutionEngineException)
+#pragma warning restore 618
 				{
 					Debug.LogError($"AOT code not generated to box {typeof(IObservableEvent<T>).GetPrettifiedName()}. " +
 					               $"You must force the compiler to generate an EventBoxer by using " +

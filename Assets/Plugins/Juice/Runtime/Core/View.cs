@@ -36,6 +36,11 @@ namespace Juice
 			Target.ViewModelChanged += OnTargetComponentViewModelChanged;
 		}
 
+		protected virtual void OnDestroy()
+		{
+			ViewDestroyed?.Invoke(this);
+		}
+
 		public void SetViewModel(IViewModel viewModel)
 		{
 			if (viewModel != null)
@@ -49,6 +54,11 @@ namespace Juice
 					Debug.LogError($"ViewModel passed have wrong type! ({viewModel.GetType()} instead of {typeof(T)})", this);
 				}
 			}
+		}
+
+		public void Close()
+		{
+			CloseRequested?.Invoke(this);
 		}
 
 		protected virtual void SetViewModel(T viewModel)
