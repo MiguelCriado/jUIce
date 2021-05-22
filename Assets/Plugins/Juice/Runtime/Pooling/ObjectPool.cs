@@ -3,13 +3,16 @@ using UnityEngine;
 
 namespace Juice.Pooling
 {
-	public partial class ObjectPool : MonoBehaviour
+	public class ObjectPool : MonoBehaviour
 	{
+		public static ObjectPool Global => SingleObjectPool.Instance.GlobalPool;
+
 		[SerializeField] private int initialPoolSize = 5 ;
 		[SerializeField] private int maxPoolSize = 20;
 		[SerializeField] private List<GameObject> poolPrefabs;
 
-		private Dictionary<GameObject, PoolData> cachedPools;
+		private readonly Dictionary<GameObject, PoolData> cachedPools = new Dictionary<GameObject, PoolData>();
+		private bool arePoolPrefabsCached;
 
 		private void OnValidate()
 		{
@@ -19,15 +22,7 @@ namespace Juice.Pooling
 
 		private void Awake()
 		{
-			cachedPools = new Dictionary<GameObject, PoolData>();
-
-			if (poolPrefabs != null)
-			{
-				foreach (GameObject objectToPool in poolPrefabs)
-				{
-					CreatePool(objectToPool, initialPoolSize);
-				}
-			}
+			EnsureCachedPools();
 		}
 
 		public void CreatePool(GameObject original, int initialSize)
@@ -46,6 +41,8 @@ namespace Juice.Pooling
 		public GameObject Spawn(GameObject original, Transform parent, bool worldPositionStays = true)
 		{
 			GameObject result = null;
+
+			EnsureCachedPools();
 
 			if (cachedPools.TryGetValue(original.gameObject, out PoolData pool))
 			{
@@ -87,6 +84,19 @@ namespace Juice.Pooling
 		public void Recycle<T>(T item) where T : Component
 		{
 			Recycle(item.gameObject);
+		}
+
+		private void EnsureCachedPools()
+		{
+			if (poolPrefabs != null && arePoolPrefabsCached == false)
+			{
+				foreach (GameObject objectToPool in poolPrefabs)
+				{
+					CreatePool(objectToPool, initialPoolSize);
+				}
+
+				arePoolPrefabsCached = true;
+			}
 		}
 	}
 }
