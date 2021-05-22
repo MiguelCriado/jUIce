@@ -32,7 +32,7 @@ namespace Juice.Pooling
 
 		public void CreatePool(GameObject original, int initialSize)
 		{
-			if (cachedPools.TryGetValue(original, out PoolData poolData) == false)
+			if (cachedPools.ContainsKey(original) == false)
 			{
 				cachedPools.Add(original, new PoolData(this, original, initialSize, 2f));
 			}
