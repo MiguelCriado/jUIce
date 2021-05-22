@@ -58,6 +58,7 @@ namespace Juice
 				boundProperty.ItemReplaced -= OnBoundPropertyItemReplaced;
 
 				boundProperty = null;
+				exposedProperty.Clear();
 			}
 		}
 
