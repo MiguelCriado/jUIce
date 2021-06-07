@@ -4,13 +4,20 @@ using UnityEngine;
 
 namespace Juice
 {
-	public class WidgetBinder : VariableBinder<bool>
+	public class WidgetBinder : ComponentBinder
 	{
-		protected override string BindingInfoName { get; } = "Show";
-
+		[SerializeField] private BindingInfo show = BindingInfo.Variable<bool>();
 		[SerializeField] private List<Widget> targets;
 
-		protected override void Refresh(bool value)
+		protected override void Awake()
+		{
+			base.Awake();
+
+			RegisterVariable<bool>(show)
+				.OnChanged(Refresh);
+		}
+
+		private void Refresh(bool value)
 		{
 			if (value)
 			{

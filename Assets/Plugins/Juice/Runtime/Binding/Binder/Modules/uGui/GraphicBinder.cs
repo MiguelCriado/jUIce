@@ -9,9 +9,9 @@ namespace Juice
 {
 	public class GraphicBinder : ComponentBinder
 	{
-		[SerializeField] private BindingInfo color = new BindingInfo(typeof(IReadOnlyObservableVariable<Color>));
-		[SerializeField] private BindingInfo material = new BindingInfo(typeof(IReadOnlyObservableVariable<Material>));
-		[SerializeField] private BindingInfo raycastTarget = new BindingInfo(typeof(IReadOnlyObservableVariable<bool>));
+		[SerializeField] private BindingInfo color = BindingInfo.Variable<Color>();
+		[SerializeField] private BindingInfo material = BindingInfo.Variable<Material>();
+		[SerializeField] private BindingInfo raycastTarget = BindingInfo.Variable<bool>();
 
 		private Graphic graphic;
 

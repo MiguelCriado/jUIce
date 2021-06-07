@@ -1,18 +1,31 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace Juice
 {
-	public class EnableMonoBehaviourBinder : VariableBinder<bool>
+	public class EnableMonoBehaviourBinder : ComponentBinder
 	{
-		[SerializeField] private MonoBehaviour target;
+		[SerializeField, Rename(nameof(BindingInfoName))]
+		private BindingInfo bindingInfo = BindingInfo.Variable<bool>();
+		[SerializeField] private List<MonoBehaviour> targets;
 
-		protected override string BindingInfoName { get; } = "Enabled";
+		private string BindingInfoName { get; } = "Enabled";
 
-		protected override void Refresh(bool value)
+		protected override void Awake()
 		{
-			if (target)
+			base.Awake();
+
+			RegisterVariable<bool>(bindingInfo).OnChanged(Refresh);
+		}
+
+		private void Refresh(bool value)
+		{
+			foreach (MonoBehaviour current in targets)
 			{
-				target.enabled = value;
+				if (current)
+				{
+					current.enabled = value;
+				}
 			}
 		}
 	}

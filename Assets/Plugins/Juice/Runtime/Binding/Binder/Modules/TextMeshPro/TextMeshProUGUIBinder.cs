@@ -8,9 +8,9 @@ using UnityEditor;
 namespace Juice
 {
 	[RequireComponent(typeof(TextMeshProUGUI))]
-	public class TextMeshProUGUIBinder : VariableBinder<object>
+	public class TextMeshProUGUIBinder : ComponentBinder
 	{
-		protected override string BindingInfoName { get; } = "Text";
+		[SerializeField] private BindingInfo text = BindingInfo.Variable<object>();
 
 		private TextMeshProUGUI textComponent;
 
@@ -19,11 +19,8 @@ namespace Juice
 			base.Awake();
 
 			textComponent = GetComponent<TextMeshProUGUI>();
-		}
 
-		protected override void Refresh(object value)
-		{
-			textComponent.text = value != null ? value.ToString() : string.Empty;
+			RegisterVariable<object>(text).OnChanged(Refresh);
 		}
 
 #if UNITY_EDITOR
@@ -34,5 +31,9 @@ namespace Juice
 			context.GetOrAddComponent<TextMeshProUGUIBinder>();
 		}
 #endif
+		private void Refresh(object value)
+		{
+			textComponent.text = value != null ? value.ToString() : string.Empty;
+		}
 	}
 }
