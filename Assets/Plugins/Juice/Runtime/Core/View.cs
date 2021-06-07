@@ -14,8 +14,17 @@ namespace Juice
 
 		public bool IsInteractable
 		{
-			get => blockingTracker.IsInteractable;
-			set => blockingTracker.IsInteractable = value;
+			get
+			{
+				EnsureInitialState();
+				return blockingTracker.IsInteractable;
+			}
+
+			set
+			{
+				EnsureInitialState();
+				blockingTracker.IsInteractable = value;
+			}
 		}
 
 		public Type InjectionType => typeof(T);
@@ -28,12 +37,6 @@ namespace Juice
 		protected virtual void Reset()
 		{
 			RetrieveRequiredComponents();
-		}
-
-		protected override void Awake()
-		{
-			RetrieveRequiredComponents();
-			Target.ViewModelChanged += OnTargetComponentViewModelChanged;
 		}
 
 		protected virtual void OnDestroy()
@@ -61,8 +64,19 @@ namespace Juice
 			CloseRequested?.Invoke(this);
 		}
 
+		protected override void Initialize()
+		{
+			base.Initialize();
+
+			RetrieveRequiredComponents();
+
+			Target.ViewModelChanged += OnTargetComponentViewModelChanged;
+		}
+
 		protected virtual void SetViewModel(T viewModel)
 		{
+			EnsureInitialState();
+
 			if (targetComponent)
 			{
 				targetComponent.ViewModel = viewModel;

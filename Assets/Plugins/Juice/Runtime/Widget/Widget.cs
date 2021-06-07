@@ -48,12 +48,12 @@ namespace Juice
 
 		protected virtual void Awake()
 		{
-			Initialize();
+			EnsureInitialState();
 		}
 
 		public virtual async Task Show(ITransition overrideTransition = null)
 		{
-			Initialize();
+			EnsureInitialState();
 			OnShowing();
 
 			ITransition transition = overrideTransition ?? ShowTransition;
@@ -65,7 +65,7 @@ namespace Juice
 
 		public virtual async Task Hide(ITransition overrideTransition = null)
 		{
-			Initialize();
+			EnsureInitialState();
 			OnHiding();
 
 			ITransition transition = overrideTransition ?? HideTransition;
@@ -83,6 +83,21 @@ namespace Juice
 		public void HideWidget()
 		{
 			Hide().RunAndForget();
+		}
+
+		protected void EnsureInitialState()
+		{
+			if (isInitialized == false)
+			{
+				isInitialized = true;
+
+				Initialize();
+			}
+		}
+
+		protected virtual void Initialize()
+		{
+			rectTransform = GetComponent<RectTransform>();
 		}
 
 		protected virtual void OnShowing()
@@ -107,15 +122,6 @@ namespace Juice
 		{
 			Hidden?.Invoke(this);
 			transitionEvents.OnHidden.Invoke();
-		}
-
-		private void Initialize()
-		{
-			if (isInitialized == false)
-			{
-				rectTransform = GetComponent<RectTransform>();
-				isInitialized = true;
-			}
 		}
 	}
 }
