@@ -24,6 +24,7 @@ namespace Juice
 		public event FocusEventHandler FocusGained;
 		public event FocusEventHandler FocusLost;
 
+		public bool HasFocus { get; private set; }
 		public WindowPriority WindowPriority => windowQueuePriority;
 		public bool HideOnForegroundLost => hideOnForegroundLost;
 		public bool IsPopup => isPopup;
@@ -85,6 +86,8 @@ namespace Juice
 
 		private void OnLayerWindowChanged(IWindow oldWindow, IWindow newWindow, bool fromBack)
 		{
+			HasFocus = ReferenceEquals(newWindow, this);
+
 			if (oldWindow != newWindow)
 			{
 				if (ReferenceEquals(oldWindow, this))
