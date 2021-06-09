@@ -83,7 +83,7 @@ namespace Juice
 				{
 					Debug.LogError($"AOT code not generated to box {typeof(IReadOnlyObservableCollection<T>).GetPrettifiedName()}. " +
 					               $"You must force the compiler to generate a CollectionBoxer by using " +
-					               $"\"{nameof(JuiceAotHelper)}.{nameof(JuiceAotHelper.EnsureType)}<{typeof(T).GetPrettifiedName()}>();\" " +
+					               $"\"{nameof(AotHelper)}.{nameof(AotHelper.EnsureType)}<{typeof(T).GetPrettifiedName()}>();\" " +
 					               $"anywhere in your code.\n" +
 					               $"Context: {GetContextPath(context)}", context);
 				}

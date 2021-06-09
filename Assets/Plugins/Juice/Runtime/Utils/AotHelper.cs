@@ -1,11 +1,12 @@
 using System;
+using Juice.Tweening;
 using UnityEngine;
 using UnityEngine.Scripting;
 using UnityEngine.UI;
 
-namespace Juice.Utils
+namespace Juice
 {
-	public static class JuiceAotHelper
+	public static class AotHelper
 	{
 		private static readonly bool AlwaysFalse = DateTime.UtcNow.Year < 0;
 
@@ -43,6 +44,7 @@ namespace Juice.Utils
 
 			EnsureType<DateTime>();
 			EnsureType<TimeSpan>();
+			EnsureType<Guid>();
 
 			EnsureType<Vector2>();
 			EnsureType<Vector2Int>();
@@ -67,6 +69,8 @@ namespace Juice.Utils
 			EnsureType<Image.Origin90>();
 			EnsureType<Image.Origin180>();
 			EnsureType<Image.Origin360>();
+
+			EnsureType<Ease>();
 
 			throw new InvalidOperationException("This method is used for AOT code generation only. Do not call it at runtime.");
 		}
