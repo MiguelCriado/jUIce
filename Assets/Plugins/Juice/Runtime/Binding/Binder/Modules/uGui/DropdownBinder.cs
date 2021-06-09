@@ -8,9 +8,9 @@ using UnityEditor;
 namespace Juice
 {
 	[RequireComponent(typeof(Dropdown))]
-	public class DropdownBinder : CommandBinder<int>
+	public class DropdownBinder : ComponentBinder
 	{
-		protected override string BindingInfoName { get; } = "OnValueChanged Command";
+		[SerializeField] private BindingInfo onValueChanged = BindingInfo.Command<int>();
 
 		private Dropdown dropdown;
 
@@ -19,10 +19,13 @@ namespace Juice
 			base.Awake();
 
 			dropdown = GetComponent<Dropdown>();
-			dropdown.onValueChanged.AddListener(OnValueChanged);
+
+			RegisterCommand<int>(onValueChanged)
+				.AddExecuteTrigger(dropdown.onValueChanged)
+				.OnCanExecuteChanged(OnCommandCanExecuteChanged);
 		}
 
-		protected override void OnCommandCanExecuteChanged(bool newValue)
+		protected virtual void OnCommandCanExecuteChanged(bool newValue)
 		{
 			dropdown.interactable = newValue;
 		}
@@ -35,10 +38,5 @@ namespace Juice
 			context.GetOrAddComponent<DropdownBinder>();
 		}
 #endif
-
-		private void OnValueChanged(int newValue)
-		{
-			ExecuteCommand(newValue);
-		}
 	}
 }

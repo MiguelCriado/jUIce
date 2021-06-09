@@ -8,31 +8,30 @@ using UnityEditor;
 namespace Juice
 {
 	[RequireComponent(typeof(TMP_InputField))]
-	public class TextMeshProInputFieldBinder : CommandBinder<string>
+	public class TextMeshProInputFieldBinder : ComponentBinder
 	{
-		[SerializeField] private BindingInfo text = new BindingInfo(typeof(IReadOnlyObservableVariable<object>));
+		[SerializeField] private BindingInfo onValueChanged = BindingInfo.Command<string>();
+		[SerializeField] private BindingInfo text = BindingInfo.Variable<object>();
 		[SerializeField] private bool sendOnValueChanged;
 
-		protected override string BindingInfoName { get; } = "OnValueChanged Command";
-
-		private VariableBinding<object> textBinding;
 		private TMP_InputField inputField;
+		private CommandBinding<string> onValueChangedBinding;
 
 		protected override void Awake()
 		{
 			base.Awake();
 
-			textBinding = new VariableBinding<object>(text, this);
-			textBinding.Property.Changed += OnTextBindingPropertyChanged;
-
 			inputField = GetComponent<TMP_InputField>();
+
+			onValueChangedBinding = RegisterCommand<string>(onValueChanged)
+				.OnCanExecuteChanged(OnCommandCanExecuteChanged)
+				.GetBinding();
+			RegisterVariable<object>(text).OnChanged(OnTextBindingPropertyChanged);
 		}
 
 		protected override void OnEnable()
 		{
 			base.OnEnable();
-
-			textBinding.Bind();
 
 			inputField.onValueChanged.AddListener(OnInputFieldValueChanged);
 			inputField.onEndEdit.AddListener(OnInputFieldEditionEnded);
@@ -42,15 +41,8 @@ namespace Juice
 		{
 			base.OnDisable();
 
-			textBinding.Unbind();
-
 			inputField.onValueChanged.RemoveListener(OnInputFieldValueChanged);
 			inputField.onEndEdit.RemoveListener(OnInputFieldEditionEnded);
-		}
-
-		protected override void OnCommandCanExecuteChanged(bool newValue)
-		{
-			inputField.interactable = newValue;
 		}
 
 #if UNITY_EDITOR
@@ -61,6 +53,11 @@ namespace Juice
 			context.GetOrAddComponent<TextMeshProInputFieldBinder>();
 		}
 #endif
+
+		private void OnCommandCanExecuteChanged(bool newValue)
+		{
+			inputField.interactable = newValue;
+		}
 
 		private void OnTextBindingPropertyChanged(object newValue)
 		{
@@ -78,6 +75,11 @@ namespace Juice
 		private void OnInputFieldEditionEnded(string newValue)
 		{
 			ExecuteCommand(newValue);
+		}
+
+		private void ExecuteCommand(string newValue)
+		{
+			onValueChangedBinding.Property.Execute(newValue);
 		}
 	}
 }

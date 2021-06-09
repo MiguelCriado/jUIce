@@ -8,14 +8,14 @@ using UnityEditor;
 namespace Juice
 {
 	[RequireComponent(typeof(InputField))]
-	public class InputFieldBinder : CommandBinder<string>
+	public class InputFieldBinder : ComponentBinder
 	{
-		[SerializeField] private BindingInfo text = new BindingInfo(typeof(IReadOnlyObservableVariable<object>));
+		[SerializeField] private BindingInfo onValueChanged = BindingInfo.Command<string>();
+		[SerializeField] private BindingInfo text = BindingInfo.Variable<object>();
 		[SerializeField] private bool sendOnValueChanged;
 
-		protected override string BindingInfoName { get; } = "OnValueChanged Command";
-
 		private InputField inputField;
+		private CommandBinding<string> onValueChangedBinding;
 
 		protected override void Awake()
 		{
@@ -23,6 +23,9 @@ namespace Juice
 
 			inputField = GetComponent<InputField>();
 
+			onValueChangedBinding = RegisterCommand<string>(onValueChanged)
+				.OnCanExecuteChanged(OnCommandCanExecuteChanged)
+				.GetBinding();
 			RegisterVariable<object>(text).OnChanged(OnTextBindingPropertyChanged);
 		}
 
@@ -42,10 +45,6 @@ namespace Juice
 			inputField.onEndEdit.RemoveListener(OnInputFieldEditionEnded);
 		}
 
-		protected override void OnCommandCanExecuteChanged(bool newValue)
-		{
-			inputField.interactable = newValue;
-		}
 
 #if UNITY_EDITOR
 		[MenuItem("CONTEXT/InputField/Add Binder")]
@@ -55,6 +54,11 @@ namespace Juice
 			context.GetOrAddComponent<InputFieldBinder>();
 		}
 #endif
+
+		private void OnCommandCanExecuteChanged(bool newValue)
+		{
+			inputField.interactable = newValue;
+		}
 
 		private void OnTextBindingPropertyChanged(object newValue)
 		{
@@ -72,6 +76,11 @@ namespace Juice
 		private void OnInputFieldEditionEnded(string newValue)
 		{
 			ExecuteCommand(newValue);
+		}
+
+		private void ExecuteCommand(string newValue)
+		{
+			onValueChangedBinding.Property.Execute(newValue);
 		}
 	}
 }

@@ -8,14 +8,13 @@ using UnityEditor;
 namespace Juice
 {
 	[RequireComponent(typeof(Scrollbar))]
-	public class ScrollbarBinder : CommandBinder<float>
+	public class ScrollbarBinder : ComponentBinder
 	{
-		protected override string BindingInfoName { get; } = "OnValueChanged Command";
-
-		[SerializeField] private BindingInfo direction = new BindingInfo(typeof(IReadOnlyObservableVariable<Scrollbar.Direction>));
-		[SerializeField] private BindingInfo value = new BindingInfo(typeof(IReadOnlyObservableVariable<float>));
-		[SerializeField] private BindingInfo size = new BindingInfo(typeof(IReadOnlyObservableVariable<float>));
-		[SerializeField] private BindingInfo numberOfSteps = new BindingInfo(typeof(IReadOnlyObservableVariable<int>));
+		[SerializeField] private BindingInfo onValueChanged = BindingInfo.Command<float>();
+		[SerializeField] private BindingInfo direction = BindingInfo.Variable<Scrollbar.Direction>();
+		[SerializeField] private BindingInfo value = BindingInfo.Variable<float>();
+		[SerializeField] private BindingInfo size = BindingInfo.Variable<float>();
+		[SerializeField] private BindingInfo numberOfSteps = BindingInfo.Variable<int>();
 
 		private Scrollbar scrollbar;
 
@@ -24,17 +23,14 @@ namespace Juice
 			base.Awake();
 
 			scrollbar = GetComponent<Scrollbar>();
-			scrollbar.onValueChanged.AddListener(OnScrollbarValueChanged);
 
+			RegisterCommand<float>(onValueChanged)
+				.AddExecuteTrigger(scrollbar.onValueChanged)
+				.OnCanExecuteChanged(OnCommandCanExecuteChanged);
 			RegisterVariable<Scrollbar.Direction>(direction).OnChanged(OnDirectionChanged);
 			RegisterVariable<float>(value).OnChanged(OnValueChanged);
 			RegisterVariable<float>(size).OnChanged(OnSizeChanged);
 			RegisterVariable<int>(numberOfSteps).OnChanged(OnNumberOfStepsChanged);
-		}
-
-		protected override void OnCommandCanExecuteChanged(bool newValue)
-		{
-			scrollbar.interactable = newValue;
 		}
 
 #if UNITY_EDITOR
@@ -46,9 +42,9 @@ namespace Juice
 		}
 #endif
 
-		private void OnScrollbarValueChanged(float newValue)
+		private void OnCommandCanExecuteChanged(bool newValue)
 		{
-			ExecuteCommand(newValue);
+			scrollbar.interactable = newValue;
 		}
 
 		private void OnDirectionChanged(Scrollbar.Direction newValue)
