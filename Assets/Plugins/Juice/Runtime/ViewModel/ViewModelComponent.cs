@@ -93,6 +93,19 @@ namespace Juice
 
 	public class ViewModelComponent : ViewModelComponent<IViewModel>
 	{
+		protected virtual void Awake()
+		{
+			ViewModelComponentTree.Register(this);
+		}
 
+		protected virtual void OnDestroy()
+		{
+			ViewModelComponentTree.Unregister(this);
+		}
+
+		protected virtual void OnTransformParentChanged()
+		{
+			ViewModelComponentTree.Move(this);
+		}
 	}
 }

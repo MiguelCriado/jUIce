@@ -9,7 +9,7 @@ namespace Juice
 		public Type InjectionType => expectedViewModelType.Type;
 		public override Type ExpectedType => expectedViewModelType.Type;
 		public ViewModelComponent Target => this;
-		
+
 		[TypeConstraint(typeof(BindableViewModel<>), true)]
 		[SerializeField] protected SerializableType expectedViewModelType = new SerializableType();
 		[SerializeField] private BindingInfo bindingInfo;
@@ -34,8 +34,10 @@ namespace Juice
 			}
 		}
 
-		protected virtual void Awake()
+		protected override void Awake()
 		{
+			base.Awake();
+
 			binding = new VariableBinding<object>(bindingInfo, this);
 			binding.Property.Changed += SetData;
 		}

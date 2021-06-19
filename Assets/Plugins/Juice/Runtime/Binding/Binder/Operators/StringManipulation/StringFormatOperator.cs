@@ -16,8 +16,10 @@ namespace Juice
 		private BindingList<object> parametersBindingList;
 		private ObservableVariable<string> exposedProperty;
 
-		protected virtual void Awake()
+		protected override void Awake()
 		{
+			base.Awake();
+
 			exposedProperty = new ObservableVariable<string>();
 			ViewModel = new OperatorVariableViewModel<string>(exposedProperty);
 

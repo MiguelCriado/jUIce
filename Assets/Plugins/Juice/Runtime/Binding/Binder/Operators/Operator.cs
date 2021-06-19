@@ -11,8 +11,10 @@ namespace Juice
 
 		private BindingTracker bindingTracker;
 
-		protected virtual void Awake()
+		protected override void Awake()
 		{
+			base.Awake();
+
 			bindingTracker = new BindingTracker(this);
 		}
 

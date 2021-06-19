@@ -62,19 +62,17 @@ namespace Juice
 		{
 			if (HasToBeDynamicallyBound())
 			{
-				Type bindingType = GetBindingType();
-				bindingInfo.ViewModelContainer = FindViewModelComponent(context.transform, bindingType, bindingInfo.PropertyName);
+				bindingInfo.ViewModelContainer = ViewModelComponentTree.FindBindableComponent(
+					bindingInfo.Path,
+					GetBindingType(),
+					context.transform);
 			}
 
 			if (bindingInfo.ViewModelContainer)
 			{
 				if (bindingInfo.ViewModelContainer.ViewModel != null)
 				{
-					IViewModel viewModel = bindingInfo.ViewModelContainer.ViewModel;
-					BindingPath path = new BindingPath(bindingInfo.PropertyName);
-					Type viewModelType = viewModel.GetType();
-					PropertyInfo propertyInfo = viewModelType.GetProperty(path.PropertyName);
-					object value = propertyInfo?.GetValue(viewModel);
+					object value = ViewModelComponentTree.Bind(bindingInfo.Path, bindingInfo.ViewModelContainer);
 
 					if (value != null)
 					{
@@ -82,7 +80,7 @@ namespace Juice
 					}
 					else
 					{
-						Debug.LogError($"Property \"{path.PropertyName}\" not found in {viewModel.GetType()} class.", context);
+						Debug.LogError($"Property \"{bindingInfo.Path.PropertyName}\" not found in {bindingInfo.ViewModelContainer.ViewModel.GetType()} class.", context);
 					}
 				}
 

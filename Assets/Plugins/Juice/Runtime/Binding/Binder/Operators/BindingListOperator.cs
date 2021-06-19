@@ -15,8 +15,10 @@ namespace Juice
 		private BindingList<TFrom> bindingList;
 		private ObservableVariable<TTo> exposedProperty;
 
-		protected virtual void Awake()
+		protected override void Awake()
 		{
+			base.Awake();
+
 			exposedProperty = new ObservableVariable<TTo>();
 			ViewModel = new OperatorVariableViewModel<TTo>(exposedProperty);
 

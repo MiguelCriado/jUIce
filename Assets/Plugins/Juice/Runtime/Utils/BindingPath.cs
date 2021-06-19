@@ -1,11 +1,17 @@
+using System;
+using UnityEngine;
 using UnityEngine.Assertions;
 
 namespace Juice.Plugins.Juice.Runtime.Utils
 {
-	public readonly struct BindingPath
+	[Serializable]
+	public struct BindingPath
 	{
-		public string ComponentId { get; }
-		public string PropertyName { get; }
+		public string ComponentId => componentId;
+		public string PropertyName => propertyName;
+
+		[SerializeField] private string componentId;
+		[SerializeField] private string propertyName;
 
 		public BindingPath(string path)
 		{
@@ -13,24 +19,24 @@ namespace Juice.Plugins.Juice.Runtime.Utils
 
 			Assert.IsFalse(splitPath.Length > 2, $"Invalid path\"path\". It may only contain 1 separator ('.')");
 
-			ComponentId = null;
-			PropertyName = null;
+			componentId = null;
+			propertyName = null;
 
 			if (splitPath.Length >= 2)
 			{
-				ComponentId = splitPath[0];
-				PropertyName = splitPath[1];
+				componentId = splitPath[0];
+				propertyName = splitPath[1];
 			}
 			else if (splitPath.Length >= 1)
 			{
-				PropertyName = splitPath[0];
+				propertyName = splitPath[0];
 			}
 		}
 
 		public BindingPath(string componentId, string propertyName)
 		{
-			ComponentId = componentId;
-			PropertyName = propertyName;
+			this.componentId = componentId;
+			this.propertyName = propertyName;
 		}
 	}
 }
