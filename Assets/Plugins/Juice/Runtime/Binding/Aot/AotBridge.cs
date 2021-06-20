@@ -5,14 +5,12 @@ using UnityEngine.Scripting;
 
 namespace Juice
 {
-	public delegate object ViewModelPropertyGetHandler(IViewModel viewModel, string propertyName);
-
 	public static class AotBridge
 	{
 		private static readonly string AotDynamicTypeName = "Juice.Runtime.Aot.ViewModelResolver, Juice.Runtime.Aot, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null";
 		private static readonly string InitializeMethodName = "Initialize";
 
-		private static readonly Dictionary<Type, ViewModelPropertyGetHandler> PropertyGetters = new Dictionary<Type, ViewModelPropertyGetHandler>();
+		private static readonly Dictionary<Type, IViewModelPropertyGetter> PropertyGetters = new Dictionary<Type, IViewModelPropertyGetter>();
 
 		public static bool CanGetProperties { get; }
 
@@ -29,7 +27,7 @@ namespace Juice
 			}
 		}
 
-		public static void RegisterPropertyGetter<T>(ViewModelPropertyGetHandler getter) where T : IViewModel
+		public static void RegisterPropertyGetter<T>(IViewModelPropertyGetter getter) where T : IViewModel
 		{
 			PropertyGetters[typeof(T)] = getter;
 		}
@@ -38,9 +36,9 @@ namespace Juice
 		{
 			object result = null;
 
-			if (PropertyGetters.TryGetValue(viewModel.GetType(), out ViewModelPropertyGetHandler propertyGetter))
+			if (PropertyGetters.TryGetValue(viewModel.GetType(), out IViewModelPropertyGetter propertyGetter))
 			{
-				result = propertyGetter(viewModel, propertyName);
+				result = propertyGetter.GetProperty(viewModel, propertyName);
 			}
 
 			return result;
