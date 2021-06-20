@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
-using Juice.Plugins.Juice.Runtime.Utils;
-using Juice.Plugins.Juice.Runtime.Utils.ExtensionMethods;
+using Juice.Utils;
 using UnityEngine;
 
 namespace Juice
@@ -86,31 +83,6 @@ namespace Juice
 
 				bindingInfo.ViewModelContainer.ViewModelChanged += OnViewModelChanged;
 			}
-		}
-
-		private static ViewModelComponent FindViewModelComponent(Transform context, Type targetType, string propertyPath)
-		{
-			ViewModelComponent result = null;
-
-			BindingPath path = new BindingPath(propertyPath);
-
-			using (IEnumerator<BindingEntry> iterator = BindingUtils.GetBindings(context, targetType).GetEnumerator())
-			{
-				while (!result && iterator.MoveNext())
-				{
-					BindingEntry current = iterator.Current;
-
-					bool match = string.IsNullOrEmpty(path.ComponentId) || path.ComponentId == current.Path.ComponentId;
-					match &= path.PropertyName == current.Path.PropertyName;
-
-					if (match)
-					{
-						result = iterator.Current.ViewModelComponent;
-					}
-				}
-			}
-
-			return result;
 		}
 
 		private bool HasToBeDynamicallyBound()
