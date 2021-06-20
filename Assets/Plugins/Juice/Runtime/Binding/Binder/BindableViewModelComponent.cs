@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using Juice.Utils;
 using UnityEngine;
 
@@ -6,23 +7,28 @@ namespace Juice
 {
 	public class BindableViewModelComponent : ViewModelComponent, IViewModelInjector
 	{
+		private static readonly object[] DataArray = new object[1];
+
 		public Type InjectionType => expectedViewModelType.Type;
 		public override Type ExpectedType => expectedViewModelType.Type;
 		public ViewModelComponent Target => this;
 
-		[TypeConstraint(typeof(BindableViewModel<>), true)]
+		[TypeConstraint(typeof(IBindableViewModel<>), true)]
 		[SerializeField] protected SerializableType expectedViewModelType = new SerializableType();
 		[SerializeField] private BindingInfo bindingInfo;
 
 		private VariableBinding<object> binding;
+		private MethodInfo setMethod;
 
 		protected override void OnValidate()
 		{
 			base.OnValidate();
 
-			if (expectedViewModelType != null && expectedViewModelType.Type != null)
+			if (Application.isPlaying == false
+			    && expectedViewModelType != null
+			    && expectedViewModelType.Type != null)
 			{
-				Type genericType = expectedViewModelType.Type.GetGenericTypeTowardsRoot();
+				Type genericType = FindBindableInterface(ExpectedType);
 				Type dataType = genericType.GenericTypeArguments[0];
 				Type bindingType = typeof(IReadOnlyObservableVariable<>).MakeGenericType(dataType);
 
@@ -38,8 +44,19 @@ namespace Juice
 		{
 			base.Awake();
 
-			binding = new VariableBinding<object>(bindingInfo, this);
-			binding.Property.Changed += SetData;
+			if (ExpectedType != null)
+			{
+				object viewModel = Activator.CreateInstance(ExpectedType);
+				setMethod = ExpectedType.GetMethod(nameof(IBindableViewModel<object>.Set));
+				ViewModel = (IViewModel)viewModel;
+
+				binding = new VariableBinding<object>(bindingInfo, this);
+				binding.Property.Changed += SetData;
+			}
+			else
+			{
+				Debug.LogError("Expected Type must be set", this);
+			}
 		}
 
 		protected virtual void OnEnable()
@@ -54,15 +71,39 @@ namespace Juice
 
 		public void SetData(object data)
 		{
-			if (ExpectedType != null)
+			if (ViewModel != null)
 			{
-				object viewModel = Activator.CreateInstance(ExpectedType, data);
-				ViewModel = (IViewModel)viewModel;
+				DataArray[0] = data;
+				setMethod.Invoke(ViewModel, DataArray);
 			}
-			else
+		}
+
+		private static Type FindBindableInterface(Type type)
+		{
+			Type result = null;
+
+			if (type != null)
 			{
-				Debug.LogError("Expected Type must be set", this);
+				TypeFilter bindableFilter = BindableFilter;
+				object filterCriteria = typeof(IBindableViewModel<>);
+				Type[] interfaces = type.FindInterfaces(bindableFilter, filterCriteria);
+
+				if (interfaces.Length > 0)
+				{
+					result = interfaces[0];
+				}
+				else
+				{
+					result = FindBindableInterface(type.BaseType);
+				}
 			}
+
+			return result;
+		}
+
+		private static bool BindableFilter(Type typeObject, object criteria)
+		{
+			return typeObject.IsGenericType && typeObject.GetGenericTypeDefinition() == (Type)criteria;
 		}
 	}
 }
