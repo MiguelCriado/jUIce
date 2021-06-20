@@ -10,16 +10,36 @@ namespace Juice
 		public ViewModelComponent Component { get; }
 
 		private readonly Dictionary<string, object> properties;
+		private readonly Func<string, object> getProperty;
 
 		public ViewModelComponentInfo(ViewModelComponent component)
 		{
-			properties = new Dictionary<string, object>();
 			Component = component;
 
-			Component.ViewModelChanged += OnViewModelChanged;
+			if (AotBridge.CanGetProperties)
+			{
+				getProperty = GetAotProperty;
+			}
+			else
+			{
+				properties = new Dictionary<string, object>();
+				getProperty = GetReflectionProperty;
+
+				Component.ViewModelChanged += OnViewModelChanged;
+			}
 		}
 
 		public object GetProperty(string name)
+		{
+			return getProperty(name);
+		}
+
+		private object GetAotProperty(string name)
+		{
+			return AotBridge.GetProperty(Component.ViewModel, name);
+		}
+
+		private object GetReflectionProperty(string name)
 		{
 			if (properties.TryGetValue(name, out var result) == false && Component.ViewModel != null)
 			{
