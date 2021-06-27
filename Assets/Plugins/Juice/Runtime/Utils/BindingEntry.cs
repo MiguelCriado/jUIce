@@ -7,7 +7,7 @@ namespace Juice
 	{
 		public ViewModelComponent ViewModelComponent { get; }
 		public string PropertyName { get; }
-		public BindingPath Path => path ?? (path = new BindingPath(ViewModelComponent.Id, PropertyName)).Value;
+		public BindingPath Path => path ?? (path = new BindingPath(ViewModelComponent? ViewModelComponent.Id : null, PropertyName)).Value;
 		public bool NeedsToBeBoxed { get; }
 		public Type ObservableType { get; }
 		public Type GenericArgument { get; }
