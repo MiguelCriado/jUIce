@@ -23,7 +23,9 @@ namespace Juice
 				MethodInfo initializeMethod = resolverType.GetMethod(InitializeMethodName);
 				initializeMethod?.Invoke(null, null);
 
-				CanGetProperties = initializeMethod != null;
+				// CanGetProperties = initializeMethod != null;
+
+				CanGetProperties = false;
 			}
 		}
 

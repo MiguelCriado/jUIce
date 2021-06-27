@@ -20,6 +20,10 @@ namespace Juice
 			{
 				getProperty = GetAotProperty;
 			}
+			else if (JitBridge.IsAvailable)
+			{
+				getProperty = GetJitProperty;
+			}
 			else
 			{
 				properties = new Dictionary<string, object>();
@@ -37,6 +41,11 @@ namespace Juice
 		private object GetAotProperty(string name)
 		{
 			return AotBridge.GetProperty(Component.ViewModel, name);
+		}
+
+		private object GetJitProperty(string name)
+		{
+			return JitBridge.GetProperty(Component.ViewModel, name);
 		}
 
 		private object GetReflectionProperty(string name)
