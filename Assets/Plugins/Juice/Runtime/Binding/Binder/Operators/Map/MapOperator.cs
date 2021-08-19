@@ -1,11 +1,15 @@
 ﻿using Juice.Collections;
+using UnityEngine;
 
 namespace Juice
 {
 	public abstract class MapOperator<TFrom, TTo> : ToOperator<TFrom, TTo>
 	{
-		protected abstract SerializableDictionary<TFrom, TTo> Mapper { get; }
-		protected abstract ConstantBindingInfo Fallback { get; }
+		[SerializeField] private SerializableDictionary<TFrom, TTo> mapper = new SerializableDictionary<TFrom, TTo>();
+		[SerializeField] private ConstantBindingInfo<TTo> fallback = new ConstantBindingInfo<TTo>();
+
+		private SerializableDictionary<TFrom, TTo> Mapper => mapper;
+		private ConstantBindingInfo Fallback => fallback;
 
 		private VariableBinding<TTo> fallbackBinding;
 
