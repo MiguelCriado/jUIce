@@ -27,7 +27,11 @@ namespace Juice
 		public bool HasFocus { get; private set; }
 		public WindowPriority WindowPriority => windowQueuePriority;
 		public bool HideOnForegroundLost => hideOnForegroundLost;
-		public bool IsPopup => isPopup;
+		public bool IsPopup
+		{
+			get => isPopup;
+			set => isPopup = value;
+		}
 		public bool CloseOnShadowClick => closeOnShadowClick;
 
 		[Header("Window Properties")]
