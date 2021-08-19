@@ -19,7 +19,7 @@ namespace Juice
 		public bool ForceDynamicBinding => forceDynamicBinding;
 		public BindingPath Path => path;
 
-		[SerializeField] private SerializableType type;
+		[SerializeField] protected SerializableType type;
 		[SerializeField] private ViewModelComponent viewModelContainer;
 		[SerializeField] private string propertyName;
 		[SerializeField] private bool forceDynamicBinding;
@@ -60,12 +60,12 @@ namespace Juice
 			return new BindingInfo(typeof(IObservableEvent<T>));
 		}
 
-		public void OnBeforeSerialize()
+		public virtual void OnBeforeSerialize()
 		{
 			EnsurePath();
 		}
 
-		public void OnAfterDeserialize()
+		public virtual void OnAfterDeserialize()
 		{
 			EnsurePath();
 		}
@@ -76,6 +76,22 @@ namespace Juice
 			{
 				path = new BindingPath(propertyName);
 			}
+		}
+	}
+	
+	[Serializable]
+	public class BindingInfo<T>: BindingInfo
+	{
+		public BindingInfo(): base(typeof(T))
+		{
+			
+		}
+
+		public override void OnAfterDeserialize()
+		{
+			base.OnAfterDeserialize();
+			
+			type.Type = typeof(T);
 		}
 	}
 }

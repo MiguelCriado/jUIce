@@ -7,6 +7,7 @@ using UnityEngine;
 namespace Juice.Editor
 {
 	[CustomPropertyDrawer(typeof(BindingInfo))]
+	[CustomPropertyDrawer(typeof(BindingInfo<>))]
 	public class BindingInfoDrawer : PropertyDrawer
 	{
 		private class BindingEntry
