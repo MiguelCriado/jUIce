@@ -351,7 +351,7 @@ namespace Juice
 			await ShowWindow(windowEntry, false);
 		}
 
-		private async Task ShowWindow(WindowHistoryEntry windowEntry, bool fromBack)
+		private async Task ShowWindow(WindowHistoryEntry windowEntry, bool fromBack, ITransition overrideTransition = null)
 		{
 			if (windowEntry.View.IsPopup)
 			{
@@ -362,8 +362,26 @@ namespace Juice
 			windowEntry.View.SetPayload(windowEntry.Settings.Payload);
 			windowEntry.View.SetViewModel(ResolveViewModel(windowEntry));
 			SetCurrentWindow(windowEntry.View, fromBack);
+			
+			ITransition transition = SelectTransition(windowEntry, fromBack, overrideTransition);
 
 			await windowEntry.View.Show(windowEntry.Settings.ShowTransition);
+		}
+		
+		private ITransition SelectTransition(WindowHistoryEntry windowEntry, bool fromBack, ITransition overrideTransition)
+		{
+			ITransition transition = null;
+
+			if (overrideTransition != null)
+			{
+				transition = overrideTransition;
+			}
+			else if (fromBack == false)
+			{
+				transition = windowEntry.Settings.DestinationShowTransition;
+			}
+
+			return transition;
 		}
 		
 		private IViewModel ResolveViewModel(WindowHistoryEntry windowEntry)
