@@ -11,13 +11,13 @@ namespace Juice
 		[SerializeField] private float duration;
 		[SerializeField] private Ease ease;
 
-		public override void Prepare(RectTransform target)
+		protected override void PrepareInternal(RectTransform target)
 		{
 			Tween.Kill(target);
 			target.localScale = origin;
 		}
 
-		public override async Task Animate(RectTransform target)
+		protected override async Task AnimateInternal(RectTransform target)
 		{
 			bool isTweenDone = false;
 
@@ -29,6 +29,11 @@ namespace Juice
 			{
 				await Task.Yield();
 			}
+		}
+
+		protected override void CleanupInternal(RectTransform target)
+		{
+			
 		}
 	}
 }

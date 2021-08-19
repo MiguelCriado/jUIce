@@ -19,7 +19,7 @@ namespace Juice
 		[SerializeField] private float duration = 0.3f;
 		[SerializeField] private Ease ease = Ease.InOutSine;
 
-		public override void Prepare(RectTransform target)
+		protected override void PrepareInternal(RectTransform target)
 		{
 			CanvasGroup canvasGroup = target.GetOrAddComponent<CanvasGroup>();
 			Tween.Kill(canvasGroup);
@@ -34,7 +34,7 @@ namespace Juice
 			}
 		}
 
-		public override async Task Animate(RectTransform target)
+		protected override async Task AnimateInternal(RectTransform target)
 		{
 			float valueTarget = fadeType == FadeType.In ? 1 : 0;
 			CanvasGroup canvasGroup = target.GetOrAddComponent<CanvasGroup>();
@@ -48,6 +48,11 @@ namespace Juice
 			{
 				await Task.Yield();
 			}
+		}
+
+		protected override void CleanupInternal(RectTransform target)
+		{
+			
 		}
 	}
 }
