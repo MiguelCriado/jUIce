@@ -17,6 +17,18 @@ namespace Juice
 			exposedProperty = new ObservableVariable<T>();
 		}
 
+		public T GetValueOrDefault(T defaultValue)
+		{
+			T result = defaultValue;
+
+			if (IsBound && Property.HasValue)
+			{
+				result = exposedProperty.Value;
+			}
+
+			return result;
+		}
+
 		protected override Type GetBindingType()
 		{
 			return typeof(IReadOnlyObservableVariable<T>);
