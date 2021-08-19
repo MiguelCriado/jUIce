@@ -1,18 +1,52 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Juice.Pooling
 {
 	public class ObjectPool : MonoBehaviour
 	{
+		[Serializable]
+		private class PrefabInstancesEntry
+		{
+			public GameObject Prefab;
+			public List<GameObject> Instances;
+
+			public PrefabInstancesEntry(GameObject prefab, List<GameObject> instances)
+			{
+				Prefab = prefab;
+				Instances = instances;
+			}
+		}
+		
+		private static readonly string PoolContainerName = "Pool";
+
+		private Dictionary<GameObject, PoolData> CachedPools
+		{
+			get
+			{
+				cachedPools ??= new Dictionary<GameObject, PoolData>();
+				InitializePools();
+				return cachedPools;
+			}
+		}
+	
 		public static ObjectPool Global => SingleObjectPool.Instance.GlobalPool;
 
 		[SerializeField] private int initialPoolSize = 5 ;
 		[SerializeField] private int maxPoolSize = 20;
 		[SerializeField] private List<GameObject> poolPrefabs;
+		[SerializeField] private List<PrefabInstancesEntry> prefabMap;
 
-		private readonly Dictionary<GameObject, PoolData> cachedPools = new Dictionary<GameObject, PoolData>();
-		private bool arePoolPrefabsCached;
+		private Transform PoolContainer => GetPoolContainer();
+
+		private bool isInitialized = false;
+		private Dictionary<GameObject, PoolData> cachedPools;
+		private Transform poolContainer;
 
 		private void OnValidate()
 		{
@@ -22,15 +56,12 @@ namespace Juice.Pooling
 
 		private void Awake()
 		{
-			EnsureCachedPools();
+			InitializePools();
 		}
 
 		public void CreatePool(GameObject original, int initialSize)
 		{
-			if (cachedPools.ContainsKey(original) == false)
-			{
-				cachedPools.Add(original, new PoolData(this, original, initialSize, 2f));
-			}
+			CreatePool(original, initialSize, null);
 		}
 
 		public void CreatePool<T>(T original, int initialSize) where T : Component
@@ -42,9 +73,7 @@ namespace Juice.Pooling
 		{
 			GameObject result = null;
 
-			EnsureCachedPools();
-
-			if (cachedPools.TryGetValue(original.gameObject, out PoolData pool))
+			if (Global.CachedPools.TryGetValue(original.gameObject, out PoolData pool))
 			{
 				result = pool.Spawn(parent, worldPositionStays);
 			}
@@ -67,13 +96,13 @@ namespace Juice.Pooling
 			return Spawn(original.gameObject).GetComponent<T>();
 		}
 
-		public void Recycle(GameObject item)
+		public void Recycle(GameObject item, bool worldPositionStays = true)
 		{
 			PoolItem poolItem = item.GetComponent<PoolItem>();
 
-			if (poolItem && cachedPools.TryGetValue(poolItem.Original, out PoolData pool))
+			if (poolItem && Global.CachedPools.TryGetValue(poolItem.Original, out PoolData pool))
 			{
-				pool.Recycle(poolItem);
+				pool.Recycle(poolItem, worldPositionStays);
 			}
 			else
 			{
@@ -81,22 +110,121 @@ namespace Juice.Pooling
 			}
 		}
 
-		public void Recycle<T>(T item) where T : Component
+		public void Recycle<T>(T item, bool worldPositionStays = true) where T : Component
 		{
-			Recycle(item.gameObject);
+			Recycle(item.gameObject, worldPositionStays);
+		}
+		
+
+		[ContextMenu("Prewarm Pools")]
+		public void PrewarmPools()
+		{
+#if UNITY_EDITOR
+			if (Application.isPlaying == false)
+			{
+				prefabMap = new List<PrefabInstancesEntry>();
+				
+				Transform container = GetPoolContainer();
+
+				foreach (GameObject current in poolPrefabs)
+				{
+					if (current)
+					{
+						List<GameObject> prefabInstances = GetExistingPrefabInstances(container, current);
+						AddMissingInstances(prefabInstances, current, container);
+						RemoveExtraInstances(prefabInstances);
+						prefabMap.Add(new PrefabInstancesEntry(current, prefabInstances));
+					}
+				}
+			}
+#endif
 		}
 
-		private void EnsureCachedPools()
+		private void InitializePools()
 		{
-			if (poolPrefabs != null && arePoolPrefabsCached == false)
+			if (isInitialized == false && poolPrefabs != null)
 			{
+				isInitialized = true;
+				
 				foreach (GameObject objectToPool in poolPrefabs)
 				{
-					CreatePool(objectToPool, initialPoolSize);
+					List<GameObject> prewarmedItems = prefabMap
+						?.Find(x => x.Prefab == objectToPool)
+						?.Instances;
+						
+					CreatePool(objectToPool, initialPoolSize, prewarmedItems);
 				}
-
-				arePoolPrefabsCached = true;
 			}
 		}
+		
+		private void CreatePool(GameObject original, int initialSize, IEnumerable<GameObject> prewarmedItems)
+		{
+			if (Global.CachedPools.TryGetValue(original, out PoolData poolData))
+			{
+				if (prewarmedItems != null)
+				{
+					poolData.Merge(maxPoolSize, prewarmedItems);
+				}
+			}
+			else
+			{
+				Global.CachedPools.Add(original, new PoolData(Global, original, initialSize, 2f, prewarmedItems));
+			}
+		}
+		
+		private Transform GetPoolContainer()
+		{
+			if (!poolContainer)
+			{
+				poolContainer = transform.Find(PoolContainerName);
+
+				if (!poolContainer)
+				{
+					poolContainer = new GameObject(PoolContainerName).transform;
+					poolContainer.gameObject.SetActive(false);
+					poolContainer.SetParent(transform, false);
+				}
+			}
+
+			return poolContainer;
+		}
+		
+#if UNITY_EDITOR
+		private List<GameObject> GetExistingPrefabInstances(Transform container, GameObject current)
+		{
+			List<GameObject> result = new List<GameObject>();
+			
+			foreach (Transform child in container)
+			{
+				GameObject correspondingObject = PrefabUtility.GetCorrespondingObjectFromSource(child.gameObject);
+
+				if (Equals(correspondingObject, current))
+				{
+					result.Add(child.gameObject);
+				}
+			}
+
+			return result;
+		}
+		
+		private void AddMissingInstances(ICollection<GameObject> prefabInstances, GameObject current, Transform container)
+		{
+			for (int i = prefabInstances.Count; i < initialPoolSize; i++)
+			{
+				prefabInstances.Add(PrefabUtility.InstantiatePrefab(current, container) as GameObject);
+			}
+		}
+		
+		private void RemoveExtraInstances(IList<GameObject> prefabInstances)
+		{
+			while (prefabInstances.Count > 0 && prefabInstances.Count > initialPoolSize)
+			{
+				int lastIndex = prefabInstances.Count - 1;
+				GameObject instance = prefabInstances[lastIndex];
+				prefabInstances.RemoveAt(lastIndex);
+				DestroyImmediate(instance);
+			}
+		}
+#endif
 	}
 }

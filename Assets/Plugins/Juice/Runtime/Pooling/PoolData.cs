@@ -11,17 +11,29 @@ namespace Juice.Pooling
 		public int InitialPoolSize { get; }
 		public float GrowFactor { get; }
 		public int CurrentSize { get; private set; }
-		public HashSet<PoolItem> Items { get; }
+		public Stack<PoolItem> Items { get; }
 
-		public PoolData(ObjectPool pool, GameObject original, int initialPoolSize, float growFactor)
+		private List<PoolItem> itemsToReparent;
+
+		public PoolData(
+			ObjectPool pool,
+			GameObject original,
+			int initialPoolSize,
+			float growFactor,
+			IEnumerable<GameObject> prewarmedItems)
 		{
+			itemsToReparent = new List<PoolItem>();
+			
 			Pool = pool;
 			Original = original;
 			InitialPoolSize = initialPoolSize;
 			GrowFactor = growFactor;
 			CurrentSize = 0;
-			Items = new HashSet<PoolItem>();
-			CreatePool();
+			Items = new Stack<PoolItem>();
+			CreatePool(prewarmedItems);
+			
+			LifecycleUtils.OnUpdate += Update;
+			// TODO find a way to unsubscribe from the Update event
 		}
 
 		public GameObject Spawn(Transform parent, bool worldPositionStays)
@@ -33,21 +45,26 @@ namespace Juice.Pooling
 				GrowPool();
 			}
 
-			using (var enumerator = Items.GetEnumerator())
+			PoolItem item = Items.Pop();
+
+			if (item)
 			{
-				enumerator.MoveNext();
-				PoolItem item = enumerator.Current;
 				item.transform.SetParent(parent, worldPositionStays);
-				Items.Remove(item);
 				item.gameObject.SetActive(true);
 				item.OnSpawn();
 				result = item.gameObject;
 			}
-
+			else
+			{
+				CurrentSize--;
+				result = Spawn(parent, worldPositionStays);
+			}
+			
+			result.transform.SetAsLastSibling();
 			return result;
 		}
 
-		public void Recycle(PoolItem item)
+		public void Recycle(PoolItem item, bool worldPositionStays)
 		{
 			if (item.Pool)
 			{
@@ -55,15 +72,15 @@ namespace Juice.Pooling
 				{
 					if (Items.Contains(item) == false)
 					{
-						Items.Add(item);
+						Items.Push(item);
 						item.OnRecycle();
 						item.gameObject.SetActive(false);
-						item.transform.SetParent(Pool.transform);
+						itemsToReparent.Add(item);
 					}
 				}
 				else
 				{
-					item.Pool.Recycle(item.gameObject);
+					item.Pool.Recycle(item.gameObject, worldPositionStays);
 				}
 			}
 			else
@@ -72,14 +89,49 @@ namespace Juice.Pooling
 			}
 		}
 
-		private void CreatePool()
+		public void Merge(int maxPoolSize, IEnumerable<GameObject> prewarmedItems)
 		{
-			for (int i = 0; i < InitialPoolSize; i++)
+			int mergedMaxPoolSize = Mathf.Max(Mathf.CeilToInt(InitialPoolSize * GrowFactor), CurrentSize, maxPoolSize);
+
+			var enumerator = prewarmedItems.GetEnumerator();
+
+			while (CurrentSize < mergedMaxPoolSize && enumerator.MoveNext())
+			{
+				AddPrewarmedItem(enumerator.Current);
+			}
+
+			CurrentSize = mergedMaxPoolSize;
+		}
+		
+		private void Update()
+		{
+			foreach (PoolItem current in itemsToReparent)
+			{
+				if (current && current.IsActive == false)
+				{
+					current.transform.SetParent(Pool.transform, false);
+				}
+			}
+			
+			itemsToReparent.Clear();
+		}
+
+		private void CreatePool(IEnumerable<GameObject> prewarmedItems)
+		{
+			if (prewarmedItems != null)
+			{
+				foreach (GameObject current in prewarmedItems)
+				{
+					AddPrewarmedItem(current);
+				}
+			}
+			
+			for (int i = Items.Count; i < InitialPoolSize; i++)
 			{
 				AddNewItem();
 			}
 
-			CurrentSize = InitialPoolSize;
+			CurrentSize = Items.Count;
 		}
 
 		private void GrowPool()
@@ -97,14 +149,27 @@ namespace Juice.Pooling
 			}
 		}
 
+		private void AddPrewarmedItem(GameObject item)
+		{
+			PoolItem newItem = SetupItem(item);
+			item.transform.SetParent(Pool.transform, false);
+			Items.Push(newItem);
+		}
+		
 		private void AddNewItem()
 		{
 			GameObject newObject = Object.Instantiate(Original, Pool.transform);
-			PoolItem newItem = newObject.GetOrAddComponent<PoolItem>();
-			newItem.Original = Original;
-			newItem.Pool = Pool;
-			newObject.SetActive(false);
-			Items.Add(newItem);
+			PoolItem newItem = SetupItem(newObject);
+			Items.Push(newItem);
+		}
+
+		private PoolItem SetupItem(GameObject source)
+		{
+			PoolItem result = source.GetOrAddComponent<PoolItem>();
+			result.Original = Original;
+			result.Pool = Pool;
+			source.SetActive(false);
+			return result;
 		}
 	}
 }

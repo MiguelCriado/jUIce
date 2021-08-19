@@ -5,6 +5,8 @@ namespace Juice.Pooling
 {
 	public class PoolItem : MonoBehaviour, IPoolable
 	{
+		public bool IsActive { get; private set; }
+		
 		[HideInInspector] public ObjectPool Pool;
 		[HideInInspector] public GameObject Original;
 
@@ -15,28 +17,30 @@ namespace Juice.Pooling
 			EnsureInitialState();
 		}
 
-		public void Recycle()
+		public void Recycle(bool worldPositionStays = true)
 		{
-			Pool.Recycle(gameObject);
+			Pool.Recycle(gameObject, worldPositionStays);
 		}
 
 		public void OnSpawn()
 		{
+			IsActive = true;
 			EnsureInitialState();
 
-			foreach (IPoolable current in poolables)
+			foreach (IPoolable poolable in poolables)
 			{
-				current.OnSpawn();
+				poolable.OnSpawn();
 			}
 		}
 
 		public void OnRecycle()
 		{
+			IsActive = false;
 			EnsureInitialState();
 
-			foreach (IPoolable current in poolables)
+			foreach (IPoolable poolable in poolables)
 			{
-				current.OnRecycle();
+				poolable.OnRecycle();
 			}
 		}
 
@@ -45,7 +49,7 @@ namespace Juice.Pooling
 			if (poolables == null)
 			{
 				poolables = new List<IPoolable>();
-				IPoolable[] potentialPoolables = GetComponentsInChildren<IPoolable>();
+				IPoolable[] potentialPoolables = GetComponentsInChildren<IPoolable>(true);
 
 				foreach (IPoolable next in potentialPoolables)
 				{
