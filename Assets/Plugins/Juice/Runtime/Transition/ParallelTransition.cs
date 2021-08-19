@@ -10,8 +10,10 @@ namespace Juice
 
 		private Task[] tasks;
 
-		protected virtual void Awake()
+		protected override void Awake()
 		{
+			base.Awake();
+			
 			tasks = new Task[transitions.Count];
 		}
 
