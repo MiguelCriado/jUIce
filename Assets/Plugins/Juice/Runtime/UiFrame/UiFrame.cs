@@ -160,17 +160,65 @@ namespace Juice
 
 		public IPanelShowLauncher ShowPanel<T>() where T : IPanel
 		{
-			return new PanelShowLauncher(typeof(T), ShowPanel);
+			return ShowPanel(typeof(T));
+		}
+
+		public IPanelShowLauncher ShowPanel(Type type)
+		{
+			IPanelShowLauncher result = null;
+
+			if (typeof(IPanel).IsAssignableFrom(type))
+			{
+				result = new PanelShowLauncher(type, ShowPanel);
+			}
+			else
+			{
+				Debug.LogError($"The requested type {type.Name} must implement {nameof(IPanel)}");
+			}
+			
+			return result;
 		}
 
 		public IWindowShowLauncher ShowWindow<T>() where T : IWindow
 		{
-			return new WindowShowLauncher(typeof(T), ShowWindow);
+			return ShowWindow(typeof(T));
+		}
+
+		public IWindowShowLauncher ShowWindow(Type type)
+		{
+			IWindowShowLauncher result = null;
+
+			if (typeof(IWindow).IsAssignableFrom(type))
+			{
+				result = new WindowShowLauncher(type, ShowWindow);
+			}
+			else
+			{
+				Debug.LogError($"The requested type {type.Name} must implement {nameof(IWindow)}");
+			}
+			
+			return result;
 		}
 
 		public IPanelHideLauncher HidePanel<T>() where T : IPanel
 		{
-			return new PanelHideLauncher(typeof(T), HidePanel);
+			return HidePanel(typeof(T));
+		}
+
+		public IPanelHideLauncher HidePanel(Type type)
+		{
+			IPanelHideLauncher result = null;
+
+			if (typeof(IPanel).IsAssignableFrom(type))
+			{
+				result = new PanelHideLauncher(type, HidePanel);
+			}
+			else
+			{
+				Debug.LogError($"The requested type {type.Name} must implement {nameof(IPanel)}");
+			}
+			
+			return result;
 		}
 
 		public IWindowHideLauncher HideWindow<T>() where T : IWindow
@@ -190,7 +238,12 @@ namespace Juice
 
 		public bool IsViewRegistered<T>() where T : IView
 		{
-			return registeredViews.ContainsKey(typeof(T));
+			return IsViewRegistered(typeof(T));
+		}
+
+		public bool IsViewRegistered(Type type)
+		{
+			return registeredViews.ContainsKey(type);
 		}
 
 		public bool IsViewRegistered<T>(T view) where T : IView
