@@ -12,6 +12,7 @@ namespace Juice
 	{
 		[SerializeField] private BindingInfo onValueChanged = BindingInfo.Command<string>();
 		[SerializeField] private BindingInfo text = BindingInfo.Variable<object>();
+		[SerializeField] private BindingInfo characterLimit = BindingInfo.Variable<int>();
 		[SerializeField] private bool sendOnValueChanged;
 
 		private TMP_InputField inputField;
@@ -27,6 +28,7 @@ namespace Juice
 				.OnCanExecuteChanged(OnCommandCanExecuteChanged)
 				.GetBinding();
 			RegisterVariable<object>(text).OnChanged(OnTextBindingPropertyChanged);
+			RegisterVariable<int>(characterLimit).OnChanged(OnCharacterLimitPropertyChanged);
 		}
 
 		protected override void OnEnable()
@@ -49,7 +51,7 @@ namespace Juice
 		[MenuItem("CONTEXT/TMP_InputField/Add Binder")]
 		private static void AddBinder(MenuCommand command)
 		{
-			TMP_InputField context = (TMP_InputField) command.context;
+			TMP_InputField context = (TMP_InputField)command.context;
 			context.GetOrAddComponent<TextMeshProInputFieldBinder>();
 		}
 #endif
@@ -76,10 +78,18 @@ namespace Juice
 		{
 			ExecuteCommand(newValue);
 		}
-
+		
 		private void ExecuteCommand(string newValue)
 		{
 			onValueChangedBinding.Property.Execute(newValue);
+		}
+
+		private void OnCharacterLimitPropertyChanged(int newValue)
+		{
+			if (newValue > 0)
+			{
+				inputField.characterLimit = newValue;
+			}
 		}
 	}
 }
