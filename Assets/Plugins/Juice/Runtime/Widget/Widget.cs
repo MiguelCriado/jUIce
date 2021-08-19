@@ -15,6 +15,15 @@ namespace Juice
 		public UnityEvent OnHidden = new UnityEvent();
 	}
 
+	public enum WidgetState
+	{
+		None,
+		Showing,
+		Idle,
+		Hiding,
+		Closed
+	}
+
 	[RequireComponent(typeof(RectTransform))]
 	public class Widget : MonoBehaviour, ITransitionable
 	{
@@ -23,7 +32,9 @@ namespace Juice
 		public event TransitionableEventHandler Hiding;
 		public event TransitionableEventHandler Hidden;
 
-		public bool IsVisible => transitionHandler.IsVisible;
+		public bool IsVisible { get; private set; }
+		public WidgetState State { get; private set; } = WidgetState.None;
+		public bool IsPlayingAnimation => State == WidgetState.Showing || State == WidgetState.Hiding;
 
 		public ComponentTransition ShowTransition
 		{
@@ -54,24 +65,54 @@ namespace Juice
 		public virtual async Task Show(ITransition overrideTransition = null)
 		{
 			EnsureInitialState();
+			
+			State = WidgetState.Showing;
 			OnShowing();
 
-			ITransition transition = overrideTransition ?? ShowTransition;
-
-			await transitionHandler.Show(rectTransform, transition);
-
+			if (IsVisible == false)
+			{
+				IsVisible = true;
+				
+				try
+				{
+					ITransition transition = overrideTransition ?? ShowTransition;
+					
+					await transitionHandler.Show(rectTransform, transition);
+				}
+				catch(Exception e)
+				{
+					Debug.Log(e);
+				}
+			}
+			
+			State = WidgetState.Idle;
 			OnShown();
 		}
 
 		public virtual async Task Hide(ITransition overrideTransition = null)
 		{
 			EnsureInitialState();
+			
+			State = WidgetState.Hiding;
 			OnHiding();
 
-			ITransition transition = overrideTransition ?? HideTransition;
+			if (IsVisible)
+			{
+				IsVisible = false;
+				
+				try
+				{
+					ITransition transition = overrideTransition ?? HideTransition;
+					
+					await transitionHandler.Hide(rectTransform, transition);
+				}
+				catch(Exception e)
+				{
+					Debug.Log(e);
+				}
+			}
 
-			await transitionHandler.Hide(rectTransform, transition);
-
+			State = WidgetState.Closed;
 			OnHidden();
 		}
 
@@ -98,6 +139,8 @@ namespace Juice
 		protected virtual void Initialize()
 		{
 			rectTransform = GetComponent<RectTransform>();
+			IsVisible = gameObject.activeSelf;
+			State = IsVisible ? WidgetState.Idle : WidgetState.Closed;
 		}
 
 		protected virtual void OnShowing()

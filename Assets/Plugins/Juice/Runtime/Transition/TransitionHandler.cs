@@ -6,28 +6,16 @@ namespace Juice
 {
 	public class TransitionHandler
 	{
-		public bool IsVisible { get; private set; }
-
 		public async Task Show(RectTransform target, ITransition transition)
 		{
-			if (IsVisible == false)
-			{
-				IsVisible = true;
-
-				await AnimateTransition(target, transition,true);
-			}
+			await AnimateTransition(target, transition,true);
 		}
 
 		public async Task Hide(RectTransform target, ITransition transition)
 		{
-			if (IsVisible)
-			{
-				IsVisible = false;
+			await AnimateTransition(target, transition, false);
 
-				await AnimateTransition(target, transition, false);
-
-				target.gameObject.SetActive(false);
-			}
+			target.gameObject.SetActive(false);
 		}
 
 		private async Task AnimateTransition(RectTransform target, ITransition transition, bool isVisible)

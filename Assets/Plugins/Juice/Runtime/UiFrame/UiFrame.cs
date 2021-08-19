@@ -252,9 +252,9 @@ namespace Juice
 			where TShowSettings : IViewShowSettings
 			where THideSettings : IViewHideSettings
 		{
-			Component viewAsComponent = view as Component;
+			view.Hide(Transition.Null);
 
-			if (viewAsComponent != null)
+			if (view is Component viewAsComponent)
 			{
 				viewAsComponent.gameObject.SetActive(false);
 				layer.ReparentView(view, viewAsComponent.transform);
