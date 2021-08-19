@@ -7,7 +7,7 @@ namespace Juice
 	{
 		[SerializeField] private BindingInfo operandA = new BindingInfo(typeof(IReadOnlyObservableVariable<int>));
 		[SerializeField] private MathComparisonType operation;
-		[SerializeField] private IntConstantBindingInfo operandB = new IntConstantBindingInfo();
+		[SerializeField] private ConstantBindingInfo<int> operandB = new ConstantBindingInfo<int>();
 
 		private int A => operandABinding.Property.GetValue(0);
 		private int B => operandBBinding.Property.GetValue(0);

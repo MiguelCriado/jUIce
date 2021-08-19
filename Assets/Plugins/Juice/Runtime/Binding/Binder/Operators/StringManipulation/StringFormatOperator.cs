@@ -9,7 +9,7 @@ namespace Juice
 		public Type InjectionType => typeof(OperatorVariableViewModel<string>);
 		public ViewModelComponent Target => this;
 
-		[SerializeField] private StringConstantBindingInfo format = new StringConstantBindingInfo();
+		[SerializeField] private ConstantBindingInfo<string> format = new ConstantBindingInfo<string>();
 		[SerializeField] private BindingInfoList parameters = new BindingInfoList(typeof(IReadOnlyObservableVariable<object>));
 
 		private VariableBinding<string> formatBinding;

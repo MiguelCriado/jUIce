@@ -1,10 +1,11 @@
 using System;
+using UnityEngine;
 
 namespace Juice
 {
 	public abstract class ConstantOperator<T> : Operator
 	{
-		protected abstract ConstantBindingInfo Value { get; }
+		[SerializeField] private ConstantBindingInfo<T> value = new ConstantBindingInfo<T>(useConstant: true);
 
 		private ObservableVariable<T> exposedVariable;
 
@@ -15,7 +16,7 @@ namespace Juice
 			exposedVariable = new ObservableVariable<T>();
 			ViewModel = new OperatorVariableViewModel<T>(exposedVariable);
 
-			RegisterVariable<T>(Value)
+			RegisterVariable<T>(value)
 				.OnChanged(OnChanged)
 				.OnCleared(OnCleared);
 		}

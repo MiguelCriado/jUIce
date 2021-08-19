@@ -8,8 +8,8 @@ namespace Juice
 	{
 		protected abstract BindingInfo Collection { get; }
 
-		[SerializeField] private IntConstantBindingInfo startAt = new IntConstantBindingInfo();
-		[SerializeField] private IntConstantBindingInfo count = new IntConstantBindingInfo();
+		[SerializeField] private ConstantBindingInfo<int> startAt = new ConstantBindingInfo<int>();
+		[SerializeField] private ConstantBindingInfo<int> count = new ConstantBindingInfo<int>();
 
 		private CollectionBinding<T> collectionBinding;
 		private VariableBinding<int> startAtBinding;

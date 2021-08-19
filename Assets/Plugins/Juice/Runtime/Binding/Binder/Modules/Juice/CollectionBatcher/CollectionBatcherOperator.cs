@@ -56,8 +56,8 @@ namespace Juice
 
 		protected abstract BindingInfo Collection { get; }
 
-		[SerializeField] private FloatConstantBindingInfo batchThreshold = new FloatConstantBindingInfo();
-		[SerializeField] private FloatConstantBindingInfo timeBetweenItems = new FloatConstantBindingInfo();
+		[SerializeField] private ConstantBindingInfo<float> batchThreshold = new ConstantBindingInfo<float>();
+		[SerializeField] private ConstantBindingInfo<float> timeBetweenItems = new ConstantBindingInfo<float>();
 
 		private float BatchThreshold => batchThresholdBinding.Property.GetValue(0);
 		private float TimeBetweenItems => timeBetweenItemsBinding.Property.GetValue(0);

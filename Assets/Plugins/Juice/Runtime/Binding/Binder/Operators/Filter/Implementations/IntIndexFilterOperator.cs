@@ -4,7 +4,7 @@ namespace Juice
 {
 	public class IntIndexFilterOperator : IndexFilterOperator<int>
 	{
-		[SerializeField] private IntConstantBindingInfo outOfBoundsValue = new IntConstantBindingInfo();
+		[SerializeField] private ConstantBindingInfo<int> outOfBoundsValue = new ConstantBindingInfo<int>();
 
 		private VariableBinding<int> outOfBoundsValueBinding;
 

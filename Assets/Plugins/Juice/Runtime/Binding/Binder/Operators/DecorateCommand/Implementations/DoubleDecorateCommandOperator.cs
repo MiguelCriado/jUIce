@@ -2,10 +2,10 @@
 
 namespace Juice
 {
-	public class DoubleDecorateCommandOperator : DecorateCommandOperator<double>
-	{
-		protected override ConstantBindingInfo<double> DecorationBindingInfo => decorationBindingInfo;
+    public class DoubleDecorateCommandOperator : DecorateCommandOperator<double>
+    {
+        protected override ConstantBindingInfo<double> DecorationBindingInfo => decorationBindingInfo;
 
-		[SerializeField] private DoubleConstantBindingInfo decorationBindingInfo = new DoubleConstantBindingInfo();
-	}
+        [SerializeField] private ConstantBindingInfo<double> decorationBindingInfo = new ConstantBindingInfo<double>();
+    }
 }

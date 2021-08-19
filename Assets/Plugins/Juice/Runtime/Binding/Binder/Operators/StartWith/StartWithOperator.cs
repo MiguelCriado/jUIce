@@ -5,8 +5,7 @@ namespace Juice
 {
 	public abstract class StartWithOperator<T> : Operator
 	{
-		protected abstract ConstantBindingInfo<T> InitialValue { get; }
-
+		[SerializeField] private ConstantBindingInfo<T> initialValue = new ConstantBindingInfo<T>();
 		[SerializeField] private BindingInfo source = new BindingInfo(typeof(IReadOnlyObservableVariable<T>));
 
 		private VariableBinding<T> initialBinding;
@@ -20,7 +19,8 @@ namespace Juice
 				.OnChanged(OnBoundPropertyChanged)
 				.OnCleared(OnBoundPropertyCleared);
 
-			initialBinding = new VariableBinding<T>(InitialValue, this);
+			initialBinding = new VariableBinding<T>(initialValue, this);
+			
 			exposedProperty = new ObservableVariable<T>();
 			ViewModel = new OperatorVariableViewModel<T>(exposedProperty);
 		}

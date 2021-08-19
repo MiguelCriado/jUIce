@@ -4,8 +4,8 @@ namespace Juice
 {
 	public class FollowTransformBinder : ConstantBinder<Transform>
 	{
-		[SerializeField] private TransformConstantBindingInfo transformToFollow;
-		[SerializeField] private Vector2ConstantBindingInfo offset;
+		[SerializeField] private ConstantBindingInfo<Transform> transformToFollow = new ConstantBindingInfo<Transform>();
+		[SerializeField] private ConstantBindingInfo<Vector2> offset = new ConstantBindingInfo<Vector2>();
 
 		protected override ConstantBindingInfo<Transform> BindingInfo => transformToFollow;
 
