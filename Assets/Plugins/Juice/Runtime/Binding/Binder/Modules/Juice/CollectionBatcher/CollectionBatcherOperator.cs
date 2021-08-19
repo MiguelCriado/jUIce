@@ -86,6 +86,14 @@ namespace Juice
 				.OnItemMoved(OnItemMoved)
 				.OnReset(OnCleared);
 		}
+		
+		protected override void OnDisable()
+		{
+			base.OnDisable();
+
+			batches.Clear();
+			exposedCollection.Clear();
+		}
 
 		protected virtual void Update()
 		{
