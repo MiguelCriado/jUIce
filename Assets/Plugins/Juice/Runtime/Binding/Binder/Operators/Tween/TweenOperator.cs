@@ -10,12 +10,23 @@ namespace Juice
 		protected override BindingType[] AllowedTypes => AllowedTypesConst;
 
 		[SerializeField] private Ease ease;
-		[SerializeField] private float duration;
+		[SerializeField] private ConstantBindingInfo<float> duration = new ConstantBindingInfo<float>();
+		
+		private float Duration => durationBinding.Property.GetValue(0);
+
+		private VariableBinding<float> durationBinding;
 		
 		protected override void Reset()
 		{
 			ease = Ease.InOutSine;
-			duration = 0.3f;
+			duration.Constant = 0.3f;
+		}
+		
+		protected override void Awake()
+		{
+			base.Awake();
+
+			durationBinding = RegisterVariable<float>(duration).GetBinding();
 		}
 		
 		protected override IBindingProcessor GetBindingProcessor(BindingType bindingType, BindingInfo fromBinding)
@@ -39,7 +50,7 @@ namespace Juice
 
 		private Tweener BuildTweener(Tweener<T>.Getter getter, Tweener<T>.Setter setter, T finalValue)
 		{
-			return BuildTweener(getter, setter, finalValue, duration).SetEase(ease);
+			return BuildTweener(getter, setter, finalValue, Duration).SetEase(ease);
 		}
 	}
 }
