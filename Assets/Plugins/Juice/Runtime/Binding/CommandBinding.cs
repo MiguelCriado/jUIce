@@ -31,6 +31,7 @@ namespace Juice
 			if (boundProperty != null)
 			{
 				boundProperty.CanExecute.Changed += OnCanExecuteChanged;
+				boundProperty.CanExecute.Cleared += OnCanExecuteCleared;
 				RaiseFirstNotification();
 			}
 			else
@@ -44,6 +45,7 @@ namespace Juice
 			if (boundProperty != null)
 			{
 				boundProperty.CanExecute.Changed -= OnCanExecuteChanged;
+				boundProperty.CanExecute.Cleared -= OnCanExecuteCleared;
 				boundProperty = null;
 				canExecuteSource.Value = false;
 			}
@@ -69,6 +71,11 @@ namespace Juice
 		private void OnCanExecuteChanged(bool newValue)
 		{
 			canExecuteSource.Value = newValue;
+		}
+		
+		private void OnCanExecuteCleared()
+		{
+			canExecuteSource.Clear();
 		}
 	}
 
@@ -104,6 +111,7 @@ namespace Juice
 			if (boundProperty != null)
 			{
 				boundProperty.CanExecute.Changed += OnCanExecuteChanged;
+				boundProperty.CanExecute.Cleared += OnCanExecuteCleared;
 				RaiseFirstNotification();
 			}
 			else
@@ -117,6 +125,7 @@ namespace Juice
 			if (boundProperty != null)
 			{
 				boundProperty.CanExecute.Changed -= OnCanExecuteChanged;
+				boundProperty.CanExecute.Cleared -= OnCanExecuteCleared;
 				boundProperty = null;
 				canExecuteSource.Value = false;
 			}
@@ -172,6 +181,11 @@ namespace Juice
 		private void OnCanExecuteChanged(bool newValue)
 		{
 			canExecuteSource.Value = newValue;
+		}
+		
+		private void OnCanExecuteCleared()
+		{
+			canExecuteSource.Clear();
 		}
 	}
 }

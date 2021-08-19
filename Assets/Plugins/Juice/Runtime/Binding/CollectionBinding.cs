@@ -38,6 +38,7 @@ namespace Juice
 				boundProperty.ItemMoved += OnBoundPropertyItemMoved;
 				boundProperty.ItemRemoved += OnBoundPropertyItemRemoved;
 				boundProperty.ItemReplaced += OnBoundPropertyItemReplaced;
+				boundProperty.Changed += OnBoundPropertyChanged;
 
 				exposedProperty.Set(boundProperty);
 			}
@@ -56,6 +57,7 @@ namespace Juice
 				boundProperty.ItemMoved -= OnBoundPropertyItemMoved;
 				boundProperty.ItemRemoved -= OnBoundPropertyItemRemoved;
 				boundProperty.ItemReplaced -= OnBoundPropertyItemReplaced;
+				boundProperty.Changed -= OnBoundPropertyChanged;
 
 				boundProperty = null;
 				exposedProperty.Clear();
@@ -115,6 +117,11 @@ namespace Juice
 		private void OnBoundPropertyItemReplaced(int index, T oldValue, T newValue)
 		{
 			exposedProperty[index] = newValue;
+		}
+		
+		private void OnBoundPropertyChanged()
+		{
+			exposedProperty.Set(boundProperty);
 		}
 	}
 }

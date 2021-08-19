@@ -34,6 +34,7 @@ namespace Juice
 			if (boundProperty != null)
 			{
 				boundProperty.Changed += OnBoundPropertyChanged;
+				boundProperty.Cleared += OnBoundPropertyCleared;
 				RaiseFirstNotification();
 			}
 			else
@@ -47,6 +48,7 @@ namespace Juice
 			if (boundProperty != null)
 			{
 				boundProperty.Changed -= OnBoundPropertyChanged;
+				boundProperty.Cleared -= OnBoundPropertyCleared;
 				boundProperty = null;
 			}
 
@@ -103,6 +105,11 @@ namespace Juice
 		private void OnBoundPropertyChanged(T newValue)
 		{
 			exposedProperty.Value = newValue;
+		}
+		
+		private void OnBoundPropertyCleared()
+		{
+			exposedProperty.Clear();
 		}
 	}
 }
