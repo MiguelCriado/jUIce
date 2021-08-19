@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Events;
@@ -17,7 +18,7 @@ namespace Juice
 		public UnityEvent OnFocusLost = new UnityEvent();
 	}
 
-	public abstract class Window<T> : View<T>, IWindow where T : IViewModel
+	public abstract class Window<T> : View<T>, IWindow where T : IViewModel, new()
 	{
 		public delegate void FocusEventHandler(IWindow window);
 
@@ -43,6 +44,7 @@ namespace Juice
 		[SerializeField] private WindowEvents windowEvents = new WindowEvents();
 
 		private WindowLayer currentLayer;
+		private Dictionary<string, object> payload;
 
 		protected override void OnDestroy()
 		{
@@ -51,6 +53,16 @@ namespace Juice
 			if (currentLayer)
 			{
 				currentLayer.CurrentWindowChanged -= OnLayerWindowChanged;
+			}
+		}
+
+		public override void SetViewModel(IViewModel viewModel)
+		{
+			base.SetViewModel(viewModel);
+
+			if (viewModel == null)
+			{
+				SetViewModel(new T());
 			}
 		}
 
@@ -67,6 +79,42 @@ namespace Juice
 			}
 
 			currentLayer = layer;
+		}
+		
+		public IViewModel GetNewViewModel()
+		{
+			return new T();
+		}
+		
+		public void SetPayload(Dictionary<string, object> payload)
+		{
+			this.payload = payload;
+		}
+
+		public bool GetFromPayload<TValue>(string key, out TValue value)
+		{
+			bool found = false;
+			value = default;
+
+			if (payload != null && payload.TryGetValue(key, out object rawValue))
+			{
+				value = (TValue) rawValue;
+				found = true;
+			}
+
+			return found;
+		}
+
+		public bool RemoveFromPayload(string key)
+		{
+			bool removed = false;
+
+			if (payload != null)
+			{
+				removed = payload.Remove(key);
+			}
+
+			return removed;
 		}
 
 		public override Task Show(ITransition overrideTransition = null)

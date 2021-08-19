@@ -57,6 +57,7 @@ namespace Juice
 			{
 				WindowHistoryEntry entry = new WindowHistoryEntry(current.Window, current.Settings);
 				current.Window.Hide(Transition.Null);
+				current.Window.SetPayload(default);
 				current.Window.SetViewModel(default);
 				windowQueue.Enqueue(entry);
 			}
@@ -68,12 +69,14 @@ namespace Juice
 
 				if (current.IsVisible)
 				{
+					current.Window.SetPayload(current.Settings.Payload);
 					current.Window.SetViewModel(current.Settings.ViewModel);
 					current.Window.Show(Transition.Null);
 				}
 				else
 				{
 					current.Window.Hide(Transition.Null);
+					current.Window.SetPayload(default);
 					current.Window.SetViewModel(default);
 				}
 			}
@@ -356,10 +359,24 @@ namespace Juice
 			}
 
 			windowHistory.Push(windowEntry);
-			windowEntry.View.SetViewModel(windowEntry.Settings.ViewModel);
+			windowEntry.View.SetPayload(windowEntry.Settings.Payload);
+			windowEntry.View.SetViewModel(ResolveViewModel(windowEntry));
 			SetCurrentWindow(windowEntry.View, fromBack);
 
 			await windowEntry.View.Show(windowEntry.Settings.ShowTransition);
+		}
+		
+		private IViewModel ResolveViewModel(WindowHistoryEntry windowEntry)
+		{
+			IViewModel result = windowEntry.Settings.ViewModel;
+
+			if (windowEntry.Settings.ViewModel == null)
+			{
+				result = windowEntry.View.GetNewViewModel();
+				windowEntry.Settings.ViewModel = result;
+			}
+
+			return result;
 		}
 	}
 }

@@ -44,7 +44,7 @@ namespace Juice
 			ViewDestroyed?.Invoke(this);
 		}
 
-		public void SetViewModel(IViewModel viewModel)
+		public virtual void SetViewModel(IViewModel viewModel)
 		{
 			if (viewModel != null)
 			{

@@ -10,7 +10,6 @@ namespace Juice.Tests
 	public class UIFrameTests
 	{
 		private static readonly string PanelAPath = "Assets/Tests/Runtime/Prefabs/Panel A.prefab";
-		private static readonly string WindowWithPropertiesPath = "Assets/Tests/Runtime/Prefabs/Window With Properties.prefab";
 
 		private UiFrame uiFrame;
 
@@ -99,33 +98,6 @@ namespace Juice.Tests
 			uiFrame.UnregisterView(panelInstance);
 
 			Assert.IsFalse(uiFrame.IsViewRegistered<PanelA>());
-			yield return null;
-		}
-
-		[UnityTest]
-		public IEnumerator RegisterScreen_WhenWindowWithPropertiesRegistered_ScreenIsRegistered()
-		{
-			uiFrame.Initialize();
-			WindowWithProperties windowPrefab = AssetDatabase.LoadAssetAtPath<WindowWithProperties>(WindowWithPropertiesPath);
-			WindowWithProperties windowInstance = Object.Instantiate(windowPrefab);
-
-			uiFrame.RegisterView(windowInstance);
-
-			Assert.IsTrue(uiFrame.IsViewRegistered<WindowWithProperties>());
-			yield return null;
-		}
-
-		[UnityTest]
-		public IEnumerator ShowScreen_WhenWindowWithPropertiesRegistered_ShowScreen()
-		{
-			uiFrame.Initialize();
-			WindowWithProperties windowPrefab = AssetDatabase.LoadAssetAtPath<WindowWithProperties>(WindowWithPropertiesPath);
-			WindowWithProperties windowInstance = Object.Instantiate(windowPrefab);
-			uiFrame.RegisterView(windowInstance);
-
-			uiFrame.ShowWindow<WindowWithProperties>().Execute();
-
-			Assert.IsTrue(uiFrame.CurrentWindow.GetType() == typeof(WindowWithProperties));
 			yield return null;
 		}
 	}

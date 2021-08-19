@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Juice.Utils;
 
@@ -8,6 +9,7 @@ namespace Juice
 	{
 		private readonly Type windowType;
 		private readonly Func<WindowShowSettings, Task> showCallback;
+		private readonly Dictionary<string, object> payload;
 
 		private IViewModel viewModel;
 		private ITransition originShowTransition;
@@ -20,11 +22,18 @@ namespace Juice
 		{
 			this.windowType = windowType;
 			this.showCallback = showCallback;
+			payload = new Dictionary<string, object>();
 		}
 
 		public IWindowShowLauncher WithViewModel(IViewModel viewModel)
 		{
 			this.viewModel = viewModel;
+			return this;
+		}
+		
+		public IWindowShowLauncher AddPayload(string key, object value)
+		{
+			payload[key] = value;
 			return this;
 		}
 
@@ -91,6 +100,7 @@ namespace Juice
 			return new WindowShowSettings(
 				windowType,
 				viewModel,
+				payload,
 				originHideTransition,
 				destinationShowTransition,
 				destinationHideTransition,
