@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Juice
 {
-	public abstract class ComponentTransition : MonoBehaviour, ITransition
+	public abstract class ComponentTransition : ComponentBinder, ITransition
 	{
 		public RectTransform OverrideTarget => overrideTarget;
 		
