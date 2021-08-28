@@ -40,7 +40,7 @@ namespace Juice
 					initialExecutionTime = DateTime.UtcNow;
 				}
 
-				if (!IsDone && GetIndexForCurrentTime() > lastProcessedIndex)
+				while (!IsDone && GetIndexForCurrentTime() > lastProcessedIndex)
 				{
 					int currentIndex = lastProcessedIndex + 1;
 					actions[currentIndex].Invoke();
@@ -50,7 +50,14 @@ namespace Juice
 
 			private int GetIndexForCurrentTime()
 			{
-				return Mathf.FloorToInt((float)(DateTime.UtcNow - initialExecutionTime).TotalSeconds / timeBetweenActions);
+				int result = lastProcessedIndex + 1;
+
+				if (timeBetweenActions > 0)
+				{
+					result = Mathf.FloorToInt((float)(DateTime.UtcNow - initialExecutionTime).TotalSeconds / timeBetweenActions);
+				}
+
+				return result;
 			}
 		}
 
