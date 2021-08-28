@@ -6,8 +6,7 @@ namespace Juice
 {
 	public abstract class SubCollectionOperator<T> : Operator
 	{
-		protected abstract BindingInfo Collection { get; }
-
+		[SerializeField] private BindingInfo collection = BindingInfo.Collection<T>();
 		[SerializeField] private ConstantBindingInfo<int> startAt = new ConstantBindingInfo<int>();
 		[SerializeField] private ConstantBindingInfo<int> count = new ConstantBindingInfo<int>();
 
@@ -28,7 +27,7 @@ namespace Juice
 			exposedVariable = new ObservableCollection<T>();
 			ViewModel = new OperatorCollectionViewModel<T>(exposedVariable);
 
-			collectionBinding = RegisterCollection<T>(Collection)
+			collectionBinding = RegisterCollection<T>(collection)
 				.OnChanged(OnCollectionChanged)
 				.GetBinding();
 
