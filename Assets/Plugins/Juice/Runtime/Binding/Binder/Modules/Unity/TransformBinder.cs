@@ -8,8 +8,8 @@ namespace Juice
 {
 	public class TransformBinder : ComponentBinder
 	{
-		[SerializeField] private BindingInfo position = new BindingInfo(typeof(IReadOnlyObservableVariable<Vector3>));
-		[SerializeField] private BindingInfo rotation = new BindingInfo(typeof(IReadOnlyObservableVariable<Quaternion>));
+		[SerializeField] private BindingInfo position = BindingInfo.Variable<Vector3>();
+		[SerializeField] private BindingInfo rotation = BindingInfo.Variable<Quaternion>();
 
 		private Transform transformCache;
 

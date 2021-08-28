@@ -10,8 +10,8 @@ namespace Juice
 	[RequireComponent(typeof(Slider))]
 	public class SliderExtraBinder : ComponentBinder
 	{
-		[SerializeField] private BindingInfo direction = new BindingInfo(typeof(IReadOnlyObservableVariable<Slider.Direction>));
-		[SerializeField] private BindingInfo wholeNumbers = new BindingInfo(typeof(IReadOnlyObservableVariable<bool>));
+		[SerializeField] private BindingInfo direction = BindingInfo.Variable<Slider.Direction>();
+		[SerializeField] private BindingInfo wholeNumbers = BindingInfo.Variable<bool>();
 
 		private Slider slider;
 

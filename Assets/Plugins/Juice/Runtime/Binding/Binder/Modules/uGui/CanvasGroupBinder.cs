@@ -9,10 +9,10 @@ namespace Juice
 	[RequireComponent(typeof(CanvasGroup))]
 	public class CanvasGroupBinder : ComponentBinder
 	{
-		[SerializeField] private BindingInfo alpha = new BindingInfo(typeof(IReadOnlyObservableVariable<float>));
-		[SerializeField] private BindingInfo interactable = new BindingInfo(typeof(IReadOnlyObservableVariable<bool>));
-		[SerializeField] private BindingInfo blocksRaycasts = new BindingInfo(typeof(IReadOnlyObservableVariable<bool>));
-		[SerializeField] private BindingInfo ignoreParentGroups = new BindingInfo(typeof(IReadOnlyObservableVariable<bool>));
+		[SerializeField] private BindingInfo alpha = BindingInfo.Variable<float>();
+		[SerializeField] private BindingInfo interactable = BindingInfo.Variable<bool>();
+		[SerializeField] private BindingInfo blocksRaycasts = BindingInfo.Variable<bool>();
+		[SerializeField] private BindingInfo ignoreParentGroups = BindingInfo.Variable<bool>();
 
 		private CanvasGroup canvasGroup;
 

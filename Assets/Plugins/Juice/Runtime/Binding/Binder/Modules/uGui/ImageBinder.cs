@@ -10,7 +10,7 @@ namespace Juice
 	[RequireComponent(typeof(Image))]
 	public class ImageBinder : GraphicBinder
 	{
-		[SerializeField] private BindingInfo sourceImage = new BindingInfo(typeof(IReadOnlyObservableVariable<Sprite>));
+		[SerializeField] private BindingInfo sourceImage = BindingInfo.Variable<Sprite>();
 
 		private Image imageComponent;
 

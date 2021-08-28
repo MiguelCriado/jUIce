@@ -6,7 +6,7 @@ namespace Juice
 	public abstract class StartWithOperator<T> : Operator
 	{
 		[SerializeField] private ConstantBindingInfo<T> initialValue = new ConstantBindingInfo<T>();
-		[SerializeField] private BindingInfo source = new BindingInfo(typeof(IReadOnlyObservableVariable<T>));
+		[SerializeField] private BindingInfo source = BindingInfo.Variable<T>();
 
 		private VariableBinding<T> initialBinding;
 		private ObservableVariable<T> exposedProperty;

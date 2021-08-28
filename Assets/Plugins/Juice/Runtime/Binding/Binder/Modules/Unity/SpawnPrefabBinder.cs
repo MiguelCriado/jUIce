@@ -10,7 +10,7 @@ namespace Juice
 	{
 		private Transform Parent => parent ? parent : transform;
 
-		[SerializeField] private BindingInfo objectToInstantiate = new BindingInfo(typeof(IReadOnlyObservableVariable<object>));
+		[SerializeField] private BindingInfo objectToInstantiate = BindingInfo.Variable<object>();
 		[SerializeField] private List<BindableViewModelComponent> prefabs;
 		[SerializeField] private Transform parent;
 		[SerializeField] private ObjectPool pool;

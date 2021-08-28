@@ -5,7 +5,7 @@ namespace Juice
 {
 	public class IntComparerOperator : Operator
 	{
-		[SerializeField] private BindingInfo operandA = new BindingInfo(typeof(IReadOnlyObservableVariable<int>));
+		[SerializeField] private BindingInfo operandA = BindingInfo.Variable<int>();
 		[SerializeField] private MathComparisonType operation;
 		[SerializeField] private ConstantBindingInfo<int> operandB = new ConstantBindingInfo<int>();
 
@@ -13,7 +13,6 @@ namespace Juice
 		private int B => operandBBinding.Property.GetValue(0);
 
 		private ObservableVariable<bool> result;
-		private OperatorVariableViewModel<bool> viewModel;
 		private VariableBinding<int> operandABinding;
 		private VariableBinding<int> operandBBinding;
 
@@ -22,8 +21,7 @@ namespace Juice
 			base.Awake();
 
 			result = new ObservableVariable<bool>();
-			viewModel = new OperatorVariableViewModel<bool>(result);
-			ViewModel = viewModel;
+			ViewModel = new OperatorVariableViewModel<bool>(result);;
 
 			operandABinding = RegisterVariable<int>(operandA).OnChanged(OnOperandChanged).GetBinding();
 			operandBBinding = RegisterVariable<int>(operandB).OnChanged(OnOperandChanged).GetBinding();

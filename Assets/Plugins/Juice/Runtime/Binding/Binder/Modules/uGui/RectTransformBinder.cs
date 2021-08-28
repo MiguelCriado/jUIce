@@ -9,14 +9,14 @@ namespace Juice
 	[RequireComponent(typeof(RectTransform))]
 	public class RectTransformBinder : ComponentBinder
 	{
-		[SerializeField] private BindingInfo anchoredPosition = new BindingInfo(typeof(IReadOnlyObservableVariable<Vector2>));
-		[SerializeField] private BindingInfo anchoredPosition3D = new BindingInfo(typeof(IReadOnlyObservableVariable<Vector3>));
-		[SerializeField] private BindingInfo anchorMax = new BindingInfo(typeof(IReadOnlyObservableVariable<Vector2>));
-		[SerializeField] private BindingInfo anchorMin = new BindingInfo(typeof(IReadOnlyObservableVariable<Vector2>));
-		[SerializeField] private BindingInfo offsetMax = new BindingInfo(typeof(IReadOnlyObservableVariable<Vector2>));
-		[SerializeField] private BindingInfo offsetMin = new BindingInfo(typeof(IReadOnlyObservableVariable<Vector2>));
-		[SerializeField] private BindingInfo pivot = new BindingInfo(typeof(IReadOnlyObservableVariable<Vector2>));
-		[SerializeField] private BindingInfo sizeDelta = new BindingInfo(typeof(IReadOnlyObservableVariable<Vector2>));
+		[SerializeField] private BindingInfo anchoredPosition = BindingInfo.Variable<Vector2>();
+		[SerializeField] private BindingInfo anchoredPosition3D = BindingInfo.Variable<Vector3>();
+		[SerializeField] private BindingInfo anchorMax = BindingInfo.Variable<Vector2>();
+		[SerializeField] private BindingInfo anchorMin = BindingInfo.Variable<Vector2>();
+		[SerializeField] private BindingInfo offsetMax = BindingInfo.Variable<Vector2>();
+		[SerializeField] private BindingInfo offsetMin = BindingInfo.Variable<Vector2>();
+		[SerializeField] private BindingInfo pivot = BindingInfo.Variable<Vector2>();
+		[SerializeField] private BindingInfo sizeDelta = BindingInfo.Variable<Vector2>();
 
 		private RectTransform rectTransform;
 

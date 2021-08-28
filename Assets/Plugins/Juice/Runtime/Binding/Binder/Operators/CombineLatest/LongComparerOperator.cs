@@ -5,7 +5,7 @@ namespace Juice
 {
 	public class LongComparerOperator : Operator
 	{
-		[SerializeField] private BindingInfo operandA = new BindingInfo(typeof(IReadOnlyObservableVariable<long>));
+		[SerializeField] private BindingInfo operandA = BindingInfo.Variable<long>();
 		[SerializeField] private MathComparisonType operation;
 		[SerializeField] private ConstantBindingInfo<long> operandB = new ConstantBindingInfo<long>();
 
@@ -13,7 +13,6 @@ namespace Juice
 		private long B => operandBBinding.Property.GetValue(0);
 
 		private ObservableVariable<bool> result;
-		private OperatorVariableViewModel<bool> viewModel;
 		private VariableBinding<long> operandABinding;
 		private VariableBinding<long> operandBBinding;
 
@@ -22,8 +21,7 @@ namespace Juice
 			base.Awake();
 
 			result = new ObservableVariable<bool>();
-			viewModel = new OperatorVariableViewModel<bool>(result);
-			ViewModel = viewModel;
+			ViewModel = new OperatorVariableViewModel<bool>(result);;
 
 			operandABinding = RegisterVariable<long>(operandA).OnChanged(OnOperandChanged).GetBinding();
 			operandBBinding = RegisterVariable<long>(operandB).OnChanged(OnOperandChanged).GetBinding();

@@ -10,9 +10,9 @@ namespace Juice
 	[RequireComponent(typeof(Outline))]
 	public class OutlineBinder : ComponentBinder
 	{
-		[SerializeField] private BindingInfo effectColor = new BindingInfo(typeof(IReadOnlyObservableVariable<Color>));
-		[SerializeField] private BindingInfo effectDistance = new BindingInfo(typeof(IReadOnlyObservableVariable<Vector2>));
-		[SerializeField] private BindingInfo useGraphicAlpha = new BindingInfo(typeof(IReadOnlyObservableVariable<bool>));
+		[SerializeField] private BindingInfo effectColor = BindingInfo.Variable<Color>();
+		[SerializeField] private BindingInfo effectDistance = BindingInfo.Variable<Vector2>();
+		[SerializeField] private BindingInfo useGraphicAlpha = BindingInfo.Variable<bool>();
 
 		private Outline outline;
 

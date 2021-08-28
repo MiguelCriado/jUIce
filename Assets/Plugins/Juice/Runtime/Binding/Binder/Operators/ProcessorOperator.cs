@@ -19,7 +19,7 @@ namespace Juice
 
 		[AllowedBindingTypes(nameof(AllowedTypes))]
 		[SerializeField, DisableAtRuntime] private BindingType bindingType;
-		[SerializeField, Rename(nameof(FromBindingName))] private BindingInfo fromBinding = new BindingInfo(typeof(IReadOnlyObservableVariable<TFrom>));
+		[SerializeField, Rename(nameof(FromBindingName))] private BindingInfo fromBinding = BindingInfo.Variable<TFrom>();
 
 		private IBindingProcessor bindingProcessor;
 
@@ -28,7 +28,7 @@ namespace Juice
 			base.Reset();
 
 			bindingType = BindingType.Variable;
-			fromBinding = new BindingInfo(typeof(IReadOnlyObservableVariable<TFrom>));
+			fromBinding = BindingInfo.Variable<TFrom>();
 			expectedType = new SerializableType(typeof(OperatorVariableViewModel<TTo>));
 		}
 
@@ -44,7 +44,6 @@ namespace Juice
 			base.Awake();
 
 			Initialize();
-			ViewModel = bindingProcessor.ViewModel;
 		}
 
 		protected override void OnEnable()
@@ -81,28 +80,28 @@ namespace Juice
 
 			if (bindingType == BindingType.Variable && fromBinding.Type != typeof(IReadOnlyObservableVariable<TFrom>))
 			{
-				fromBinding = new BindingInfo(typeof(IReadOnlyObservableVariable<TFrom>));
+				fromBinding = BindingInfo.Variable<TFrom>();
 				expectedType = new SerializableType(typeof(OperatorVariableViewModel<TTo>));
 				didTypeChange = true;
 			}
 
 			if (bindingType == BindingType.Collection && fromBinding.Type != typeof(IReadOnlyObservableCollection<TFrom>))
 			{
-				fromBinding = new BindingInfo(typeof(IReadOnlyObservableCollection<TFrom>));
+				fromBinding = BindingInfo.Collection<TFrom>();
 				expectedType = new SerializableType(typeof(OperatorCollectionViewModel<TTo>));
 				didTypeChange = true;
 			}
 
 			if (bindingType == BindingType.Command && fromBinding.Type != typeof(IObservableCommand<TTo>))
 			{
-				fromBinding = new BindingInfo(typeof(IObservableCommand<TTo>));
+				fromBinding = BindingInfo.Command<TTo>();
 				expectedType = new SerializableType(typeof(OperatorCommandViewModel<TFrom>));
 				didTypeChange = true;
 			}
 
 			if (bindingType == BindingType.Event && fromBinding.Type != typeof(IObservableEvent<TFrom>))
 			{
-				fromBinding = new BindingInfo(typeof(IObservableEvent<TFrom>));
+				fromBinding = BindingInfo.Event<TFrom>();
 				expectedType = new SerializableType(typeof(OperatorEventViewModel<TTo>));
 				didTypeChange = true;
 			}
@@ -116,6 +115,7 @@ namespace Juice
 		private void Initialize()
 		{
 			bindingProcessor = GetBindingProcessor(bindingType, fromBinding);
+			ViewModel = bindingProcessor.ViewModel;
 		}
 	}
 }

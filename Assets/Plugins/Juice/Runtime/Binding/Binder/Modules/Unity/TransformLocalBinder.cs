@@ -8,9 +8,9 @@ namespace Juice
 {
 	public class TransformLocalBinder : ComponentBinder
 	{
-		[SerializeField] private BindingInfo localPosition = new BindingInfo(typeof(IReadOnlyObservableVariable<Vector3>));
-		[SerializeField] private BindingInfo localRotation = new BindingInfo(typeof(IReadOnlyObservableVariable<Quaternion>));
-		[SerializeField] private BindingInfo localScale = new BindingInfo(typeof(IReadOnlyObservableVariable<Vector3>));
+		[SerializeField] private BindingInfo localPosition = BindingInfo.Variable<Vector3>();
+		[SerializeField] private BindingInfo localRotation = BindingInfo.Variable<Quaternion>();
+		[SerializeField] private BindingInfo localScale = BindingInfo.Variable<Vector3>();
 
 		private Transform transformCache;
 

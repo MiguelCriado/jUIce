@@ -10,20 +10,12 @@ namespace Juice
 	[RequireComponent(typeof(Slider))]
 	public class SliderBinder : ComponentBinder
 	{
-		[SerializeField] private BindingInfo minValue = new BindingInfo(typeof(IReadOnlyObservableVariable<float>));
-		[SerializeField] private BindingInfo maxValue = new BindingInfo(typeof(IReadOnlyObservableVariable<float>));
-		[SerializeField] private BindingInfo value = new BindingInfo(typeof(IReadOnlyObservableVariable<float>));
-		[SerializeField] private BindingInfo onValueChangedCommand = new BindingInfo(typeof(IObservableCommand<float>));
+		[SerializeField] private BindingInfo minValue = BindingInfo.Variable<float>();
+		[SerializeField] private BindingInfo maxValue = BindingInfo.Variable<float>();
+		[SerializeField] private BindingInfo value = BindingInfo.Variable<float>();
+		[SerializeField] private BindingInfo onValueChangedCommand = BindingInfo.Command<float>();
 
 		private Slider slider;
-
-		protected virtual void Reset()
-		{
-			minValue = new BindingInfo(typeof(IReadOnlyObservableVariable<float>));
-			maxValue = new BindingInfo(typeof(IReadOnlyObservableVariable<float>));
-			value = new BindingInfo(typeof(IReadOnlyObservableVariable<float>));
-			onValueChangedCommand = new BindingInfo(typeof(IObservableCommand<float>));
-		}
 
 		protected override void Awake()
 		{

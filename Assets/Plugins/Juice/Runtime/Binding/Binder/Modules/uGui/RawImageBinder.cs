@@ -10,7 +10,7 @@ namespace Juice
 	[RequireComponent(typeof(RawImage))]
 	public class RawImageBinder : GraphicBinder
 	{
-		[SerializeField] private BindingInfo texture = new BindingInfo(typeof(IReadOnlyObservableVariable<Texture>));
+		[SerializeField] private BindingInfo texture = BindingInfo.Variable<Texture>();
 
 		private RawImage rawImageComponent;
 

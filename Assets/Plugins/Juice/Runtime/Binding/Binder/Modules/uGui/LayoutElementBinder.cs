@@ -10,14 +10,14 @@ namespace Juice
 	[RequireComponent(typeof(LayoutElement))]
 	public class LayoutElementBinder : ComponentBinder
 	{
-		[SerializeField] private BindingInfo ignoreLayout = new BindingInfo(typeof(IReadOnlyObservableVariable<bool>));
-		[SerializeField] private BindingInfo minWidth = new BindingInfo(typeof(IReadOnlyObservableVariable<float>));
-		[SerializeField] private BindingInfo minHeight = new BindingInfo(typeof(IReadOnlyObservableVariable<float>));
-		[SerializeField] private BindingInfo preferredWidth = new BindingInfo(typeof(IReadOnlyObservableVariable<float>));
-		[SerializeField] private BindingInfo preferredHeight = new BindingInfo(typeof(IReadOnlyObservableVariable<float>));
-		[SerializeField] private BindingInfo flexibleWidth = new BindingInfo(typeof(IReadOnlyObservableVariable<float>));
-		[SerializeField] private BindingInfo flexibleHeight = new BindingInfo(typeof(IReadOnlyObservableVariable<float>));
-		[SerializeField] private BindingInfo layoutPriority = new BindingInfo(typeof(IReadOnlyObservableVariable<int>));
+		[SerializeField] private BindingInfo ignoreLayout = BindingInfo.Variable<bool>();
+		[SerializeField] private BindingInfo minWidth = BindingInfo.Variable<float>();
+		[SerializeField] private BindingInfo minHeight = BindingInfo.Variable<float>();
+		[SerializeField] private BindingInfo preferredWidth = BindingInfo.Variable<float>();
+		[SerializeField] private BindingInfo preferredHeight = BindingInfo.Variable<float>();
+		[SerializeField] private BindingInfo flexibleWidth = BindingInfo.Variable<float>();
+		[SerializeField] private BindingInfo flexibleHeight = BindingInfo.Variable<float>();
+		[SerializeField] private BindingInfo layoutPriority = BindingInfo.Variable<int>();
 
 		private LayoutElement layoutElement;
 

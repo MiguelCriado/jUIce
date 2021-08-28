@@ -5,10 +5,9 @@ namespace Juice
 {
 	public class VariableHasValueOperator : Operator
 	{
-		[SerializeField] private BindingInfo variable = new BindingInfo(typeof(IReadOnlyObservableVariable<object>));
+		[SerializeField] private BindingInfo variable = BindingInfo.Variable<object>();
 
 		private VariableBinding<object> variableBinding;
-		private OperatorVariableViewModel<bool> viewModel;
 		private ObservableVariable<bool> exposedVariable;
 
 		protected override void Awake()
@@ -18,23 +17,15 @@ namespace Juice
 			exposedVariable = new ObservableVariable<bool>();
 			ViewModel = new OperatorVariableViewModel<bool>(exposedVariable);
 
-			variableBinding = new VariableBinding<object>(variable, this);
-			variableBinding.Property.Changed += OnVariableChanged;
-			variableBinding.Property.Cleared += OnVariableCleared;
-		}
-
-		protected override void OnEnable()
-		{
-			base.OnEnable();
-
-			variableBinding.Bind();
+			variableBinding = RegisterVariable<object>(variable)
+				.OnChanged(OnVariableChanged)
+				.OnCleared(OnVariableCleared)
+				.GetBinding();
 		}
 
 		protected override void OnDisable()
 		{
 			base.OnDisable();
-
-			variableBinding.Unbind();
 
 			exposedVariable.Value = false;
 		}

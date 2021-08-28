@@ -1,11 +1,7 @@
-﻿using UnityEngine;
-
-namespace Juice
+﻿namespace Juice
 {
-    public class FloatDecorateCommandOperator : DecorateCommandOperator<float>
-    {
-        protected override ConstantBindingInfo<float> DecorationBindingInfo => decorationBindingInfo;
+	public class FloatDecorateCommandOperator : DecorateCommandOperator<float>
+	{
 
-        [SerializeField] private ConstantBindingInfo<float> decorationBindingInfo = new ConstantBindingInfo<float>();
-    }
+	}
 }

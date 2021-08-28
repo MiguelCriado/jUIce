@@ -5,7 +5,7 @@ namespace Juice
 {
 	public class DoubleComparerOperator : Operator
 	{
-		[SerializeField] private BindingInfo operandA = new BindingInfo(typeof(IReadOnlyObservableVariable<double>));
+		[SerializeField] private BindingInfo operandA = BindingInfo.Variable<double>();
 		[SerializeField] private MathComparisonType operation;
 		[SerializeField] private ConstantBindingInfo<double> operandB = new ConstantBindingInfo<double>();
 
@@ -13,7 +13,6 @@ namespace Juice
 		private double B => operandBBinding.Property.GetValue(0);
 
 		private ObservableVariable<bool> result;
-		private OperatorVariableViewModel<bool> viewModel;
 		private VariableBinding<double> operandABinding;
 		private VariableBinding<double> operandBBinding;
 

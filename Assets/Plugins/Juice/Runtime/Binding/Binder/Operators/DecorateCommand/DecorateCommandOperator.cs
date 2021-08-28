@@ -5,10 +5,9 @@ namespace Juice
 {
 	public abstract class DecorateCommandOperator<T> : Operator
 	{
-		protected abstract ConstantBindingInfo<T> DecorationBindingInfo { get; }
-
-		[SerializeField] private BindingInfo commandBindingInfo = new BindingInfo(typeof(IObservableCommand<T>));
-
+		[SerializeField] private BindingInfo command = BindingInfo.Command<T>();
+		[SerializeField] private ConstantBindingInfo<T> decoration = new ConstantBindingInfo<T>();
+		
 		private ObservableCommand exposedCommand;
 		private CommandBinding<T> commandBinding;
 		private VariableBinding<T> decorationBinding;
@@ -21,18 +20,13 @@ namespace Juice
 			exposedCommand.ExecuteRequested += OnExposedCommandExecuteRequested;
 			ViewModel = new CommandViewModel(exposedCommand);
 
-			commandBinding = new CommandBinding<T>(commandBindingInfo, this);
-			commandBinding.Property.CanExecute.Changed += OnCommandCanExecuteChanged;
-
-			decorationBinding = new VariableBinding<T>(DecorationBindingInfo, this);
+			commandBinding = RegisterCommand<T>(command).OnCanExecuteChanged(OnCommandCanExecuteChanged).GetBinding();
+			decorationBinding = RegisterVariable<T>(decoration).GetBinding();
 		}
 
 		protected override void OnEnable()
 		{
 			base.OnEnable();
-
-			commandBinding.Bind();
-			decorationBinding.Bind();
 
 			OnCommandCanExecuteChanged(commandBinding.Property.CanExecute.Value);
 		}
@@ -42,9 +36,6 @@ namespace Juice
 			base.OnDisable();
 
 			OnCommandCanExecuteChanged(false);
-
-			commandBinding.Unbind();
-			decorationBinding.Unbind();
 		}
 
 		protected override Type GetInjectionType()

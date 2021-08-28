@@ -5,7 +5,7 @@ namespace Juice
 {
 	public class FloatComparerOperator : Operator
 	{
-		[SerializeField] private BindingInfo operandA = new BindingInfo(typeof(IReadOnlyObservableVariable<float>));
+		[SerializeField] private BindingInfo operandA = BindingInfo.Variable<float>();
 		[SerializeField] private MathComparisonType operation;
 		[SerializeField] private ConstantBindingInfo<float> operandB = new ConstantBindingInfo<float>();
 
@@ -13,7 +13,6 @@ namespace Juice
 		private float B => operandBBinding.Property.GetValue(0);
 
 		private ObservableVariable<bool> result;
-		private OperatorVariableViewModel<bool> viewModel;
 		private VariableBinding<float> operandABinding;
 		private VariableBinding<float> operandBBinding;
 

@@ -10,7 +10,7 @@ namespace Juice
 	[RequireComponent(typeof(Text))]
 	public class TextBinder : GraphicBinder
 	{
-		[SerializeField] private BindingInfo text = new BindingInfo(typeof(IReadOnlyObservableVariable<object>));
+		[SerializeField] private BindingInfo text = BindingInfo.Variable<object>();
 
 		private Text textComponent;
 
