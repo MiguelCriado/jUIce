@@ -74,8 +74,7 @@ namespace Juice
 		private VariableBinding<float> batchThresholdBinding;
 		private VariableBinding<float> timeBetweenItemsBinding;
 		private ObservableCollection<T> exposedCollection;
-
-
+		
 		protected override void Awake()
 		{
 			base.Awake();

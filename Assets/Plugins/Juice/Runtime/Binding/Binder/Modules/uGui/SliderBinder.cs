@@ -13,7 +13,7 @@ namespace Juice
 		[SerializeField] private BindingInfo minValue = BindingInfo.Variable<float>();
 		[SerializeField] private BindingInfo maxValue = BindingInfo.Variable<float>();
 		[SerializeField] private BindingInfo value = BindingInfo.Variable<float>();
-		[SerializeField] private BindingInfo onValueChangedCommand = BindingInfo.Command<float>();
+		[SerializeField] private BindingInfo onValueChanged = BindingInfo.Command<float>();
 
 		private Slider slider;
 
@@ -26,7 +26,7 @@ namespace Juice
 			RegisterVariable<float>(minValue).OnChanged(OnMinValueChanged);
 			RegisterVariable<float>(maxValue).OnChanged(OnMaxValueChanged);
 			RegisterVariable<float>(value).OnChanged(OnValueChanged);
-			RegisterCommand<float>(onValueChangedCommand)
+			RegisterCommand<float>(onValueChanged)
 				.AddExecuteTrigger(slider.onValueChanged)
 				.OnCanExecuteChanged(OnCanExecuteChanged);
 		}
