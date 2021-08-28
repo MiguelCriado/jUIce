@@ -10,8 +10,10 @@ namespace Juice
 	public class WindowLayer : Layer<IWindow, WindowShowSettings, WindowHideSettings>
 	{
 		public delegate void WindowChangeHandler(IWindow oldWindow, IWindow newWindow, bool fromBack);
+		public delegate void HistoryEntryDiscardHandler(WindowHistoryEntry discardedEntry);
 
 		public event WindowChangeHandler CurrentWindowChanged;
+		public event HistoryEntryDiscardHandler HistoryEntryDiscarded;
 
 		public IEnumerable<IWindow> CurrentPath => GetCurrentPath();
 		public IWindow CurrentWindow => currentWindow;
@@ -142,6 +144,11 @@ namespace Juice
 			CurrentWindowChanged?.Invoke(oldWindow, newWindow, fromBack);
 		}
 
+		protected virtual void OnHistoryEntryDiscarded(WindowHistoryEntry discardedEntry)
+		{
+			HistoryEntryDiscarded?.Invoke(discardedEntry);
+		}
+
 		protected override void ProcessViewRegister(IWindow view)
 		{
 			base.ProcessViewRegister(view);
@@ -174,15 +181,30 @@ namespace Juice
 		{
 			if (view == CurrentWindow)
 			{
-				windowHistory.Pop();
+				WindowHistoryEntry entry = windowHistory.Pop();
 
+				
+				if (entry.Settings.BackDestinationType != null || settings.DestinationViewType != null)
+				{
+					Type destinationType = settings.DestinationViewType ?? entry.Settings.BackDestinationType;
+
+					if (destinationType != null)
+					{
+						await RemoveHistoryUntilView(destinationType);
+					}
+				}
+				
 				if (view.IsPopup && !NextWindowIsPopup())
 				{
 					priorityParaLayer.HideBackground();
 				}
 
+				WindowHistoryEntry nextWindowEntry = GetNextWindowEntry();
+				
+				UpdateWindowPayload(nextWindowEntry, settings.Payload);
+
 				IWindow windowToClose = view;
-				IWindow windowToOpen = GetNextWindow();
+				IWindow windowToOpen = nextWindowEntry.View;
 
 				if (windowToClose == windowToOpen)
 				{
@@ -205,6 +227,40 @@ namespace Juice
 					CurrentWindow != null ? CurrentWindow.GetType().Name : "current is null"
 				);
 			}
+		}
+		
+		private async Task RemoveHistoryUntilView(Type viewType)
+		{
+			if (windowHistory.Count > 0 && IsViewInHistory(viewType))
+			{
+				List<WindowHistoryEntry> discardedEntries = new List<WindowHistoryEntry>();
+
+				while (EntryHasViewType(windowHistory.Peek(), viewType) == false)
+				{
+					discardedEntries.Add(windowHistory.Pop());
+				}
+
+				await DiscardHistoryEntries(discardedEntries);
+			}
+		}
+
+		private async Task DiscardHistoryEntries(List<WindowHistoryEntry> entries)
+		{
+			IEnumerable<WindowHistoryEntry> activeEntries = entries.Where(x => x.View.IsVisible);
+
+			await Task.WhenAll(activeEntries.Select(async x => await x.View.Hide()));
+
+			entries.ForEach(OnHistoryEntryDiscarded);
+		}
+
+		private bool IsViewInHistory(Type viewType)
+		{
+			return windowHistory.Any(entry => EntryHasViewType(entry, viewType));
+		}
+
+		private static bool EntryHasViewType(WindowHistoryEntry entry, Type viewType)
+		{
+			return entry.Settings.StubViewType == viewType || entry.Settings.ViewType == viewType;
 		}
 
 		private List<IWindow> GetCurrentPath()
@@ -234,20 +290,25 @@ namespace Juice
 			return nextWindowInQueueIsPopup || (windowQueue.Count == 0 && lastWindowInHistoryIsPopup);
 		}
 
-		private IWindow GetNextWindow()
+		private WindowHistoryEntry GetNextWindowEntry()
 		{
-			IWindow result = null;
+			WindowHistoryEntry result = default;
 
 			if (windowQueue.Count > 0)
 			{
-				result = windowQueue.Peek().View;
+				result = windowQueue.Peek();
 			}
 			else if (windowHistory.Count > 0)
 			{
-				result = windowHistory.Peek().View;
+				result = windowHistory.Peek();
 			}
 
 			return result;
+		}
+		
+		private void UpdateWindowPayload(WindowHistoryEntry windowEntry, Dictionary<string, object> payload)
+		{
+			payload?.ToList().ForEach(pair => windowEntry.Settings.Payload[pair.Key] = pair.Value);
 		}
 
 		private async Task HideWindow(IWindow window, ITransition overrideTransition = null)
@@ -340,15 +401,48 @@ namespace Juice
 				                 " that triggers the continuation of the flow.");
 			}
 
-			if (CurrentWindow != windowEntry.View
-			    && CurrentWindow != null
-			    && CurrentWindow.HideOnForegroundLost
-			    && !windowEntry.View.IsPopup)
+			if (IsGoingToDifferentWindow(windowEntry))
 			{
-				HideWindow(CurrentWindow, windowEntry.Settings.HideTransition).RunAndForget();
+				if (CurrentWindow.IsPopup)
+				{
+					await HideAllPopups();
+					priorityParaLayer.HideBackground();
+				}
+
+				WindowHistoryEntry lastOpenedWindow = windowHistory.Peek();
+
+				if (lastOpenedWindow.View.HideOnForegroundLost)
+				{
+					HideWindow(lastOpenedWindow.View, windowEntry.Settings.HideTransition).RunAndForget();
+				}
 			}
 
 			await ShowWindow(windowEntry, false);
+		}
+		
+		private bool IsGoingToDifferentWindow(WindowHistoryEntry windowEntry)
+		{
+			return CurrentWindow != null && CurrentWindow != windowEntry.View && !windowEntry.View.IsPopup;
+		}
+
+		private async Task HideAllPopups()
+		{
+			WindowHistoryEntry firstNonPopupEntry = GetFirstNonPopupEntry();
+
+			using IEnumerator<WindowHistoryEntry> historyEnumerator = windowHistory.GetEnumerator();
+			List<Task> hideTasks = new List<Task>();
+
+			while (historyEnumerator.MoveNext() && !historyEnumerator.Current.Equals(firstNonPopupEntry))
+			{
+				hideTasks.Add(historyEnumerator.Current.View.Hide());
+			}
+
+			await Task.WhenAll(hideTasks);
+		}
+
+		private WindowHistoryEntry GetFirstNonPopupEntry()
+		{
+			return windowHistory.FirstOrDefault(x => !x.View.IsPopup);
 		}
 
 		private async Task ShowWindow(WindowHistoryEntry windowEntry, bool fromBack, ITransition overrideTransition = null)
@@ -368,6 +462,19 @@ namespace Juice
 			await windowEntry.View.Show(windowEntry.Settings.ShowTransition);
 		}
 		
+		private IViewModel ResolveViewModel(WindowHistoryEntry windowEntry)
+		{
+			IViewModel result = windowEntry.Settings.ViewModel;
+
+			if (windowEntry.Settings.ViewModel == null)
+			{
+				result = windowEntry.View.GetNewViewModel();
+				windowEntry.Settings.ViewModel = result;
+			}
+
+			return result;
+		}
+		
 		private ITransition SelectTransition(WindowHistoryEntry windowEntry, bool fromBack, ITransition overrideTransition)
 		{
 			ITransition transition = null;
@@ -382,19 +489,6 @@ namespace Juice
 			}
 
 			return transition;
-		}
-		
-		private IViewModel ResolveViewModel(WindowHistoryEntry windowEntry)
-		{
-			IViewModel result = windowEntry.Settings.ViewModel;
-
-			if (windowEntry.Settings.ViewModel == null)
-			{
-				result = windowEntry.View.GetNewViewModel();
-				windowEntry.Settings.ViewModel = result;
-			}
-
-			return result;
 		}
 	}
 }

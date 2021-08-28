@@ -13,7 +13,7 @@ namespace Juice
 
 		protected override string FromBindingName => "Index";
 
-		[SerializeField] private BindingInfo collection = new BindingInfo(typeof(IReadOnlyObservableCollection<T>));
+		[SerializeField] private BindingInfo collection = BindingInfo.Collection<T>();
 
 		protected IReadOnlyObservableCollection<T> CollectionBinding => collectionBinding.IsBound ? collectionBinding.Property : null;
 
@@ -64,7 +64,7 @@ namespace Juice
 		{
 			if (collectionBinding == null)
 			{
-				collectionBinding = new CollectionBinding<T>(collection, this);
+				collectionBinding = RegisterCollection<T>(collection).GetBinding();
 			}
 
 			return collectionBinding;

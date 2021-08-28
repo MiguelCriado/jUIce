@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace Juice
 {
@@ -11,6 +12,8 @@ namespace Juice
 		IWindowShowLauncher WithDestinationHideTransition(ITransition transition);
 		IWindowShowLauncher WithOriginShowTransition(ITransition transition);
 		IWindowShowLauncher WithPriority(WindowPriority priority);
+		IWindowShowLauncher WithBackDestination(Type viewType);
+		IWindowShowLauncher WithStubViewType(Type viewType);
 		void Execute();
 		Task ExecuteAsync();
 		void InForeground();

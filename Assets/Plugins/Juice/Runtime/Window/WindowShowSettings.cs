@@ -13,6 +13,8 @@ namespace Juice
 		public ITransition DestinationHideTransition { get; }
 		public ITransition ShowTransition { get; }
 		public WindowPriority? Priority { get; }
+		public Type BackDestinationType { get; }
+		public Type StubViewType { get; }
 
 		public WindowShowSettings(
 			Type windowType,
@@ -22,7 +24,9 @@ namespace Juice
 			ITransition destinationShowTransition,
 			ITransition destinationHideTransition,
 			ITransition originShowTransition,
-			WindowPriority? priority)
+			WindowPriority? priority,
+			Type backDestinationType,
+			Type stubViewType)
 		{
 			ViewType = windowType;
 			ViewModel = viewModel;
@@ -32,6 +36,8 @@ namespace Juice
 			DestinationHideTransition = destinationHideTransition;
 			ShowTransition = originShowTransition;
 			Priority = priority;
+			BackDestinationType = backDestinationType;
+			StubViewType = stubViewType;
 		}
 	}
 }

@@ -10,6 +10,7 @@ namespace Juice
 	public class UiFrame : MonoBehaviour
 	{
 		public event WindowLayer.WindowChangeHandler CurrentWindowChanged;
+		public event WindowLayer.HistoryEntryDiscardHandler HistoryEntryDiscarded;
 		public event InteractionBlockingTracker.StateChangeEventHandler IsInteractableChanged;
 
 		public Canvas MainCanvas
@@ -81,6 +82,7 @@ namespace Juice
 				{
 					windowLayer.Initialize(this);
 					windowLayer.CurrentWindowChanged += OnCurrentWindowChanged;
+					windowLayer.HistoryEntryDiscarded += OnHistoryEntryDiscarded;
 				}
 			}
 
@@ -274,6 +276,11 @@ namespace Juice
 		protected virtual void OnCurrentWindowChanged(IWindow oldWindow, IWindow newWindow, bool fromBack)
 		{
 			CurrentWindowChanged?.Invoke(oldWindow, newWindow, fromBack);
+		}
+		
+		protected virtual void OnHistoryEntryDiscarded(WindowHistoryEntry entry)
+		{
+			HistoryEntryDiscarded?.Invoke(entry);
 		}
 
 		protected virtual void OnIsInteractableChanged(bool isInteractable)

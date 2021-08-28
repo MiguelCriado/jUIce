@@ -17,6 +17,8 @@ namespace Juice
 		private ITransition destinationShowTransition;
 		private ITransition destinationHideTransition;
 		private WindowPriority? priority;
+		private Type backDestinationType;
+		private Type stubViewType;
 
 		public WindowShowLauncher(Type windowType, Func<WindowShowSettings, Task> showCallback)
 		{
@@ -67,6 +69,18 @@ namespace Juice
 			return this;
 		}
 
+		public IWindowShowLauncher WithBackDestination(Type backDestinationType)
+		{
+			this.backDestinationType = backDestinationType;
+			return this;
+		}
+
+		public IWindowShowLauncher WithStubViewType(Type stubViewType)
+		{
+			this.stubViewType = stubViewType;
+			return this;
+		}
+
 		public void Execute()
 		{
 			ExecuteAsync().RunAndForget();
@@ -105,7 +119,9 @@ namespace Juice
 				destinationShowTransition,
 				destinationHideTransition,
 				originShowTransition,
-				priority);
+				priority,
+				backDestinationType,
+				stubViewType);
 		}
 	}
 }
