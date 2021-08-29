@@ -12,10 +12,8 @@ namespace Juice
 		private readonly Dictionary<string, object> payload;
 
 		private IViewModel viewModel;
-		private ITransition originShowTransition;
-		private ITransition originHideTransition;
-		private ITransition destinationShowTransition;
-		private ITransition destinationHideTransition;
+		private ITransition showTransition;
+		private ITransition hideTransition;
 		private WindowPriority? priority;
 		private Type backDestinationType;
 		private Type stubViewType;
@@ -39,27 +37,15 @@ namespace Juice
 			return this;
 		}
 
-		public IWindowShowLauncher WithOriginShowTransition(ITransition transition)
+		public IWindowShowLauncher WithShowTransition(ITransition transition)
 		{
-			originShowTransition = transition;
+			showTransition = transition;
 			return this;
 		}
 
-		public IWindowShowLauncher WithOriginHideTransition(ITransition transition)
+		public IWindowShowLauncher WithHideTransition(ITransition transition)
 		{
-			originHideTransition = transition;
-			return this;
-		}
-		
-		public IWindowShowLauncher WithDestinationShowTransition(ITransition transition)
-		{
-			destinationShowTransition = transition;
-			return this;
-		}
-
-		public IWindowShowLauncher WithDestinationHideTransition(ITransition transition)
-		{
-			destinationHideTransition = transition;
+			hideTransition = transition;
 			return this;
 		}
 
@@ -115,10 +101,8 @@ namespace Juice
 				windowType,
 				viewModel,
 				payload,
-				originHideTransition,
-				destinationShowTransition,
-				destinationHideTransition,
-				originShowTransition,
+				showTransition,
+				hideTransition,
 				priority,
 				backDestinationType,
 				stubViewType);

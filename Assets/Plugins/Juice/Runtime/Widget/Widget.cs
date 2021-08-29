@@ -115,6 +115,38 @@ namespace Juice
 			State = WidgetState.Closed;
 			OnHidden();
 		}
+		
+		public ITransition GetShowTransition(TransitionData transitionData)
+		{
+			ITransition transition = default;
+
+			if (showTransition is TransitionPicker transitionPicker)
+			{
+				transition = transitionPicker.SelectTransition(transitionData);
+			}
+			else
+			{
+				transition = showTransition;
+			}
+
+			return transition;
+		}
+
+		public ITransition GetHideTransition(TransitionData transitionData)
+		{
+			ITransition transition = default;
+
+			if (hideTransition is TransitionPicker transitionPicker)
+			{
+				transition = transitionPicker.SelectTransition(transitionData);
+			}
+			else
+			{
+				transition = hideTransition;
+			}
+
+			return transition;
+		}
 
 		public void ShowWidget()
 		{

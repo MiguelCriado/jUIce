@@ -4,7 +4,8 @@ namespace Juice
 {
 	public interface IPanelHideLauncher
 	{
-		IPanelHideLauncher WithTransition(ITransition transition);
+		IPanelHideLauncher WithHideTransition(ITransition transition);
+		IPanelHideLauncher WithShowTransition(ITransition transition);
 		void Execute();
 		Task ExecuteAsync();
 	}

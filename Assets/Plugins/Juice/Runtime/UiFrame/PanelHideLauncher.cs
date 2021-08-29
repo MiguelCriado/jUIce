@@ -9,7 +9,8 @@ namespace Juice
 		private readonly Type panelType;
 		private readonly Func<PanelHideSettings, Task> hideCallback;
 
-		private ITransition transition;
+		private ITransition hideTransition;
+		private ITransition showTransition;
 
 		public PanelHideLauncher(Type panelType, Func<PanelHideSettings, Task> hideCallback)
 		{
@@ -17,9 +18,15 @@ namespace Juice
 			this.hideCallback = hideCallback;
 		}
 
-		public IPanelHideLauncher WithTransition(ITransition transition)
+		public IPanelHideLauncher WithHideTransition(ITransition hideTransition)
 		{
-			this.transition = transition;
+			this.hideTransition = hideTransition;
+			return this;
+		}
+
+		public IPanelHideLauncher WithShowTransition(ITransition showTransition)
+		{
+			this.showTransition = showTransition;
 			return this;
 		}
 
@@ -35,7 +42,7 @@ namespace Juice
 
 		private PanelHideSettings BuildSettings()
 		{
-			return new PanelHideSettings(panelType, transition);
+			return new PanelHideSettings(panelType, hideTransition, showTransition);
 		}
 	}
 }

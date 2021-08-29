@@ -5,6 +5,7 @@ namespace Juice
 	public interface IViewHideSettings
 	{
 		Type ViewType { get; }
-		ITransition Transition { get; }
+		ITransition HideTransition { get; }
+		ITransition ShowTransition { get; }
 	}
 }

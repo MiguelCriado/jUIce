@@ -13,6 +13,8 @@ namespace Juice
 
 		bool IsVisible { get; }
 
+		ITransition GetShowTransition(TransitionData transitionData);
+		ITransition GetHideTransition(TransitionData transitionData);
 		Task Show(ITransition overrideTransition = null);
 		Task Hide(ITransition overrideTransition = null);
 	}

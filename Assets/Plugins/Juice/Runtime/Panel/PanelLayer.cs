@@ -83,7 +83,7 @@ namespace Juice
 		{
 			visiblePanels.Remove(view.GetType());
 
-			await view.Hide(settings?.Transition);
+			await view.Hide(settings?.HideTransition);
 
 			view.SetViewModel(default);
 		}

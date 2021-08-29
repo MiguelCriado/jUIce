@@ -11,7 +11,8 @@ namespace Juice
 		private readonly Func<WindowHideSettings, Task> hideCallback;
 		private readonly Dictionary<string, object> payload;
 
-		private ITransition transition;
+		private ITransition hideTransition;
+		private ITransition showTransition;
 		private Type destinationViewType;
 
 		public WindowHideLauncher(Type windowType, Func<WindowHideSettings, Task> hideCallback)
@@ -21,9 +22,15 @@ namespace Juice
 			payload = new Dictionary<string, object>();
 		}
 
-		public IWindowHideLauncher WithTransition(ITransition transition)
+		public IWindowHideLauncher WithHideTransition(ITransition hideTransition)
 		{
-			this.transition = transition;
+			this.hideTransition = hideTransition;
+			return this;
+		}
+
+		public IWindowHideLauncher WithShowTransition(ITransition showTransition)
+		{
+			this.showTransition = showTransition;
 			return this;
 		}
 
@@ -51,7 +58,7 @@ namespace Juice
 
 		private WindowHideSettings BuildSettings()
 		{
-			return new WindowHideSettings(windowType, payload, transition, destinationViewType);
+			return new WindowHideSettings(windowType, payload, hideTransition, showTransition, destinationViewType);
 		}
 	}
 }

@@ -7,10 +7,8 @@ namespace Juice
 	{
 		IWindowShowLauncher WithViewModel(IViewModel viewModel);
 		IWindowShowLauncher AddPayload(string key, object value);
-		IWindowShowLauncher WithOriginHideTransition(ITransition transition);
-		IWindowShowLauncher WithDestinationShowTransition(ITransition transition);
-		IWindowShowLauncher WithDestinationHideTransition(ITransition transition);
-		IWindowShowLauncher WithOriginShowTransition(ITransition transition);
+		IWindowShowLauncher WithShowTransition(ITransition transition);
+		IWindowShowLauncher WithHideTransition(ITransition transition);
 		IWindowShowLauncher WithPriority(WindowPriority priority);
 		IWindowShowLauncher WithBackDestination(Type viewType);
 		IWindowShowLauncher WithStubViewType(Type viewType);

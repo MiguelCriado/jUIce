@@ -182,7 +182,6 @@ namespace Juice
 			if (view == CurrentWindow)
 			{
 				WindowHistoryEntry entry = windowHistory.Pop();
-
 				
 				if (entry.Settings.BackDestinationType != null || settings.DestinationViewType != null)
 				{
@@ -206,16 +205,19 @@ namespace Juice
 				IWindow windowToClose = view;
 				IWindow windowToOpen = nextWindowEntry.View;
 
+				ITransition hideTransition = settings.HideTransition ?? windowToClose.GetHideTransition(new WindowTransitionData(windowToOpen));
+				ITransition showTransition = settings.ShowTransition ?? windowToOpen.GetHideTransition(new WindowTransitionData(windowToClose));
+				
 				if (windowToClose == windowToOpen)
 				{
-					await HideWindow(windowToClose, settings?.Transition);
-					await ShowNextWindow();
+					await HideWindow(windowToClose, hideTransition);
+					await ShowNextWindow(showTransition);
 				}
 				else
 				{
 					await Task.WhenAll(
-						HideWindow(windowToClose, settings?.Transition),
-						ShowNextWindow());
+						HideWindow(windowToClose, hideTransition),
+						ShowNextWindow(showTransition));
 				}
 			}
 			else
@@ -316,15 +318,15 @@ namespace Juice
 			await window.Hide(overrideTransition);
 		}
 
-		private async Task ShowNextWindow()
+		private async Task ShowNextWindow(ITransition overrideTransition = null)
 		{
 			if (windowQueue.Count > 0)
 			{
-				await ShowNextInQueue();
+				await ShowNextInQueue(overrideTransition);
 			}
 			else if (windowHistory.Count > 0)
 			{
-				await ShowPreviousInHistory();
+				await ShowPreviousInHistory(overrideTransition);
 			}
 			else
 			{
@@ -332,36 +334,29 @@ namespace Juice
 			}
 		}
 
-		private async Task ShowNextInQueue()
+		private async Task ShowNextInQueue(ITransition overrideTransition = null)
 		{
 			if (windowQueue.Count > 0)
 			{
 				WindowHistoryEntry entry = windowQueue.Dequeue();
 
-				await ShowWindow(entry, true);
+				await ShowWindow(entry, true, overrideTransition);
 			}
 		}
 
-		private async Task ShowPreviousInHistory()
+		private async Task ShowPreviousInHistory(ITransition overrideTransition = null)
 		{
 			if (windowHistory.Count > 0)
 			{
 				WindowHistoryEntry window = windowHistory.Pop();
 
-				await ShowWindow(window, true);
+				await ShowWindow(window, true, overrideTransition);
 			}
 		}
 
 		private void OnCloseRequestedByWindow(IView controller)
 		{
-			if (uiFrame.CurrentWindow == controller)
-			{
-				uiFrame.CloseCurrentWindow().Execute();
-			}
-			else
-			{
-				Debug.LogError($"You're trying to close a different window ({controller.GetType().Name}) than the current one.");
-			}
+			uiFrame.CloseCurrentWindow().Execute();
 		}
 
 		private void OnPopupsBackgroundClicked()
@@ -401,6 +396,8 @@ namespace Juice
 				                 " that triggers the continuation of the flow.");
 			}
 
+			ITransition showTransition = null;
+			
 			if (IsGoingToDifferentWindow(windowEntry))
 			{
 				if (CurrentWindow.IsPopup)
@@ -409,15 +406,21 @@ namespace Juice
 					priorityParaLayer.HideBackground();
 				}
 
-				WindowHistoryEntry lastOpenedWindow = windowHistory.Peek();
-
-				if (lastOpenedWindow.View.HideOnForegroundLost)
+				if (windowHistory.Count > 0)
 				{
-					HideWindow(lastOpenedWindow.View, windowEntry.Settings.HideTransition).RunAndForget();
+					WindowHistoryEntry lastOpenedWindow = windowHistory.Peek();
+
+					showTransition = windowEntry.Settings.ShowTransition ?? windowEntry.View.GetShowTransition(new WindowTransitionData(lastOpenedWindow.View));
+					ITransition hideTransition = windowEntry.Settings.HideTransition ?? lastOpenedWindow.View.GetHideTransition(new WindowTransitionData(windowEntry.View));
+
+					if (lastOpenedWindow.View.HideOnForegroundLost)
+					{
+						HideWindow(lastOpenedWindow.View, hideTransition).RunAndForget();
+					}	
 				}
 			}
 
-			await ShowWindow(windowEntry, false);
+			await ShowWindow(windowEntry, false, showTransition);
 		}
 		
 		private bool IsGoingToDifferentWindow(WindowHistoryEntry windowEntry)
@@ -457,9 +460,9 @@ namespace Juice
 			windowEntry.View.SetViewModel(ResolveViewModel(windowEntry));
 			SetCurrentWindow(windowEntry.View, fromBack);
 			
-			ITransition transition = SelectTransition(windowEntry, fromBack, overrideTransition);
+			ITransition transition = overrideTransition ?? windowEntry.Settings.ShowTransition;
 
-			await windowEntry.View.Show(windowEntry.Settings.ShowTransition);
+			await windowEntry.View.Show(transition);
 		}
 		
 		private IViewModel ResolveViewModel(WindowHistoryEntry windowEntry)
@@ -473,22 +476,6 @@ namespace Juice
 			}
 
 			return result;
-		}
-		
-		private ITransition SelectTransition(WindowHistoryEntry windowEntry, bool fromBack, ITransition overrideTransition)
-		{
-			ITransition transition = null;
-
-			if (overrideTransition != null)
-			{
-				transition = overrideTransition;
-			}
-			else if (fromBack == false)
-			{
-				transition = windowEntry.Settings.DestinationShowTransition;
-			}
-
-			return transition;
 		}
 	}
 }

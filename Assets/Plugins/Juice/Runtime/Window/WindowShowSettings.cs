@@ -8,10 +8,8 @@ namespace Juice
 		public Type ViewType { get; }
 		public IViewModel ViewModel { get; set; }
 		public Dictionary<string, object> Payload { get; }
-		public ITransition HideTransition { get; }
-		public ITransition DestinationShowTransition { get; }
-		public ITransition DestinationHideTransition { get; }
 		public ITransition ShowTransition { get; }
+		public ITransition HideTransition { get; }
 		public WindowPriority? Priority { get; }
 		public Type BackDestinationType { get; }
 		public Type StubViewType { get; }
@@ -20,10 +18,8 @@ namespace Juice
 			Type windowType,
 			IViewModel viewModel,
 			Dictionary<string, object> payload,
-			ITransition originHideTransition,
-			ITransition destinationShowTransition,
-			ITransition destinationHideTransition,
-			ITransition originShowTransition,
+			ITransition showTransition,
+			ITransition hideTransition,
 			WindowPriority? priority,
 			Type backDestinationType,
 			Type stubViewType)
@@ -31,10 +27,8 @@ namespace Juice
 			ViewType = windowType;
 			ViewModel = viewModel;
 			Payload = payload;
-			HideTransition = originHideTransition;
-			DestinationShowTransition = destinationShowTransition;
-			DestinationHideTransition = destinationHideTransition;
-			ShowTransition = originShowTransition;
+			ShowTransition = showTransition;
+			HideTransition = hideTransition;
 			Priority = priority;
 			BackDestinationType = backDestinationType;
 			StubViewType = stubViewType;

@@ -7,18 +7,21 @@ namespace Juice
 	{
 		public Type ViewType { get; }
 		public Dictionary<string, object> Payload { get; }
-		public ITransition Transition { get; }
+		public ITransition HideTransition { get; }
+		public ITransition ShowTransition { get; }
 		public Type DestinationViewType { get; }
 
 		public WindowHideSettings(
 			Type viewType,
 			Dictionary<string, object> payload,
-			ITransition transition,
+			ITransition hideTransition,
+			ITransition showTransition,
 			Type destinationViewType)
 		{
 			ViewType = viewType;
 			Payload = payload;
-			Transition = transition;
+			HideTransition = hideTransition;
+			ShowTransition = showTransition;
 			DestinationViewType = destinationViewType;
 		}
 	}
