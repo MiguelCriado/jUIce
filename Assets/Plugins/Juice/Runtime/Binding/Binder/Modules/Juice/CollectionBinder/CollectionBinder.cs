@@ -6,6 +6,8 @@ namespace Juice
 {
 	public class CollectionBinder : ComponentBinder
 	{
+		public IReadOnlyList<GameObject> Items => currentItems;
+
 		[SerializeField] private BindingInfo collection = BindingInfo.Collection<object>();
 		[SerializeField] private Transform itemsContainer = default;
 		[Header("Dependencies")]
