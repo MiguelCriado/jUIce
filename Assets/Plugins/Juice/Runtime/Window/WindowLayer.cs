@@ -92,6 +92,11 @@ namespace Juice
 					currentWindow = windowHistory.Peek().View;
 				}
 
+				if (topmostWindow.View.IsPopup)
+				{
+					priorityParaLayer.ShowBackground();
+				}
+
 				ShowWindow(topmostWindow, false).RunAndForget();
 			}
 		}
@@ -206,7 +211,7 @@ namespace Juice
 				IWindow windowToOpen = nextWindowEntry.View;
 
 				ITransition hideTransition = settings.HideTransition ?? windowToClose.GetHideTransition(new WindowTransitionData(windowToOpen));
-				ITransition showTransition = settings.ShowTransition ?? windowToOpen.GetHideTransition(new WindowTransitionData(windowToClose));
+				ITransition showTransition = settings.ShowTransition ?? windowToOpen?.GetHideTransition(new WindowTransitionData(windowToClose));
 				
 				if (windowToClose == windowToOpen)
 				{
