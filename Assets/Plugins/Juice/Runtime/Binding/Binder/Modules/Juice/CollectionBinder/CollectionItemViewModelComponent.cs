@@ -8,10 +8,10 @@ namespace Juice
 		public Type InjectionType => expectedViewModelType.Type;
 		public override Type ExpectedType => expectedViewModelType.Type;
 		public ViewModelComponent Target => this;
-		
-		[TypeConstraint(typeof(BindableViewModel<>), true)]
+
+		[TypeConstraint(typeof(IBindableViewModel<>), true)]
 		[SerializeField] protected SerializableType expectedViewModelType;
-		
+
 		public void SetData(object data)
 		{
 			if (ExpectedType != null)
