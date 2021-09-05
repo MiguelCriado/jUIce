@@ -1,73 +1,103 @@
+using System;
 using UnityEngine;
 
 namespace Juice
 {
-	public abstract class IndexFilterOperator<T> : ProcessorOperator<int, T>
+	public abstract class IndexFilterOperator<T> : Operator
 	{
-		protected override BindingType[] AllowedTypes => new[]
-		{
-			BindingType.Variable,
-			BindingType.Command,
-			BindingType.Event
-		};
-
-		protected override string FromBindingName => "Index";
-
+		[SerializeField] private ConstantBindingInfo<int> index = new ConstantBindingInfo<int>();
 		[SerializeField] private BindingInfo collection = BindingInfo.Collection<T>();
-
-		protected IReadOnlyObservableCollection<T> CollectionBinding => collectionBinding.IsBound ? collectionBinding.Property : null;
+		private int BoundIndex => indexBinding.IsBound ? indexBinding.Property.GetValue(-1) : -1;
 
 		private CollectionBinding<T> collectionBinding;
+		private VariableBinding<int> indexBinding;
+		private ObservableVariable<T> exposedVariable;
+
+		protected override Type GetInjectionType()
+		{
+			return typeof(OperatorVariableViewModel<T>);
+		}
 
 		protected override void Awake()
 		{
 			base.Awake();
 
-			RegisterCollectionBinding();
+			exposedVariable = new ObservableVariable<T>();
+			ViewModel = new OperatorVariableViewModel<T>(exposedVariable);
+
+			indexBinding = RegisterVariable<int>(index)
+				.OnChanged(OnIndexChanged)
+				.OnCleared(OnIndexCleared)
+				.GetBinding();
+
+			collectionBinding = RegisterCollection<T>(collection)
+				.OnItemAdded(OnItemAdded)
+				.OnItemRemoved(OnItemRemoved)
+				.OnItemReplaced(OnItemReplaced)
+				.OnItemMoved(OnItemMoved)
+				.OnReset(OnReset)
+				.GetBinding();
 		}
 
-		protected override IBindingProcessor GetBindingProcessor(BindingType bindingType, BindingInfo fromBinding)
+		private void OnIndexChanged(int value)
 		{
-			IBindingProcessor result = null;
-
-			switch (bindingType)
+			Evaluate();
+		}
+		
+		private void OnIndexCleared()
+		{
+			exposedVariable.Clear();
+		}
+		
+		private void Evaluate()
+		{
+			if (BoundIndex >= 0 && BoundIndex < collectionBinding.Property.Count)
 			{
-				case BindingType.Variable:
-					result = new IndexFilterVariableBindingProcessor<T>(fromBinding, this, Filter, RegisterCollectionBinding());
-					break;
-				case BindingType.Command:
-					result = new ToCommandBindingProcessor<int, T>(fromBinding, this, Filter);
-					break;
-				case BindingType.Event:
-					result = new ToEventBindingProcessor<int, T>(fromBinding, this, Filter);
-					break;
+				RefreshExposedValue(collectionBinding.Property[BoundIndex]);
 			}
-
-			return result;
+			else
+			{
+				exposedVariable.Clear();
+			}
 		}
 
-		protected virtual T Filter(int index)
+		private void RefreshExposedValue(T value)
 		{
-			T result = default;
-
-			if (collectionBinding.IsBound
-			    && index >= 0
-			    && index < collectionBinding.Property.Count)
-			{
-				result = collectionBinding.Property[index];
-			}
-
-			return result;
+			exposedVariable.Value = value;
 		}
 
-		private CollectionBinding<T> RegisterCollectionBinding()
+		private void OnItemAdded(int index, T value)
 		{
-			if (collectionBinding == null)
+			if (index == BoundIndex)
 			{
-				collectionBinding = RegisterCollection<T>(collection).GetBinding();
+				RefreshExposedValue(value);
 			}
+		}
 
-			return collectionBinding;
+		private void OnItemRemoved(int index, T value)
+		{
+			if (index == BoundIndex)
+			{
+				exposedVariable.Clear();
+			}
+		}
+
+		private void OnItemReplaced(int index, T lastValue, T newValue)
+		{
+			if (index == BoundIndex)
+			{
+				RefreshExposedValue(newValue);
+			}
+		}
+
+		private void OnItemMoved(int lastIndex, int newIndex, T value)
+		{
+			Evaluate();
+		}
+
+		private void OnReset()
+		{
+			exposedVariable.Clear();
 		}
 	}
 }
