@@ -58,8 +58,8 @@ namespace Juice
 				Type viewModelType;
 
 				if (expectedType != null
-				    && (viewModelType = GetViewModelType(expectedType)) != null
-				    && viewModelType.GenericTypeArguments[0].IsAssignableFrom(valueType))
+					&& (viewModelType = GetViewModelType(expectedType)) != null
+					&& viewModelType.GenericTypeArguments[0].IsAssignableFrom(valueType))
 				{
 					Type dataType = viewModelType.GenericTypeArguments[0];
 					Type baseType = dataType.BaseType;
@@ -97,9 +97,22 @@ namespace Juice
 			{
 				result = runtimeType;
 			}
-			else if (runtimeType.BaseType != null)
+			else
 			{
-				result = GetViewModelType(runtimeType.BaseType);
+				foreach (Type current in runtimeType.GetInterfaces())
+				{
+					result = GetViewModelType(current);
+
+					if (result != null)
+					{
+						break;
+					}
+				}
+
+				if (result == null && runtimeType.BaseType != null)
+				{
+					result = GetViewModelType(runtimeType.BaseType);
+				}
 			}
 
 			return result;

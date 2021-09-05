@@ -25,8 +25,8 @@ namespace Juice
 			base.OnValidate();
 
 			if (Application.isPlaying == false
-			    && expectedViewModelType != null
-			    && expectedViewModelType.Type != null)
+				&& expectedViewModelType != null
+				&& expectedViewModelType.Type != null)
 			{
 				Type genericType = FindBindableInterface(ExpectedType);
 				Type dataType = genericType.GenericTypeArguments[0];
@@ -44,19 +44,8 @@ namespace Juice
 		{
 			base.Awake();
 
-			if (ExpectedType != null)
-			{
-				object viewModel = Activator.CreateInstance(ExpectedType);
-				setMethod = ExpectedType.GetMethod(nameof(IBindableViewModel<object>.Set));
-				ViewModel = (IViewModel)viewModel;
-
-				binding = new VariableBinding<object>(bindingInfo, this);
-				binding.Property.Changed += SetData;
-			}
-			else
-			{
-				Debug.LogError("Expected Type must be set", this);
-			}
+			binding = new VariableBinding<object>(bindingInfo, this);
+			binding.Property.Changed += SetData;
 		}
 
 		protected virtual void OnEnable()
@@ -71,10 +60,23 @@ namespace Juice
 
 		public void SetData(object data)
 		{
-			if (ViewModel != null)
+			if (ViewModel == null)
 			{
-				DataArray[0] = data;
-				setMethod.Invoke(ViewModel, DataArray);
+				if (ExpectedType != null)
+				{
+					object viewModel = Activator.CreateInstance(ExpectedType);
+					setMethod = ExpectedType.GetMethod(nameof(IBindableViewModel<object>.Set));
+					SetData((IViewModel)viewModel, data);
+					ViewModel = (IViewModel)viewModel;
+				}
+				else
+				{
+					Debug.LogError("Expected Type must be set", this);
+				}
+			}
+			else
+			{
+				SetData(ViewModel, data);
 			}
 		}
 
@@ -104,6 +106,15 @@ namespace Juice
 		private static bool BindableFilter(Type typeObject, object criteria)
 		{
 			return typeObject.IsGenericType && typeObject.GetGenericTypeDefinition() == (Type)criteria;
+		}
+		
+		private void SetData(IViewModel viewModel, object data)
+		{
+			if (setMethod != null)
+			{
+				DataArray[0] = data;
+				setMethod.Invoke(viewModel, DataArray);
+			}
 		}
 	}
 }

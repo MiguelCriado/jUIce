@@ -39,15 +39,25 @@ namespace Juice
 
 		protected virtual void OnValidate()
 		{
-			if (string.IsNullOrEmpty(id) || IsIdAvailable(id) == false)
-			{
-				ResetId();
-			}
+			EnsureId();
+		}
+
+		protected virtual void Awake()
+		{
+			EnsureId();
 		}
 
 		protected virtual void OnViewModelChanged(T lastViewModel, T newViewModel)
 		{
 			ViewModelChanged?.Invoke(this, lastViewModel, newViewModel);
+		}
+		
+		private void EnsureId()
+		{
+			if (string.IsNullOrEmpty(id) || IsIdAvailable(id) == false)
+			{
+				ResetId();
+			}
 		}
 
 		private void ResetId()
@@ -84,7 +94,7 @@ namespace Juice
 
 			if (existingId)
 			{
-				Debug.LogError($"Id \"{candidate}\" already taken by {existingId.name}", existingId);
+				Debug.LogError($"Id \"{candidate}\" already taken by {existingId.name}", this);
 			}
 
 			return !existingId;
@@ -93,8 +103,10 @@ namespace Juice
 
 	public class ViewModelComponent : ViewModelComponent<IViewModel>
 	{
-		protected virtual void Awake()
+		protected override void Awake()
 		{
+			base.Awake();
+			
 			ViewModelComponentTree.Register(this);
 		}
 
