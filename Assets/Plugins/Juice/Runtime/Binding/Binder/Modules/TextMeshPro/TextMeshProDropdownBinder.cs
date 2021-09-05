@@ -13,7 +13,7 @@ namespace Juice
 	{
 		[SerializeField] private BindingInfo options = BindingInfo.Collection<string>();
 		[SerializeField] private BindingInfo defaultIndex = BindingInfo.Variable<int>();
-		[SerializeField] private BindingInfo onValueChangedCommand = BindingInfo.Command<int>();
+		[SerializeField] private BindingInfo onValueChanged = BindingInfo.Command<int>();
 
 		private TMP_Dropdown dropdown;
 		private CollectionBinding<string> optionsBinding;
@@ -30,7 +30,7 @@ namespace Juice
 
 			RegisterVariable<int>(defaultIndex).OnChanged(OnDefaultIndexChanged);
 
-			RegisterCommand<int>(onValueChangedCommand)
+			RegisterCommand<int>(onValueChanged)
 				.AddExecuteTrigger(dropdown.onValueChanged)
 				.OnCanExecuteChanged(OnValueCanExecuteChanged);
 		}

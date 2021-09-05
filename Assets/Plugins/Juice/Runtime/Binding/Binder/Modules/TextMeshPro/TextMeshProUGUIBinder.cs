@@ -11,6 +11,7 @@ namespace Juice
 	public class TextMeshProUGUIBinder : ComponentBinder
 	{
 		[SerializeField] private BindingInfo text = BindingInfo.Variable<object>();
+		[SerializeField] private BindingInfo color = BindingInfo.Variable<Color>();
 		[SerializeField] private BindingInfo fontMaterial = BindingInfo.Variable<Material>();
 
 		private TextMeshProUGUI textComponent;
@@ -22,6 +23,7 @@ namespace Juice
 			textComponent = GetComponent<TextMeshProUGUI>();
 
 			RegisterVariable<object>(text).OnChanged(OnTextChanged);
+			RegisterVariable<Color>(color).OnChanged(OnColorChanged);
 			RegisterVariable<Material>(fontMaterial).OnChanged(OnFontMaterialChanged);
 		}
 
@@ -33,9 +35,14 @@ namespace Juice
 			context.GetOrAddComponent<TextMeshProUGUIBinder>();
 		}
 #endif
-		private void OnTextChanged(object value)
+		private void OnTextChanged(object newValue)
 		{
-			textComponent.text = value != null ? value.ToString() : string.Empty;
+			textComponent.text = newValue != null ? newValue.ToString() : string.Empty;
+		}
+		
+		private void OnColorChanged(Color newValue)
+		{
+			textComponent.color = newValue;
 		}
 		
 		private void OnFontMaterialChanged(Material newValue)
